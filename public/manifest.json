@@ -1,0 +1,9 @@
+{
+  "short_name": "CMNTY API",
+  "name": "FREE API PUBLIC",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#040405",
+  "background_color": "#040405",
+  "orientation": "portrait"
+}
