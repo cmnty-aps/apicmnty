@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
+import net from "net";
 
 interface ApiLog {
   id: string;
@@ -59,14 +60,16 @@ app.use((req, res, next) => {
   
   // Listen for the finish event to log the request once completed
   res.on("finish", () => {
-    const isApiCall = req.path.startsWith("/api/") || 
-                      req.path.startsWith("/berita/") || 
-                      req.path.startsWith("/tools/") ||
-                      req.path.startsWith("/canvas/") ||
-                      req.path.startsWith("/tmp/") ||
-                      req.path.startsWith("/output/") ||
-                      req.path.startsWith("/recordings/") ||
-                      req.path.startsWith("/ai/");
+    const isApiCall = (
+      req.path.startsWith("/api/") || 
+      req.path.startsWith("/ai/") || 
+      req.path.startsWith("/berita/") || 
+      req.path.startsWith("/tools/") || 
+      req.path.startsWith("/canvas/") || 
+      req.path.startsWith("/information/") || 
+      req.path.startsWith("/stalker/") || 
+      req.path.startsWith("/maker/")
+    ) && !req.path.includes("visitor") && !req.path.includes("/v1/logs");
     
     // Ignore internal dev calls or static files if needed, but here we track APIs
     if (isApiCall) {
@@ -115,7 +118,11 @@ function cleanAuthorFields(obj: any): any {
   if (Array.isArray(obj)) return obj.map(cleanAuthorFields);
 
   const cleaned: any = {};
-  const forbiddenKeys = ["creator", "author", "signature", "signature_api", "copyright", "status", "statusCode", "response_time", "responsetime", "exectime", "runtime", "executiontime"];
+  const forbiddenKeys = [
+    "creator", "author", "signature", "signature_api", "copyright", 
+    "status", "statusCode", "response_time", "responsetime", 
+    "exectime", "runtime", "executiontime", "timestamp", "time"
+  ];
 
   for (const [key, value] of Object.entries(obj)) {
     if (!forbiddenKeys.includes(key.toLowerCase())) {
@@ -175,12 +182,12 @@ app.get(["/api/v1/berita/:provider", "/berita/:provider"], async (req, res) => {
     // Clean data and add custom signature
     const cleanedData = cleanAuthorFields(jsonData);
     const responsePayload = {
+      ...cleanedData,
       status: true,
       statusCode: targetRes.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     };
 
     res.json(responsePayload);
@@ -298,12 +305,12 @@ app.get(["/api/v1/tools/kodepos", "/tools/kodepos"], async (req, res) => {
     const cleanedData = cleanAuthorFields(jsonData);
 
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     const duration = Date.now() - start;
@@ -428,12 +435,12 @@ app.get(["/api/ai/gemini", "/ai/gemini"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Gemini error:", error.message);
@@ -479,12 +486,12 @@ app.get(["/api/ai/gpt-3.5-turbo", "/ai/gpt-3.5-turbo"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("GPT-3.5 Turbo error:", error.message);
@@ -538,12 +545,12 @@ app.get(["/api/ai/ideogram", "/ai/ideogram"], async (req, res) => {
     const data = await response.json();
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Ideogram error:", error.message);
@@ -589,12 +596,12 @@ app.get(["/api/ai/image2prompt", "/ai/image2prompt"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Image2Prompt error:", error.message);
@@ -640,12 +647,12 @@ app.get(["/api/ai/dreamanalyze", "/ai/dreamanalyze"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Dream Analyze error:", error.message);
@@ -691,12 +698,12 @@ app.get(["/api/ai/felo", "/ai/felo"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Felo error:", error.message);
@@ -751,12 +758,12 @@ app.get(["/api/ai/gemini-tts", "/ai/gemini-tts"], async (req, res) => {
     }
 
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Gemini TTS error:", error.message);
@@ -802,12 +809,12 @@ app.get(["/api/ai/dolphin", "/ai/dolphin"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Dolphin error:", error.message);
@@ -853,12 +860,12 @@ app.get(["/api/ai/andisearch", "/ai/andisearch"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Andisearch error:", error.message);
@@ -904,12 +911,12 @@ app.get(["/api/ai/deepseek", "/ai/deepseek"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Deepseek error:", error.message);
@@ -954,12 +961,12 @@ app.get(["/api/ai/deepsearch", "/ai/deepsearch"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Deepsearch error:", error.message);
@@ -1004,12 +1011,12 @@ app.get(["/api/ai/copilot", "/ai/copilot"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Copilot error:", error.message);
@@ -1055,12 +1062,12 @@ app.get(["/api/ai/claude", "/ai/claude"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Claude error:", error.message);
@@ -1106,12 +1113,12 @@ app.get(["/api/ai/bibleai", "/ai/bibleai"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Bible AI error:", error.message);
@@ -1156,12 +1163,12 @@ app.get(["/api/ai/aimuslim", "/ai/aimuslim"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("AI Muslim error:", error.message);
@@ -1404,12 +1411,12 @@ app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("WebPhishing error:", error.message);
@@ -1418,6 +1425,172 @@ app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+// Information Endpoint: Jadwal Sepakbola
+app.get(["/api/information/jadwalbola", "/information/jadwalbola"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = `https://api.nexray.eu.cc/information/jadwalbola`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Jadwal Bola information error:", error.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal mengambil data jadwal sepakbola pihak ketiga.",
+      responseTimeMs: Date.now() - start
+    });
+  }
+});
+
+// Information Endpoint: Hari Libur
+app.get(["/api/information/hari-libur", "/information/hari-libur"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = `https://api.nexray.eu.cc/information/hari-libur`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Hari Libur information error:", error.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal mengambil data hari libur nasional.",
+      responseTimeMs: Date.now() - start
+    });
+  }
+});
+
+// Information Endpoint: Jadwal TV
+app.get(["/api/information/jadwaltv", "/information/jadwaltv"], async (req, res) => {
+  const start = Date.now();
+  const channel = (req.query.channel as string) || "mnctv";
+  const targetUrl = `https://api.nexray.eu.cc/information/jadwaltv?channel=${encodeURIComponent(channel)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Jadwal TV information error:", error.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal mengambil data jadwal TV pihak ketiga.",
+      responseTimeMs: Date.now() - start
+    });
+  }
+});
+
+// Information Endpoint: Jadwal Sholat
+app.get(["/api/information/jadwalsholat", "/information/jadwalsholat"], async (req, res) => {
+  const start = Date.now();
+  const kota = (req.query.kota as string) || "purwokerto";
+  const targetUrl = `https://api.nexray.eu.cc/information/jadwalsholat?kota=${encodeURIComponent(kota)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Jadwal Sholat information error:", error.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal mengambil data jadwal sholat pihak ketiga.",
+      responseTimeMs: Date.now() - start
     });
   }
 });
@@ -1444,12 +1617,12 @@ app.get(["/api/information/gempa", "/information/gempa"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("Gempa information error:", error.message);
@@ -1506,6 +1679,186 @@ app.get(["/api/tools/ssweb", "/tools/ssweb"], async (req, res) => {
   }
 });
 
+
+
+// Tools Endpoint: Current Visitor Info (Dynamic Real-time lookup with user-specific fallback/defaults)
+app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
+  const start = Date.now();
+  
+  // Detect remote client IP address or use target IP from query
+  let clientIp = (req.query.ip as string) || (req.headers["x-forwarded-for"] as string || "").split(",")[0].trim() || req.socket.remoteAddress || "";
+  if (clientIp.startsWith("::ffff:")) {
+    clientIp = clientIp.substring(7);
+  }
+  
+  // If local or private IP, dynamically query the public IP of the hosting environment
+  if (!clientIp || clientIp === "127.0.0.1" || clientIp === "::1" || clientIp.startsWith("10.") || clientIp.startsWith("192.168.") || clientIp.startsWith("172.16.") || clientIp.startsWith("169.254.")) {
+    try {
+      const publicIpRes = await fetch("https://api.ipify.org?format=json");
+      if (publicIpRes.ok) {
+        const body = await publicIpRes.json();
+        if (body && body.ip) {
+          clientIp = body.ip;
+        }
+      }
+    } catch (e) {
+      clientIp = "1.1.1.1"; // Secondary dynamic resolver fallback
+    }
+  }
+
+  try {
+    let geo = {
+      status: "success",
+      country: "",
+      regionName: "",
+      city: "",
+      lat: -6.2088, // Neutral default (Jakarta) just to prevent error before load
+      lon: 106.8456, // Neutral default
+      isp: "",
+      query: clientIp
+    };
+
+    let fetchSuccess = false;
+
+    // 1. Try ipwho.is (HTTPS, highly reliable)
+    try {
+      const geoController = new AbortController();
+      const geoTimeoutId = setTimeout(() => geoController.abort(), 2500);
+      const ipRes = await fetch(`https://ipwho.is/${clientIp}`, { signal: geoController.signal });
+      clearTimeout(geoTimeoutId);
+      if (ipRes.ok) {
+        const data = await ipRes.json();
+        if (data && data.success) {
+          geo = {
+            status: "success",
+            country: data.country || "",
+            regionName: data.region || "",
+            city: data.city || "",
+            lat: data.latitude || -6.2088,
+            lon: data.longitude || 106.8456,
+            isp: data.connection?.isp || "",
+            query: clientIp
+          };
+          fetchSuccess = true;
+        }
+      }
+    } catch (e) {
+      console.warn("ipwho.is fetch failed, trying ip-api.com", e);
+    }
+
+    // 2. Try ip-api.com if ipwho.is failed
+    if (!fetchSuccess) {
+      try {
+        const geoController = new AbortController();
+        const geoTimeoutId = setTimeout(() => geoController.abort(), 2500);
+        const ipRes = await fetch(`http://ip-api.com/json/${clientIp}`, { signal: geoController.signal });
+        clearTimeout(geoTimeoutId);
+        if (ipRes.ok) {
+          const data = await ipRes.json();
+          if (data && data.status === "success") {
+            geo = data;
+            fetchSuccess = true;
+          }
+        }
+      } catch (e) {
+        console.warn("ip-api.com fetch failed, trying freeipapi.com", e);
+      }
+    }
+
+    // 3. Try freeipapi.com if both failed
+    if (!fetchSuccess) {
+      try {
+        const geoController = new AbortController();
+        const geoTimeoutId = setTimeout(() => geoController.abort(), 2500);
+        const ipRes = await fetch(`https://freeipapi.com/api/json/${clientIp}`, { signal: geoController.signal });
+        clearTimeout(geoTimeoutId);
+        if (ipRes.ok) {
+          const data = await ipRes.json();
+          if (data && data.cityName) {
+            geo = {
+              status: "success",
+              country: data.countryName || "",
+              regionName: data.regionName || "",
+              city: data.cityName || "",
+              lat: data.latitude || -6.2088,
+              lon: data.longitude || 106.8456,
+              isp: "",
+              query: clientIp
+            };
+            fetchSuccess = true;
+          }
+        }
+      } catch (e) {
+        console.warn("freeipapi.com fetch failed, using default values", e);
+      }
+    }
+
+    // 2. Get Weather Info from open-meteo (free, no sign-up) with 3 second timeout
+    let temp = 26.5; // General global average default
+    let weatherCode = 1;
+    let weatherText = "Berawan";
+
+    const weatherController = new AbortController();
+    const weatherTimeoutId = setTimeout(() => weatherController.abort(), 3000);
+
+    try {
+      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.lat}&longitude=${geo.lon}&current_weather=true`, { signal: weatherController.signal });
+      clearTimeout(weatherTimeoutId);
+      if (weatherRes.ok) {
+        const weatherData = await weatherRes.json();
+        if (weatherData && weatherData.current_weather) {
+          temp = weatherData.current_weather.temperature;
+          weatherCode = weatherData.current_weather.weathercode;
+          
+          // translate weather code to Indonesian, prioritizing Mendung/Weather mapping
+          if (weatherCode === 0) weatherText = "Cerah";
+          else if (weatherCode === 1) weatherText = "Cerah Berawan";
+          else if (weatherCode === 2) weatherText = "Berawan Sebagian";
+          else if (weatherCode === 3) weatherText = "Mendung";
+          else if (weatherCode >= 45 && weatherCode <= 48) weatherText = "Berkabut";
+          else if (weatherCode >= 51 && weatherCode <= 55) weatherText = "Gerimis";
+          else if (weatherCode >= 61 && weatherCode <= 65) weatherText = "Hujan";
+          else if (weatherCode >= 80 && weatherCode <= 82) weatherText = "Hujan Ringan";
+          else if (weatherCode >= 95 && weatherCode <= 99) weatherText = "Badai Guntur";
+          else weatherText = "Berawan";
+        }
+      }
+    } catch (e) {
+      console.warn("Weather fetch failed, using default values", e);
+    }
+
+    const duration = Date.now() - start;
+
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      result: {
+        ip: geo.query,
+        city: geo.city || "",
+        region: geo.regionName || "",
+        country: geo.country || "",
+        lat: geo.lat,
+        lon: geo.lon,
+        isp: geo.isp || "Internet Network Provider",
+        weather: weatherText || "Berawan",
+        temperature: `${temp || 26.5}°C`
+      }
+    });
+  } catch (error: any) {
+    console.error("Visitor detection error:", error.message);
+    const duration = Date.now() - start;
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal mendeteksi informasi kunjungan",
+      responseTimeMs: duration
+    });
+  }
+});
+
 // Stalker Endpoint: Mobile Legends
 app.get(["/api/stalker/mlbb", "/stalker/mlbb"], async (req, res) => {
   const start = Date.now();
@@ -1539,15 +1892,192 @@ app.get(["/api/stalker/mlbb", "/stalker/mlbb"], async (req, res) => {
 
     const cleanedData = cleanAuthorFields(data);
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData,
     });
   } catch (error: any) {
     console.error("MLBB Stalker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Stalker Endpoint: Mobile Legends v1
+app.get(["/api/stalker/v1/mlbb", "/stalker/v1/mlbb"], async (req, res) => {
+  const start = Date.now();
+  const { id, zone } = req.query;
+  
+  if (!id || !zone) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameters 'id' and 'zone' are required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/stalker/v1/mlbb?id=${id}&zone=${zone}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("MLBB Stalker v1 error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Stalker Endpoint: NPM Package
+app.get(["/api/stalker/npmjs", "/stalker/npmjs"], async (req, res) => {
+  const start = Date.now();
+  const name = (req.query.name as string) || "baileys";
+
+  const targetUrl = `https://api.nexray.eu.cc/stalker/npmjs?name=${encodeURIComponent(name)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("NPM Package Stalker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Stalker Endpoint: Roblox
+app.get(["/api/stalker/roblox", "/stalker/roblox"], async (req, res) => {
+  const start = Date.now();
+  const username = (req.query.username as string) || "Builderman";
+
+  const targetUrl = `https://api.nexray.eu.cc/stalker/roblox?username=${encodeURIComponent(username)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Roblox Stalker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Stalker Endpoint: TikTok
+app.get(["/api/stalker/tiktok", "/stalker/tiktok"], async (req, res) => {
+  const start = Date.now();
+  const username = (req.query.username as string) || "cmnty.official";
+
+  const targetUrl = `https://api.nexray.eu.cc/stalker/tiktok?username=${encodeURIComponent(username)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("TikTok Stalker error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,
@@ -1598,12 +2128,12 @@ app.post(["/api/tools/record", "/tools/record"], async (req, res) => {
     }
 
     res.json({
+      ...cleanedData,
       status: true,
       statusCode: response.status,
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
-      ...cleanedData
     });
   } catch (error: any) {
     console.error("BentoSnap Record error:", error.message);
@@ -1668,9 +2198,19 @@ async function startServer() {
 
   wss = new WebSocketServer({ server });
   
+  let connectedClients = 0;
+
   wss.on("connection", (ws) => {
+    connectedClients++;
+    broadcast({ type: "VISITOR_COUNT", count: connectedClients });
+
     // Send current logs to new connections
     ws.send(JSON.stringify({ type: "INIT_LOGS", logs: requestLogs }));
+
+    ws.on("close", () => {
+      connectedClients--;
+      broadcast({ type: "VISITOR_COUNT", count: connectedClients });
+    });
   });
 }
 

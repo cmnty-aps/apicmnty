@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { LandingHero } from "./components/LandingHero";
 import {
   ArrowLeft,
@@ -28,7 +29,13 @@ import {
   Clock,
   ArrowUpRight,
   Globe,
-  MoreHorizontal
+  MoreHorizontal,
+  MapPin,
+  Cloud,
+  Thermometer,
+  Wifi,
+  MessageCircle,
+  Info
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -73,6 +80,7 @@ interface EndpointSpec {
 }
 
 const ENDPOINTS: EndpointSpec[] = [
+  // AI CATEGORY
   {
     id: "ai-aimuslim",
     category: "ai",
@@ -176,30 +184,6 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "ai-ideogram",
-    category: "ai",
-    name: "Ideogram AI",
-    provider: "nexray",
-    path: "/ai/ideogram",
-    method: "GET",
-    description: "Hasilkan gambar berkualitas tinggi dengan teks yang jelas dan desain estetis menggunakan model Ideogram AI.",
-    queryParams: [
-      { name: "prompt", placeholder: "Contoh: kucing lucu pake topi", defaultValue: "kucing" }
-    ]
-  },
-  {
-    id: "ai-image-to-prompt",
-    category: "ai",
-    name: "Image to Prompt",
-    provider: "nexray",
-    path: "/ai/image2prompt",
-    method: "GET",
-    description: "Hasilkan deskripsi prompt yang detail dari sebuah gambar melalui URL. Berguna untuk memahami konten gambar atau generasi karya serupa.",
-    queryParams: [
-      { name: "url", placeholder: "https://example.com/image.jpg", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg" }
-    ]
-  },
-  {
     id: "ai-dreamanalyze",
     category: "ai",
     name: "Dream Analyze",
@@ -221,18 +205,6 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Mulai percakapan cerdas dengan Felo AI untuk mendapatkan jawaban yang natural dan membantu.",
     queryParams: [
       { name: "text", placeholder: "Pesan Anda (contoh: hi)", defaultValue: "hi" }
-    ]
-  },
-  {
-    id: "ai-gpt-3-5-turbo",
-    category: "ai",
-    name: "GPT-3.5 Turbo",
-    provider: "nexray",
-    path: "/ai/gpt-3.5-turbo",
-    method: "GET",
-    description: "Gunakan model GPT-3.5 Turbo yang cepat dan efisien untuk berbagai tugas pemrosesan bahasa alami dan percakapan interaktif.",
-    queryParams: [
-      { name: "text", placeholder: "Pesan Anda (contoh: hai)", defaultValue: "hai" }
     ]
   },
   {
@@ -259,6 +231,44 @@ const ENDPOINTS: EndpointSpec[] = [
       { name: "text", placeholder: "Teks yang ingin diubah (contoh: halo apa kabar)", defaultValue: "halo apa kabar" }
     ]
   },
+  {
+    id: "ai-gpt-3-5-turbo",
+    category: "ai",
+    name: "GPT-3.5 Turbo",
+    provider: "nexray",
+    path: "/ai/gpt-3.5-turbo",
+    method: "GET",
+    description: "Gunakan model GPT-3.5 Turbo yang cepat dan efisien untuk berbagai tugas pemrosesan bahasa alami dan percakapan interaktif.",
+    queryParams: [
+      { name: "text", placeholder: "Pesan Anda (contoh: hai)", defaultValue: "hai" }
+    ]
+  },
+  {
+    id: "ai-ideogram",
+    category: "ai",
+    name: "Ideogram AI",
+    provider: "nexray",
+    path: "/ai/ideogram",
+    method: "GET",
+    description: "Hasilkan gambar berkualitas tinggi dengan teks yang jelas dan desain estetis menggunakan model Ideogram AI.",
+    queryParams: [
+      { name: "prompt", placeholder: "Contoh: kucing lucu pake topi", defaultValue: "kucing" }
+    ]
+  },
+  {
+    id: "ai-image-to-prompt",
+    category: "ai",
+    name: "Image to Prompt",
+    provider: "nexray",
+    path: "/ai/image2prompt",
+    method: "GET",
+    description: "Hasilkan deskripsi prompt yang detail dari sebuah gambar melalui URL. Berguna untuk memahami konten gambar atau generasi karya serupa.",
+    queryParams: [
+      { name: "url", placeholder: "https://example.com/image.jpg", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg" }
+    ]
+  },
+
+  // BERITA CATEGORY
   {
     id: "berita-antara",
     category: "berita",
@@ -295,6 +305,8 @@ const ENDPOINTS: EndpointSpec[] = [
     method: "GET",
     description: "Mendapatkan rangkuman informasi berita game Free Fire terbaru secara real-time."
   },
+
+  // INFORMATION CATEGORY
   {
     id: "information-gempa",
     category: "information",
@@ -304,6 +316,114 @@ const ENDPOINTS: EndpointSpec[] = [
     method: "GET",
     description: "Mendapatkan data real-time informasi gempa bumi terkini dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)."
   },
+  {
+    id: "information-harilibur",
+    category: "information",
+    name: "Hari Libur Nasional",
+    provider: "nexray",
+    path: "/information/hari-libur",
+    method: "GET",
+    description: "Mendapatkan data informasi jadwal hari libur nasional."
+  },
+  {
+    id: "information-jadwalbola",
+    category: "information",
+    name: "Jadwal Sepakbola",
+    provider: "nexray",
+    path: "/information/jadwalbola",
+    method: "GET",
+    description: "Mendapatkan jadwal pertandingan sepakbola terkini."
+  },
+  {
+    id: "information-jadwalsholat",
+    category: "information",
+    name: "Jadwal Sholat",
+    provider: "nexray",
+    path: "/information/jadwalsholat",
+    method: "GET",
+    description: "Mendapatkan jadwal sholat untuk kota spesifik.",
+    queryParams: [
+      { name: "kota", placeholder: "purwokerto", defaultValue: "purwokerto" }
+    ]
+  },
+  {
+    id: "information-jadwaltv",
+    category: "information",
+    name: "Jadwal TV",
+    provider: "nexray",
+    path: "/information/jadwaltv",
+    method: "GET",
+    description: "Mendapatkan Jadwal TV untuk channel spesifik.",
+    queryParams: [
+      { name: "channel", placeholder: "mnctv", defaultValue: "mnctv" }
+    ]
+  },
+
+  // STALKER CATEGORY
+  {
+    id: "stalker-mlbb",
+    category: "stalker",
+    name: "Mobile Legends Stalker",
+    provider: "nexray",
+    path: "/stalker/mlbb",
+    method: "GET",
+    description: "Dapatkan informasi detail akun Mobile Legends: Bang Bang melalui User ID dan Zone ID. Menampilkan nickname dan status akun.",
+    queryParams: [
+      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
+      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
+    ]
+  },
+  {
+    id: "stalker-v1-mlbb",
+    category: "stalker",
+    name: "Mobile Legends Stalker v1",
+    provider: "nexray",
+    path: "/stalker/v1/mlbb",
+    method: "GET",
+    description: "Mendapatkan informasi detail akun Mobile Legends: Bang Bang v1 dengan User ID dan Zone ID.",
+    queryParams: [
+      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
+      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
+    ]
+  },
+  {
+    id: "stalker-npmjs",
+    category: "stalker",
+    name: "NPM Package",
+    provider: "nexray",
+    path: "/stalker/npmjs",
+    method: "GET",
+    description: "Mendapatkan rincian informasi dan detail versi dari paket NPM.",
+    queryParams: [
+      { name: "name", placeholder: "baileys", defaultValue: "baileys" }
+    ]
+  },
+  {
+    id: "stalker-roblox",
+    category: "stalker",
+    name: "Roblox Stalker",
+    provider: "nexray",
+    path: "/stalker/roblox",
+    method: "GET",
+    description: "Mendapatkan rincian detail akun Roblox berdasarkan username.",
+    queryParams: [
+      { name: "username", placeholder: "Builderman", defaultValue: "Builderman" }
+    ]
+  },
+  {
+    id: "stalker-tiktok",
+    category: "stalker",
+    name: "TikTok Stalker",
+    provider: "nexray",
+    path: "/stalker/tiktok",
+    method: "GET",
+    description: "Mendapatkan rincian detail profil akun TikTok berdasarkan username.",
+    queryParams: [
+      { name: "username", placeholder: "cmnty.official", defaultValue: "cmnty.official" }
+    ]
+  },
+
+  // CANVAS CATEGORY
   {
     id: "canvas-ektp",
     category: "canvas",
@@ -393,6 +513,20 @@ const ENDPOINTS: EndpointSpec[] = [
       { name: "image", placeholder: "URL Gambar (https://...)", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1777998261437.jpeg" }
     ]
   },
+
+  // TOOLS CATEGORY
+  {
+    id: "tools-kodepos",
+    category: "tools",
+    name: "Pencarian Kode Pos",
+    provider: "kodepos",
+    path: "/tools/kodepos",
+    method: "GET",
+    description: "Layanan pencarian kode pos wilayah administratif Republik Indonesia secara instan dengan parameter pencarian daerah.",
+    queryParams: [
+      { name: "form", placeholder: "Nama daerah (contoh: purbalingga)", defaultValue: "jakarta" }
+    ]
+  },
   {
     id: "tools-webphishing",
     category: "tools",
@@ -403,18 +537,6 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Cek apakah sebuah URL situs web terindikasi sebagai situs phishing atau berbahaya untuk keamanan data.",
     queryParams: [
       { name: "url", placeholder: "https://api.cmnty.web.id", defaultValue: "https://api.cmnty.web.id" }
-    ]
-  },
-  {
-    id: "tools-ssweb",
-    category: "tools",
-    name: "Website Screenshot",
-    provider: "nexray",
-    path: "/tools/ssweb",
-    method: "GET",
-    description: "Ambil tangkapan layar (screenshot) dari URL situs web yang diberikan secara instan.",
-    queryParams: [
-      { name: "url", placeholder: "https://google.com", defaultValue: "https://google.com" }
     ]
   },
   {
@@ -456,28 +578,15 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "tools-kodepos",
+    id: "tools-ssweb",
     category: "tools",
-    name: "Pencarian Kode Pos",
-    provider: "kodepos",
-    path: "/tools/kodepos",
-    method: "GET",
-    description: "Layanan pencarian kode pos wilayah administratif Republik Indonesia secara instan dengan parameter pencarian daerah.",
-    queryParams: [
-      { name: "form", placeholder: "Nama daerah (contoh: purbalingga)", defaultValue: "jakarta" }
-    ]
-  },
-  {
-    id: "stalker-mlbb",
-    category: "stalker",
-    name: "Mobile Legends Stalker",
+    name: "Website Screenshot",
     provider: "nexray",
-    path: "/stalker/mlbb",
+    path: "/tools/ssweb",
     method: "GET",
-    description: "Dapatkan informasi detail akun Mobile Legends: Bang Bang melalui User ID dan Zone ID. Menampilkan nickname dan status akun.",
+    description: "Ambil tangkapan layar (screenshot) dari URL situs web yang diberikan secara instan.",
     queryParams: [
-      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
-      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
+      { name: "url", placeholder: "https://google.com", defaultValue: "https://google.com" }
     ]
   }
 ];
@@ -509,12 +618,68 @@ export default function App() {
   }, [isLoading, apiResponse, imageUrl, errorText, hasAttempted]);
 
   // Application View State
-  const [currentView, setCurrentView] = useState<"landing" | "explorer">("landing");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentView = location.pathname === "/docs" ? "explorer" : "landing";
+
+  const navigateTo = (view: "landing" | "explorer") => {
+    navigate(view === "explorer" ? "/docs" : "/");
+  };
 
   // General Application Copy helpers
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  // Visitor monitoring
+  const [visitorInfo, setVisitorInfo] = useState<any>(null);
+  const [visitorLoading, setVisitorLoading] = useState<boolean>(true);
+  const [visitorError, setVisitorError] = useState<string | null>(null);
+  const [mapZoom, setMapZoom] = useState<number>(14);
+
+  const fetchVisitorInfo = async () => {
+    setVisitorLoading(true);
+    setVisitorError(null);
+    try {
+      let clientIp = "";
+      // Pre-detect real client IP from public external browser API for 100% dynamic device compatibility
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const ipRes = await fetch("https://api.ipify.org?format=json", { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (ipRes.ok) {
+          const body = await ipRes.json();
+          if (body && body.ip) {
+            clientIp = body.ip;
+          }
+        }
+      } catch (err) {
+        console.warn("Client-side IP pre-fetch timed out, system will detect via request headers", err);
+      }
+
+      const url = clientIp ? `/api/tools/visitor?ip=${clientIp}` : "/api/tools/visitor";
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.status) {
+          setVisitorInfo(data.result);
+        } else {
+          setVisitorError("Gagal mendeteksi informasi kunjungan.");
+        }
+      } else {
+        setVisitorError("Server mengembalikan status error.");
+      }
+    } catch (err) {
+      setVisitorError("Kesalahan jaringan.");
+    } finally {
+      setVisitorLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVisitorInfo();
+  }, []);
 
   // Metrics monitoring
   const [trafficLogs, setTrafficLogs] = useState<TrafficLog[]>([]);
@@ -523,6 +688,7 @@ export default function App() {
     averageLatency: 0,
     successRate: 100,
   });
+  const [liveVisitors, setLiveVisitors] = useState<number>(0);
 
   const appBaseUrl = window.location.origin;
 
@@ -559,6 +725,8 @@ export default function App() {
             const next = [data.log, ...prev];
             return next.slice(0, 30);
           });
+        } else if (data.type === "VISITOR_COUNT") {
+          setLiveVisitors(data.count);
         }
       } catch (err) {
         console.error("WebSocket message error:", err);
@@ -814,7 +982,7 @@ print(response.json())`;
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => setCurrentView("landing")}
+              onClick={() => navigateTo("landing")}
               className="text-xl font-bold text-white tracking-tight hover:opacity-90 transition-opacity"
             >
               Cmnty API
@@ -851,6 +1019,26 @@ print(response.json())`;
                   <div className="flex justify-between"><span>Success:</span><span className="text-zinc-300">{stats.successRate}%</span></div>
                   <div className="flex justify-between"><span>Total API:</span><span className="text-zinc-300">{ENDPOINTS.length} items</span></div>
                 </div>
+                <div className="pt-2 border-t border-zinc-800">
+                  <a
+                    href="https://whatsapp.com/channel/0029VbCox0f17Emr10Bdlj0V"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white text-[10px] font-mono rounded transition-all group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg
+                        className="h-3.5 w-3.5 fill-zinc-400 group-hover:fill-white transition-colors"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                      </svg>
+                      <span>Saluran WhatsApp</span>
+                    </div>
+                    <ArrowUpRight className="h-3 w-3 text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+                </div>
               </div>
             )}
           </div>
@@ -871,7 +1059,7 @@ print(response.json())`;
             >
               <div className="flex items-center justify-center">
                 <LandingHero 
-                  onGetStarted={() => setCurrentView("explorer")}
+                  onGetStarted={() => navigateTo("explorer")}
                   onViewVitals={() => {
                     document.getElementById("traffic-monitor")?.scrollIntoView({ behavior: "smooth" });
                   }}
@@ -880,7 +1068,12 @@ print(response.json())`;
 
               {/* Live Traffic Monitor Dashboard inside Landing View */}
               <section id="traffic-monitor" className="bg-black border border-zinc-800 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(255,255,255,0.03)] text-left scroll-mt-20 max-w-2xl mx-auto w-full">
-                <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950/80 flex items-center justify-end">
+                <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950/80 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-200 font-mono">
+                      Visitor: {liveVisitors}
+                    </h2>
+                  </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => window.location.reload()}
@@ -926,6 +1119,128 @@ print(response.json())`;
                   )}
                 </div>
               </section>
+
+              {/* Dynamic Real-Time "Current Visitor" Widget - Dark Cyber Theme with White Glow */}
+              <div className="bg-black border border-zinc-800 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.03)] text-left max-w-2xl mx-auto w-full relative my-5">
+                
+                {/* Header */}
+                <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950/80 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-200 font-mono">
+                      Current Visitor
+                    </h2>
+                  </div>
+                  <div>
+                    <button
+                      onClick={fetchVisitorInfo}
+                      disabled={visitorLoading}
+                      className="p-1 px-2.5 text-[9px] font-mono text-zinc-400 hover:text-white border border-zinc-800 bg-zinc-950 transition-all rounded flex items-center gap-1.5 disabled:opacity-50"
+                      title="Refresh Visitor Data"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${visitorLoading ? "animate-spin" : ""}`} />
+                      <span>{visitorLoading ? "Refreshing..." : "Refresh"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Location Bar & Status Badge */}
+                <div className="px-4 py-3 border-b border-zinc-900/40 bg-zinc-950/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 font-mono">
+                  {visitorLoading ? (
+                    <div className="h-5 flex items-center text-[11px] text-zinc-500 animate-pulse">
+                      <span>Mendeteksi Lokasi Pengunjung...</span>
+                    </div>
+                  ) : visitorError ? (
+                    <div className="text-[11px] text-zinc-500">
+                      Gagal mendeteksi lokasi - Menggunakan fallback sensor
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5 text-zinc-400" />
+                      <span className="text-zinc-200 font-bold text-xs">
+                        {visitorInfo?.city || "Mendeteksi kota..."}
+                      </span>
+                      <span className="text-zinc-500 text-xs">
+                        {visitorInfo?.region ? `— ${visitorInfo.region}, ` : ""}
+                        {visitorInfo?.country || ""}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center">
+                    {!visitorLoading && visitorInfo?.lat && (
+                      <span className="bg-zinc-900/60 border border-zinc-800 text-zinc-400 text-[9px] tracking-widest px-1.5 py-0.5 rounded font-medium font-mono text-right">
+                        {visitorInfo.lat.toFixed(4)}, {visitorInfo.lon.toFixed(4)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Map Display Container */}
+                <div className="p-4 bg-zinc-950/10">
+                  <div className="border border-zinc-850 bg-zinc-950 relative overflow-hidden h-60 sm:h-64 rounded-lg shadow-inner">
+                    {visitorLoading || !visitorInfo?.lat ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-950/90 gap-2">
+                        <RefreshCw className="h-4 w-4 animate-spin text-zinc-500" />
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 font-mono">Loading dynamic grid...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <iframe
+                          title="Visitor Location Map"
+                          src={`https://maps.google.com/maps?q=${visitorInfo.lat},${visitorInfo.lon}&z=${mapZoom}&output=embed`}
+                          className="w-full h-full border-none rounded-lg z-0 relative"
+                          allowFullScreen
+                          loading="lazy"
+                        />
+                        <div className="absolute bottom-4 right-4 flex flex-col gap-1 z-10 bg-zinc-900/80 p-1 rounded-md border border-zinc-800 backdrop-blur-sm shadow-lg">
+                          <button
+                            onClick={() => setMapZoom(prev => Math.min(prev + 1, 21))}
+                            className="bg-zinc-950 hover:bg-zinc-800 text-zinc-300 w-7 h-7 rounded flex items-center justify-center font-bold text-lg transition-colors border border-zinc-800/50"
+                            title="Zoom In"
+                          >
+                            +
+                          </button>
+                          <button
+                            onClick={() => setMapZoom(prev => Math.max(prev - 1, 1))}
+                            className="bg-zinc-950 hover:bg-zinc-800 text-zinc-300 w-7 h-7 rounded flex items-center justify-center font-bold text-lg transition-colors border border-zinc-800/50"
+                            title="Zoom Out"
+                          >
+                            -
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Metric grid */}
+                <div className="grid grid-cols-2 gap-3 px-4 pb-5">
+                  
+                  {/* IP Card */}
+                  <div className="bg-zinc-950 border border-zinc-900 hover:border-zinc-800 p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all">
+                    <div className="text-xs font-bold text-zinc-100 font-mono tracking-tight truncate max-w-full">
+                      {visitorLoading ? "Mendeteksi..." : visitorInfo?.ip || "-"}
+                    </div>
+                    <div className="text-[9px] font-medium uppercase tracking-wider text-zinc-500 mt-1 flex items-center gap-1 font-mono">
+                      <Globe className="h-3 w-3 text-zinc-500" />
+                      <span>IP Address</span>
+                    </div>
+                  </div>
+
+                  {/* Temperature Card */}
+                  <div className="bg-zinc-950 border border-zinc-900 hover:border-zinc-800 p-3 rounded-lg flex flex-col items-center justify-center text-center transition-all">
+                    <div className="text-xs font-bold text-zinc-100 font-mono tracking-tight truncate max-w-full">
+                      {visitorLoading ? "26.5°C" : visitorInfo?.temperature || "-"}
+                    </div>
+                    <div className="text-[9px] font-medium uppercase tracking-wider text-zinc-500 mt-1 flex items-center gap-1 font-mono">
+                      <Thermometer className="h-3 w-3 text-zinc-500" />
+                      <span>Temperature</span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -936,7 +1251,7 @@ print(response.json())`;
               className="space-y-6"
             >
               <button
-                onClick={() => setCurrentView("landing")}
+                onClick={() => navigateTo("landing")}
                 className="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-all text-xs font-bold uppercase tracking-widest group"
               >
                 <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-0.5" />
@@ -999,7 +1314,7 @@ print(response.json())`;
                           : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
                       }`}
                     >
-                      <Activity className="h-3.5 w-3.5" />
+                      <Info className="h-3.5 w-3.5" />
                       <span>Info ({ENDPOINTS.filter(e => e.category === "information").length})</span>
                     </button>
 
