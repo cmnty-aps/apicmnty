@@ -107,7 +107,7 @@ const ERROR_MESSAGES: Record<number, string> = {
 };
 
 function getErrorMessage(status: number): string {
-  return ERROR_MESSAGES[status] || `Terjadi kesalahan pada sistem hulu (HTTP ${status}). Mohon hubungi administrator jika masalah berlanjut.`;
+  return ERROR_MESSAGES[status] || `Terjadi kesalahan pada sistem (HTTP ${status}). Mohon hubungi administrator jika masalah berlanjut.`;
 }
 
 /**
@@ -205,7 +205,7 @@ app.get(["/api/v1/berita/:provider", "/berita/:provider"], async (req, res) => {
             link: "#",
             image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
             isoDate: new Date().toISOString(),
-            description: "Gateway CMNTY API berhasil menghubungkan portal informasi ke dalam arsitektur berkinerja tinggi, dilengkapi sistem pemantauan latensi real-time.",
+            description: "Gateway CMNTY API berhasil menghubungkan portal informasi ke dalam arsitektur berkinerja tinggi, dilengkapi sistem pemantauan latensi.",
           },
           {
             title: "Pengembang CMNTY Merilis Dashboard API Minimalis Hitam Putih",

@@ -279,7 +279,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "antara",
     path: "/berita/antara",
     method: "GET",
-    description: "Mendapatkan rangkuman informasi berita terbaru dari LKBN Antara News Feed secara real-time."
+    description: "Mendapatkan rangkuman informasi berita terbaru dari LKBN Antara News Feed."
   },
   {
     id: "berita-cnbcindonesia",
@@ -306,7 +306,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "ffnews",
     path: "/berita/ffnews",
     method: "GET",
-    description: "Mendapatkan rangkuman informasi berita game Free Fire terbaru secara real-time."
+    description: "Mendapatkan rangkuman informasi berita game Free Fire terbaru."
   },
 
   // CANVAS CATEGORY
@@ -370,7 +370,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nan-z",
     path: "/maker/fakeberita",
     method: "GET",
-    description: "Hasilkan gambar parodi berita televisi (Fake News) dengan Headline dan gambar kustom secara real-time.",
+    description: "Hasilkan gambar parodi berita televisi (Fake News) dengan Headline dan gambar kustom.",
     queryParams: [
       {
         name: "text",
@@ -429,7 +429,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/asahotak",
     method: "GET",
-    description: "Mendapatkan kuis game Asah Otak acak untuk mengasah otak Anda dengan pertanyaan cerdas dan kunci jawabannya secara real-time."
+    description: "Mendapatkan kuis game Asah Otak acak untuk mengasah otak Anda dengan pertanyaan cerdas dan kunci jawabannya."
   },
   {
     id: "game-caklontong",
@@ -438,7 +438,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/caklontong",
     method: "GET",
-    description: "Mendapatkan kuis game Cak Lontong acak dengan pertanyaan, deskripsi deskriptif, dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis game Cak Lontong acak dengan pertanyaan, deskripsi deskriptif, dan kunci jawaban."
   },
   {
     id: "game-cc-sd",
@@ -469,7 +469,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/family100",
     method: "GET",
-    description: "Mendapatkan kuis game Family 100 acak lengkap dengan pertanyaan dan jawaban survei populer secara real-time."
+    description: "Mendapatkan kuis game Family 100 acak lengkap dengan pertanyaan dan jawaban survei populer."
   },
   {
     id: "game-lengkapikalimat",
@@ -478,7 +478,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/lengkapikalimat",
     method: "GET",
-    description: "Mendapatkan kuis game Lengkapi Kalimat acak dengan pertanyaan, opsi kunci jawaban, dan petunjuk bantuan secara real-time."
+    description: "Mendapatkan kuis game Lengkapi Kalimat acak dengan pertanyaan, opsi kunci jawaban, dan petunjuk bantuan."
   },
   {
     id: "game-susunkata",
@@ -487,7 +487,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/susunkata",
     method: "GET",
-    description: "Mendapatkan kuis game Susun Kata acak dengan pertanyaan, petunjuk bantuan, dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis game Susun Kata acak dengan pertanyaan, petunjuk bantuan, dan kunci jawaban."
   },
   {
     id: "game-tebakjkt",
@@ -496,7 +496,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakjkt",
     method: "GET",
-    description: "Mendapatkan kuis tebak member JKT48 acak yang berisi foto siluet/petunjuk member dan jawabannya secara real-time."
+    description: "Mendapatkan kuis tebak member JKT48 acak yang berisi foto siluet/petunjuk member dan jawabannya."
   },
   {
     id: "game-karakterff",
@@ -505,7 +505,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/karakter-freefire",
     method: "GET",
-    description: "Mendapatkan kuis game gratis tebak Karakter Free Fire acak lengkap dengan petunjuk gambar dan jawaban secara real-time."
+    description: "Mendapatkan kuis game gratis tebak Karakter Free Fire acak lengkap dengan petunjuk gambar dan jawaban."
   },
   {
     id: "game-tebakbendera",
@@ -514,7 +514,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakbendera",
     method: "GET",
-    description: "Mendapatkan kuis tebak bendera negara acak lengkap dengan gambar bendera dan kunci jawabannya secara real-time."
+    description: "Mendapatkan kuis tebak bendera negara acak lengkap dengan gambar bendera dan kunci jawabannya."
   },
   {
     id: "game-tebakkartun",
@@ -523,7 +523,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakkartun",
     method: "GET",
-    description: "Mendapatkan kuis tebak kartun populer acak lengkap dengan petunjuk gambar dan kunci jawabannya secara real-time."
+    description: "Mendapatkan kuis tebak kartun populer acak lengkap dengan petunjuk gambar dan kunci jawabannya."
   },
   {
     id: "game-tebakgambar",
@@ -532,7 +532,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakgambar",
     method: "GET",
-    description: "Mendapatkan kuis game gratis tebak gambar acak lengkap dengan petunjuk gambar dan jawaban secara real-time."
+    description: "Mendapatkan kuis game gratis tebak gambar acak lengkap dengan petunjuk gambar dan jawaban."
   },
   {
     id: "game-tebakgame",
@@ -541,7 +541,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakgame",
     method: "GET",
-    description: "Mendapatkan kuis game gratis tebak judul game acak lengkap dengan petunjuk gambar/deskripsi dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis game gratis tebak judul game acak lengkap dengan petunjuk gambar/deskripsi dan kunci jawaban."
   },
   {
     id: "game-tebakheroml",
@@ -550,7 +550,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakheroml",
     method: "GET",
-    description: "Mendapatkan kuis game tebak nama Hero Mobile Legends: Bang Bang acak berdasarkan siluet, deskripsi, atau gambar secara real-time."
+    description: "Mendapatkan kuis game tebak nama Hero Mobile Legends: Bang Bang acak berdasarkan siluet, deskripsi, atau gambar."
   },
   {
     id: "game-tebaklagu",
@@ -559,7 +559,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebaklagu",
     method: "GET",
-    description: "Mendapatkan kuis tebak judul lagu acak yang berisi petunjuk audio/deskripsi lagu dan jawaban secara real-time."
+    description: "Mendapatkan kuis tebak judul lagu acak yang berisi petunjuk audio/deskripsi lagu dan jawaban."
   },
   {
     id: "game-tebaklirik",
@@ -568,7 +568,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebaklirik",
     method: "GET",
-    description: "Mendapatkan kuis game gratis tebak lirik lagu acak dengan penggalan lirik lagu dan jawaban lengkap secara real-time."
+    description: "Mendapatkan kuis game gratis tebak lirik lagu acak dengan penggalan lirik lagu dan jawaban lengkap."
   },
   {
     id: "game-tebakkata",
@@ -577,7 +577,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakkata",
     method: "GET",
-    description: "Mendapatkan kuis tebak kata acak lengkap dengan petunjuk pemicu pemikiran dan solusi jawaban secara real-time."
+    description: "Mendapatkan kuis tebak kata acak lengkap dengan petunjuk pemicu pemikiran dan solusi jawaban."
   },
   {
     id: "game-tebakkimia",
@@ -586,7 +586,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakkimia",
     method: "GET",
-    description: "Mendapatkan kuis tebak unsur atau senyawa kimia secara acak yang berisi lambang/nama beserta jawaban lengkap secara real-time."
+    description: "Mendapatkan kuis tebak unsur atau senyawa kimia secara acak yang berisi lambang/nama beserta jawaban lengkap."
   },
   {
     id: "game-tebakkalimat",
@@ -595,7 +595,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakkalimat",
     method: "GET",
-    description: "Mendapatkan kuis game Tebak Kalimat acak dengan pertanyaan, petunjuk bantuan, dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis game Tebak Kalimat acak dengan pertanyaan, petunjuk bantuan, dan kunci jawaban."
   },
   {
     id: "game-tebaklogo",
@@ -604,7 +604,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebaklogo",
     method: "GET",
-    description: "Mendapatkan kuis tebak logo perusahaan/organisasi acak yang berisi gambar logo dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis tebak logo perusahaan/organisasi acak yang berisi gambar logo dan kunci jawaban."
   },
   {
     id: "game-tebaksurah",
@@ -613,7 +613,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/surah",
     method: "GET",
-    description: "Mendapatkan kuis game Tebak Surah acak dari Al-Qur'an untuk menebak nama surah berdasarkan ayat secara real-time."
+    description: "Mendapatkan kuis game Tebak Surah acak dari Al-Qur'an untuk menebak nama surah berdasarkan ayat."
   },
   {
     id: "game-tebaktebakan",
@@ -622,7 +622,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebaktebakan",
     method: "GET",
-    description: "Mendapatkan kuis Tebak-tebakan jenaka dan teka-teki lucu acak lengkap dengan kunci jawabannya secara real-time."
+    description: "Mendapatkan kuis Tebak-tebakan jenaka dan teka-teki lucu acak lengkap dengan kunci jawabannya."
   },
   {
     id: "game-tebakwarna",
@@ -631,7 +631,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tebakwarna",
     method: "GET",
-    description: "Mendapatkan kuis game Tebak Warna acak yang berisi gambar/deskripsi warna dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis game Tebak Warna acak yang berisi gambar/deskripsi warna dan kunci jawaban."
   },
   {
     id: "game-tekateki",
@@ -640,7 +640,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/game/tekateki",
     method: "GET",
-    description: "Mendapatkan kuis game Teka Teki acak dengan pertanyaan, petunjuk, dan kunci jawaban secara real-time."
+    description: "Mendapatkan kuis game Teka Teki acak dengan pertanyaan, petunjuk, dan kunci jawaban."
   },
 
   // INFORMATION CATEGORY
@@ -651,7 +651,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/information/cuaca",
     method: "GET",
-    description: "Mendapatkan data prakiraan cuaca real-time dari BMKG untuk kota/lokasi spesifik secara real-time.",
+    description: "Mendapatkan data prakiraan cuaca dari BMKG untuk kota/lokasi spesifik.",
     queryParams: [
       {
         name: "kota",
@@ -684,7 +684,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/information/gempa",
     method: "GET",
-    description: "Mendapatkan data real-time informasi gempa bumi terkini dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)."
+    description: "Mendapatkan data informasi gempa bumi terkini dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)."
   },
   {
     id: "information-growagarden",
@@ -693,7 +693,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/information/growagarden",
     method: "GET",
-    description: "Mendapatkan informasi data stok dari merchant Grow A Garden secara real-time."
+    description: "Mendapatkan informasi data stok dari merchant Grow A Garden."
   },
   {
     id: "information-harilibur",
@@ -746,7 +746,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/applemusic",
     method: "GET",
-    description: "Mencari musik atau lagu favorit Anda langsung dari hulu Apple Music secara real-time.",
+    description: "Mencari musik atau lagu favorit Anda secara langsung di Apple Music.",
     queryParams: [
       { name: "q", placeholder: "Jogja istimewa", defaultValue: "Jogja istimewa" }
     ]
@@ -758,7 +758,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/bilibili",
     method: "GET",
-    description: "Mencari video menarik di platform Bilibili berdasarkan kata kunci secara real-time.",
+    description: "Mencari video menarik di platform Bilibili berdasarkan kata kunci.",
     queryParams: [
       { name: "q", placeholder: "anime", defaultValue: "anime" }
     ]
@@ -770,7 +770,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/bingimage",
     method: "GET",
-    description: "Mencari dan menampilkan berbagai gambar berkualitas tinggi menggunakan Bing Image Search secara real-time.",
+    description: "Mencari dan menampilkan berbagai gambar berkualitas tinggi menggunakan Bing Image Search.",
     queryParams: [
       { name: "q", placeholder: "kucing", defaultValue: "kucing" }
     ]
@@ -782,7 +782,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/capcut",
     method: "GET",
-    description: "Mencari template video CapCut populer dan menarik rasa ingin tahu Anda secara real-time.",
+    description: "Mencari template video CapCut populer dan menarik rasa ingin tahu Anda.",
     queryParams: [
       { name: "q", placeholder: "jj", defaultValue: "jj" }
     ]
@@ -794,7 +794,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/github",
     method: "GET",
-    description: "Mencari berkas, kode, atau repositori di GitHub secara real-time berdasarkan kata kunci.",
+    description: "Mencari berkas, kode, atau repositori di GitHub berdasarkan kata kunci.",
     queryParams: [
       { name: "q", placeholder: "Bot whatsapp", defaultValue: "Bot whatsapp" }
     ]
@@ -806,7 +806,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/happymood",
     method: "GET",
-    description: "Mencari game dan aplikasi modifikasi pilihan Anda di HappyMod secara gratis dan real-time.",
+    description: "Mencari game dan aplikasi modifikasi pilihan Anda di HappyMod secara gratis.",
     queryParams: [
       { name: "q", placeholder: "Mobile legend", defaultValue: "Mobile legend" }
     ]
@@ -818,7 +818,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/lyrics",
     method: "GET",
-    description: "Mencari lirik lagu lengkap berdasarkan judul lagu pilihan Anda secara real-time.",
+    description: "Mencari lirik lagu lengkap berdasarkan judul lagu pilihan Anda.",
     queryParams: [
       { name: "q", placeholder: "someone like you", defaultValue: "someone like you" }
     ]
@@ -830,7 +830,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/npmjs",
     method: "GET",
-    description: "Mencari dan menemukan berkas package langsung dari NPM registry secara real-time.",
+    description: "Mencari dan menemukan berkas package langsung dari NPM registry.",
     queryParams: [
       { name: "q", placeholder: "api", defaultValue: "api" }
     ]
@@ -842,7 +842,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/pinterest",
     method: "GET",
-    description: "Mencari foto, ide kreatif, atau wallpaper estetika di Pinterest secara real-time.",
+    description: "Mencari foto, ide kreatif, atau wallpaper estetika di Pinterest.",
     queryParams: [
       { name: "q", placeholder: "pp couple", defaultValue: "pp couple" }
     ]
@@ -854,7 +854,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/resep",
     method: "GET",
-    description: "Mencari resep makanan lezat nusantara langsung dari ResepKoki.id secara real-time.",
+    description: "Mencari resep makanan lezat nusantara langsung dari ResepKoki.id.",
     queryParams: [
       { name: "q", placeholder: "rendang", defaultValue: "rendang" }
     ]
@@ -866,7 +866,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/sfile",
     method: "GET",
-    description: "Mencari dan menemukan file yang di-upload di SFile.mobi secara real-time.",
+    description: "Mencari dan menemukan file yang di-upload di SFile.mobi.",
     queryParams: [
       { name: "q", placeholder: "scrape", defaultValue: "scrape" }
     ]
@@ -878,7 +878,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/soundcloud",
     method: "GET",
-    description: "Mencari dan mendengarkan berbagai lagu menarik di SoundCloud secara real-time.",
+    description: "Mencari dan mendengarkan berbagai lagu menarik di SoundCloud.",
     queryParams: [
       { name: "q", placeholder: "mangu", defaultValue: "mangu" }
     ]
@@ -890,7 +890,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/spotify",
     method: "GET",
-    description: "Mencari lagu atau album favorit di Spotify secara real-time.",
+    description: "Mencari lagu atau album favorit di Spotify.",
     queryParams: [
       { name: "q", placeholder: "jakarta hari ini", defaultValue: "jakarta hari ini" }
     ]
@@ -902,7 +902,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/search/tiktok",
     method: "GET",
-    description: "Mencari video, pengguna, atau konten populer di TikTok secara real-time.",
+    description: "Mencari video, pengguna, atau konten populer di TikTok.",
     queryParams: [
       { name: "q", placeholder: "vilmei", defaultValue: "vilmei" }
     ]
