@@ -68,7 +68,8 @@ app.use((req, res, next) => {
       req.path.startsWith("/canvas/") || 
       req.path.startsWith("/information/") || 
       req.path.startsWith("/stalker/") || 
-      req.path.startsWith("/maker/")
+      req.path.startsWith("/maker/") ||
+      req.path.startsWith("/game/")
     ) && !req.path.includes("visitor") && !req.path.includes("/v1/logs");
     
     // Ignore internal dev calls or static files if needed, but here we track APIs
@@ -1429,6 +1430,587 @@ app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
   }
 });
 
+// Game Endpoint: Cak Lontong
+app.get(["/api/game/caklontong", "/game/caklontong"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/caklontong";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Cak Lontong error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Cerdas Cermat SD
+app.get(["/api/game/cc-sd", "/game/cc-sd"], async (req, res) => {
+  const start = Date.now();
+  const matapelajaran = (req.query.matapelajaran as string) || "matematika";
+  const jumlahsoal = (req.query.jumlahsoal as string) || "5";
+  const targetUrl = `https://api.siputzx.my.id/api/games/cc-sd?matapelajaran=${encodeURIComponent(matapelajaran)}&jumlahsoal=${encodeURIComponent(jumlahsoal)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Cerdas Cermat error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Lengkapi Kalimat
+app.get(["/api/game/lengkapikalimat", "/game/lengkapikalimat"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/lengkapikalimat";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Lengkapi Kalimat error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Teka Teki
+app.get(["/api/game/tekateki", "/game/tekateki"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tekateki";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Teka Teki error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak JKT48
+app.get(["/api/game/tebakjkt", "/game/tebakjkt"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakjkt";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Rewrite image URL to use our own domain via proxy
+    if (cleanedData && cleanedData.data && typeof cleanedData.data.gambar === "string") {
+      const origGambar = cleanedData.data.gambar;
+      const fileName = origGambar.substring(origGambar.lastIndexOf("/") + 1);
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      const baseUrl = `${protocol}://${host}`;
+      cleanedData.data.gambar = `${baseUrl}/game/tebakjkt/image?file=${fileName}`;
+    }
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak JKT error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak JKT48 Image Proxy
+app.get(["/api/game/tebakjkt/image", "/game/tebakjkt/image"], async (req, res) => {
+  const file = req.query.file as string;
+  if (!file) {
+    return res.status(400).send("Parameter 'file' is required");
+  }
+  
+  const safeFile = path.basename(file);
+  const targetUrl = `https://raw.githubusercontent.com/siputzx/tebak-jkt/main/${safeFile}`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch image");
+    }
+    
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    res.setHeader("Content-Type", contentType);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error: any) {
+    console.error("Tebak JKT image proxy error:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Game Endpoint: Tebak Lagu
+app.get(["/api/game/tebaklagu", "/game/tebaklagu"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebaklagu";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Recursive URL proxy helper to rewrite any media/image/audio URL to our custom domain proxy
+    const rewriteUrlsToProxy = (obj: any): any => {
+      if (obj === null || typeof obj !== "object") {
+        if (typeof obj === "string" && (obj.startsWith("http://") || obj.startsWith("https://"))) {
+          const rawHost = req.headers["x-forwarded-host"] || req.get("host") || "";
+          const host = Array.isArray(rawHost) ? rawHost[0] : rawHost;
+          if (host && obj.includes(host)) {
+            return obj;
+          }
+          const rawProto = req.headers["x-forwarded-proto"] || req.protocol || "http";
+          const protocol = Array.isArray(rawProto) ? rawProto[0] : rawProto;
+          const baseUrl = `${protocol}://${host}`;
+          const fileName = obj.substring(obj.lastIndexOf("/") + 1);
+          return `${baseUrl}/game/tebaklagu/audio?file=${fileName}`;
+        }
+        return obj;
+      }
+      if (Array.isArray(obj)) {
+        return obj.map(item => rewriteUrlsToProxy(item));
+      }
+      const rewritten: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        rewritten[key] = rewriteUrlsToProxy(value);
+      }
+      return rewritten;
+    };
+
+    const proxiedData = rewriteUrlsToProxy(cleanedData);
+
+    res.json({
+      ...proxiedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Lagu error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(505),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Lagu Media/Audio Proxy
+app.get(["/api/game/tebaklagu/audio", "/game/tebaklagu/audio"], async (req, res) => {
+  const file = req.query.file as string;
+  if (!file) {
+    return res.status(400).send("Parameter 'file' is required");
+  }
+  
+  const safeFile = path.basename(file);
+  const targetUrl = `https://raw.githubusercontent.com/Aiinne/scrape/main/song/${safeFile}`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch media");
+    }
+    
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    res.setHeader("Content-Type", contentType);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error: any) {
+    console.error("Tebak Lagu media proxy error:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Game Endpoint: Tebak Logo
+app.get(["/api/game/tebaklogo", "/game/tebaklogo"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebaklogo";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Rewrite image URL to use our own domain via proxy
+    if (cleanedData && cleanedData.data && typeof cleanedData.data.gambar === "string") {
+      const origGambar = cleanedData.data.gambar;
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      const baseUrl = `${protocol}://${host}`;
+      cleanedData.data.gambar = `${baseUrl}/game/tebaklogo/image?url=${encodeURIComponent(origGambar)}`;
+    }
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Logo error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Logo Image Proxy
+app.get(["/api/game/tebaklogo/image", "/game/tebaklogo/image"], async (req, res) => {
+  const imageUrl = req.query.url as string;
+  if (!imageUrl) {
+    return res.status(400).send("Parameter 'url' is required");
+  }
+  
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch image");
+    }
+    
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    res.setHeader("Content-Type", contentType);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error: any) {
+    console.error("Tebak Logo image proxy error:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Game Endpoint: Tebak Warna
+app.get(["/api/game/tebakwarna", "/game/tebakwarna"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakwarna";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Rewrite image/gambar URL to use our own domain via proxy if present
+    if (cleanedData && cleanedData.data) {
+      const rawHost = req.headers["x-forwarded-host"] || req.get("host") || "";
+      const host = Array.isArray(rawHost) ? rawHost[0] : rawHost;
+      const rawProto = req.headers["x-forwarded-proto"] || req.protocol || "http";
+      const protocol = Array.isArray(rawProto) ? rawProto[0] : rawProto;
+      const baseUrl = `${protocol}://${host}`;
+
+      if (typeof cleanedData.data.image === "string") {
+        const fileName = cleanedData.data.image.substring(cleanedData.data.image.lastIndexOf("/") + 1);
+        cleanedData.data.image = `${baseUrl}/game/tebakwarna/image?file=${fileName}`;
+      }
+      if (typeof cleanedData.data.gambar === "string") {
+        const fileName = cleanedData.data.gambar.substring(cleanedData.data.gambar.lastIndexOf("/") + 1);
+        cleanedData.data.gambar = `${baseUrl}/game/tebakwarna/image?file=${fileName}`;
+      }
+    }
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Warna error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Warna Image Proxy
+app.get(["/api/game/tebakwarna/image", "/game/tebakwarna/image"], async (req, res) => {
+  const file = req.query.file as string;
+  if (!file) {
+    return res.status(400).send("Parameter 'file' is required");
+  }
+  
+  const safeFile = path.basename(file);
+  const targetUrl = `https://raw.githubusercontent.com/siputzx/databasee/refs/heads/main/images/${safeFile}`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch image");
+    }
+    
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    res.setHeader("Content-Type", contentType);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error: any) {
+    console.error("Tebak Warna image proxy error:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Game Endpoint: Tebak Kalimat
+app.get(["/api/game/tebakkalimat", "/game/tebakkalimat"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakkalimat";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Kalimat error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Susun Kata
+app.get(["/api/game/susunkata", "/game/susunkata"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/susunkata";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Susun Kata error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Information Endpoint: Jadwal Sepakbola
 app.get(["/api/information/jadwalbola", "/information/jadwalbola"], async (req, res) => {
   const start = Date.now();
@@ -1793,13 +2375,17 @@ app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
       }
     }
 
-    // 2. Get Weather Info from open-meteo (free, no sign-up) with 3 second timeout
+    // 2. Get Weather Info from open-meteo (free, no sign-up) with 6 second timeout
     let temp = 26.5; // General global average default
     let weatherCode = 1;
     let weatherText = "Berawan";
 
     const weatherController = new AbortController();
-    const weatherTimeoutId = setTimeout(() => weatherController.abort(), 3000);
+    const weatherTimeoutId = setTimeout(() => {
+      try {
+        weatherController.abort();
+      } catch (err) {}
+    }, 6000);
 
     try {
       const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.lat}&longitude=${geo.lon}&current_weather=true`, { signal: weatherController.signal });
@@ -1823,8 +2409,13 @@ app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
           else weatherText = "Berawan";
         }
       }
-    } catch (e) {
-      console.warn("Weather fetch failed, using default values", e);
+    } catch (e: any) {
+      clearTimeout(weatherTimeoutId);
+      if (e.name === "AbortError") {
+        console.warn("Weather fetch timed out (6s), using default values");
+      } else {
+        console.warn("Weather fetch failed, using default values", e?.message || e);
+      }
     }
 
     const duration = Date.now() - start;
@@ -1855,6 +2446,48 @@ app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
       author: "@cmnty - Public-api",
       message: "Gagal mendeteksi informasi kunjungan",
       responseTimeMs: duration
+    });
+  }
+});
+
+// Stalker Endpoint: GitHub
+app.get(["/api/stalker/github", "/stalker/github"], async (req, res) => {
+  const start = Date.now();
+  const username = (req.query.username as string) || "Creatorsitee";
+
+  const targetUrl = `https://api.nexray.eu.cc/stalker/github?username=${encodeURIComponent(username)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("GitHub Stalker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
     });
   }
 });

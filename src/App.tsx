@@ -35,7 +35,8 @@ import {
   Thermometer,
   Wifi,
   MessageCircle,
-  Info
+  Info,
+  Gamepad2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -306,123 +307,6 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Mendapatkan rangkuman informasi berita game Free Fire terbaru secara real-time."
   },
 
-  // INFORMATION CATEGORY
-  {
-    id: "information-gempa",
-    category: "information",
-    name: "Informasi Gempa BMKG",
-    provider: "nexray",
-    path: "/information/gempa",
-    method: "GET",
-    description: "Mendapatkan data real-time informasi gempa bumi terkini dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)."
-  },
-  {
-    id: "information-harilibur",
-    category: "information",
-    name: "Hari Libur Nasional",
-    provider: "nexray",
-    path: "/information/hari-libur",
-    method: "GET",
-    description: "Mendapatkan data informasi jadwal hari libur nasional."
-  },
-  {
-    id: "information-jadwalbola",
-    category: "information",
-    name: "Jadwal Sepakbola",
-    provider: "nexray",
-    path: "/information/jadwalbola",
-    method: "GET",
-    description: "Mendapatkan jadwal pertandingan sepakbola terkini."
-  },
-  {
-    id: "information-jadwalsholat",
-    category: "information",
-    name: "Jadwal Sholat",
-    provider: "nexray",
-    path: "/information/jadwalsholat",
-    method: "GET",
-    description: "Mendapatkan jadwal sholat untuk kota spesifik.",
-    queryParams: [
-      { name: "kota", placeholder: "purwokerto", defaultValue: "purwokerto" }
-    ]
-  },
-  {
-    id: "information-jadwaltv",
-    category: "information",
-    name: "Jadwal TV",
-    provider: "nexray",
-    path: "/information/jadwaltv",
-    method: "GET",
-    description: "Mendapatkan Jadwal TV untuk channel spesifik.",
-    queryParams: [
-      { name: "channel", placeholder: "mnctv", defaultValue: "mnctv" }
-    ]
-  },
-
-  // STALKER CATEGORY
-  {
-    id: "stalker-mlbb",
-    category: "stalker",
-    name: "Mobile Legends Stalker",
-    provider: "nexray",
-    path: "/stalker/mlbb",
-    method: "GET",
-    description: "Dapatkan informasi detail akun Mobile Legends: Bang Bang melalui User ID dan Zone ID. Menampilkan nickname dan status akun.",
-    queryParams: [
-      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
-      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
-    ]
-  },
-  {
-    id: "stalker-v1-mlbb",
-    category: "stalker",
-    name: "Mobile Legends Stalker v1",
-    provider: "nexray",
-    path: "/stalker/v1/mlbb",
-    method: "GET",
-    description: "Mendapatkan informasi detail akun Mobile Legends: Bang Bang v1 dengan User ID dan Zone ID.",
-    queryParams: [
-      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
-      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
-    ]
-  },
-  {
-    id: "stalker-npmjs",
-    category: "stalker",
-    name: "NPM Package",
-    provider: "nexray",
-    path: "/stalker/npmjs",
-    method: "GET",
-    description: "Mendapatkan rincian informasi dan detail versi dari paket NPM.",
-    queryParams: [
-      { name: "name", placeholder: "baileys", defaultValue: "baileys" }
-    ]
-  },
-  {
-    id: "stalker-roblox",
-    category: "stalker",
-    name: "Roblox Stalker",
-    provider: "nexray",
-    path: "/stalker/roblox",
-    method: "GET",
-    description: "Mendapatkan rincian detail akun Roblox berdasarkan username.",
-    queryParams: [
-      { name: "username", placeholder: "Builderman", defaultValue: "Builderman" }
-    ]
-  },
-  {
-    id: "stalker-tiktok",
-    category: "stalker",
-    name: "TikTok Stalker",
-    provider: "nexray",
-    path: "/stalker/tiktok",
-    method: "GET",
-    description: "Mendapatkan rincian detail profil akun TikTok berdasarkan username.",
-    queryParams: [
-      { name: "username", placeholder: "cmnty.official", defaultValue: "cmnty.official" }
-    ]
-  },
-
   // CANVAS CATEGORY
   {
     id: "canvas-ektp",
@@ -511,6 +395,240 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Memasukkan subjek ke dalam template susu taro menggunakan penghapusan latar belakang otomatis. Mengembalikan response dalam bentuk image buffer.",
     queryParams: [
       { name: "image", placeholder: "URL Gambar (https://...)", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1777998261437.jpeg" }
+    ]
+  },
+
+  // GAME CATEGORY
+  {
+    id: "game-caklontong",
+    category: "game",
+    name: "Cak Lontong (Kuis)",
+    provider: "siputzx",
+    path: "/game/caklontong",
+    method: "GET",
+    description: "Mendapatkan kuis game Cak Lontong acak dengan pertanyaan, deskripsi deskriptif, dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-cc-sd",
+    category: "game",
+    name: "Cerdas Cermat SD (Kuis)",
+    provider: "siputzx",
+    path: "/game/cc-sd",
+    method: "GET",
+    description: "Mendapatkan soal cerdas cermat SD dengan mata pelajaran kustom (Matematika, IPA, IPS, Bahasa Indonesia, dll) dan jumlah soal kustom.",
+    queryParams: [
+      {
+        name: "matapelajaran",
+        placeholder: "Pilih mapel (matematika, ipa, ips, bindo, dll)",
+        defaultValue: "matematika",
+        options: ["bindo", "tik", "pkn", "bing", "penjas", "pai", "matematika", "jawa", "ips", "ipa"]
+      },
+      {
+        name: "jumlahsoal",
+        placeholder: "Jumlah soal (contoh: 5)",
+        defaultValue: "5"
+      }
+    ]
+  },
+  {
+    id: "game-lengkapikalimat",
+    category: "game",
+    name: "Lengkapi Kalimat (Kuis)",
+    provider: "siputzx",
+    path: "/game/lengkapikalimat",
+    method: "GET",
+    description: "Mendapatkan kuis game Lengkapi Kalimat acak dengan pertanyaan, opsi kunci jawaban, dan petunjuk bantuan secara real-time."
+  },
+  {
+    id: "game-susunkata",
+    category: "game",
+    name: "Susun Kata (Kuis)",
+    provider: "siputzx",
+    path: "/game/susunkata",
+    method: "GET",
+    description: "Mendapatkan kuis game Susun Kata acak dengan pertanyaan, petunjuk bantuan, dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-tebakjkt",
+    category: "game",
+    name: "Tebak JKT48 (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakjkt",
+    method: "GET",
+    description: "Mendapatkan kuis tebak member JKT48 acak yang berisi foto siluet/petunjuk member dan jawabannya secara real-time."
+  },
+  {
+    id: "game-tebaklagu",
+    category: "game",
+    name: "Tebak Lagu (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebaklagu",
+    method: "GET",
+    description: "Mendapatkan kuis tebak judul lagu acak yang berisi petunjuk audio/deskripsi lagu dan jawaban secara real-time."
+  },
+  {
+    id: "game-tebakkalimat",
+    category: "game",
+    name: "Tebak Kalimat (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakkalimat",
+    method: "GET",
+    description: "Mendapatkan kuis game Tebak Kalimat acak dengan pertanyaan, petunjuk bantuan, dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-tebaklogo",
+    category: "game",
+    name: "Tebak Logo (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebaklogo",
+    method: "GET",
+    description: "Mendapatkan kuis tebak logo perusahaan/organisasi acak yang berisi gambar logo dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-tebakwarna",
+    category: "game",
+    name: "Tebak Warna (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakwarna",
+    method: "GET",
+    description: "Mendapatkan kuis game Tebak Warna acak yang berisi gambar/deskripsi warna dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-tekateki",
+    category: "game",
+    name: "Teka Teki (Kuis)",
+    provider: "siputzx",
+    path: "/game/tekateki",
+    method: "GET",
+    description: "Mendapatkan kuis game Teka Teki acak dengan pertanyaan, petunjuk, dan kunci jawaban secara real-time."
+  },
+
+  // INFORMATION CATEGORY
+  {
+    id: "information-gempa",
+    category: "information",
+    name: "Informasi Gempa BMKG",
+    provider: "nexray",
+    path: "/information/gempa",
+    method: "GET",
+    description: "Mendapatkan data real-time informasi gempa bumi terkini dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)."
+  },
+  {
+    id: "information-harilibur",
+    category: "information",
+    name: "Hari Libur Nasional",
+    provider: "nexray",
+    path: "/information/hari-libur",
+    method: "GET",
+    description: "Mendapatkan data informasi jadwal hari libur nasional."
+  },
+  {
+    id: "information-jadwalbola",
+    category: "information",
+    name: "Jadwal Sepakbola",
+    provider: "nexray",
+    path: "/information/jadwalbola",
+    method: "GET",
+    description: "Mendapatkan jadwal pertandingan sepakbola terkini."
+  },
+  {
+    id: "information-jadwalsholat",
+    category: "information",
+    name: "Jadwal Sholat",
+    provider: "nexray",
+    path: "/information/jadwalsholat",
+    method: "GET",
+    description: "Mendapatkan jadwal sholat untuk kota spesifik.",
+    queryParams: [
+      { name: "kota", placeholder: "purwokerto", defaultValue: "purwokerto" }
+    ]
+  },
+  {
+    id: "information-jadwaltv",
+    category: "information",
+    name: "Jadwal TV",
+    provider: "nexray",
+    path: "/information/jadwaltv",
+    method: "GET",
+    description: "Mendapatkan Jadwal TV untuk channel spesifik.",
+    queryParams: [
+      { name: "channel", placeholder: "mnctv", defaultValue: "mnctv" }
+    ]
+  },
+
+  // STALKER CATEGORY
+  {
+    id: "stalker-github",
+    category: "stalker",
+    name: "GitHub Stalker",
+    provider: "nexray",
+    path: "/stalker/github",
+    method: "GET",
+    description: "Mendapatkan rincian detail akun GitHub berdasarkan username.",
+    queryParams: [
+      { name: "username", placeholder: "Creatorsitee", defaultValue: "Creatorsitee" }
+    ]
+  },
+  {
+    id: "stalker-mlbb",
+    category: "stalker",
+    name: "Mobile Legends Stalker",
+    provider: "nexray",
+    path: "/stalker/mlbb",
+    method: "GET",
+    description: "Dapatkan informasi detail akun Mobile Legends: Bang Bang melalui User ID dan Zone ID. Menampilkan nickname dan status akun.",
+    queryParams: [
+      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
+      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
+    ]
+  },
+  {
+    id: "stalker-v1-mlbb",
+    category: "stalker",
+    name: "Mobile Legends Stalker v1",
+    provider: "nexray",
+    path: "/stalker/v1/mlbb",
+    method: "GET",
+    description: "Mendapatkan informasi detail akun Mobile Legends: Bang Bang v1 dengan User ID dan Zone ID.",
+    queryParams: [
+      { name: "id", placeholder: "User ID (contoh: 11111)", defaultValue: "11111" },
+      { name: "zone", placeholder: "Zone ID (contoh: 11111)", defaultValue: "11111" }
+    ]
+  },
+  {
+    id: "stalker-npmjs",
+    category: "stalker",
+    name: "NPM Package",
+    provider: "nexray",
+    path: "/stalker/npmjs",
+    method: "GET",
+    description: "Mendapatkan rincian informasi dan detail versi dari paket NPM.",
+    queryParams: [
+      { name: "name", placeholder: "baileys", defaultValue: "baileys" }
+    ]
+  },
+  {
+    id: "stalker-roblox",
+    category: "stalker",
+    name: "Roblox Stalker",
+    provider: "nexray",
+    path: "/stalker/roblox",
+    method: "GET",
+    description: "Mendapatkan rincian detail akun Roblox berdasarkan username.",
+    queryParams: [
+      { name: "username", placeholder: "Builderman", defaultValue: "Builderman" }
+    ]
+  },
+  {
+    id: "stalker-tiktok",
+    category: "stalker",
+    name: "TikTok Stalker",
+    provider: "nexray",
+    path: "/stalker/tiktok",
+    method: "GET",
+    description: "Mendapatkan rincian detail profil akun TikTok berdasarkan username.",
+    queryParams: [
+      { name: "username", placeholder: "cmnty.official", defaultValue: "cmnty.official" }
     ]
   },
 
@@ -1055,7 +1173,7 @@ print(response.json())`;
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="space-y-4 w-full pt-12"
+              className="space-y-4 w-full pt-4"
             >
               <div className="flex items-center justify-center">
                 <LandingHero 
@@ -1307,6 +1425,30 @@ print(response.json())`;
                     </button>
 
                     <button
+                      onClick={() => { setActiveFolder("canvas"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "canvas"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <Palette className="h-3.5 w-3.5" />
+                      <span>Canvas ({ENDPOINTS.filter(e => e.category === "canvas").length})</span>
+                    </button>
+
+                    <button
+                      onClick={() => { setActiveFolder("game"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "game"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <Gamepad2 className="h-3.5 w-3.5" />
+                      <span>Game ({ENDPOINTS.filter(e => e.category === "game").length})</span>
+                    </button>
+
+                    <button
                       onClick={() => { setActiveFolder("information"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "information"
@@ -1328,18 +1470,6 @@ print(response.json())`;
                     >
                       <Search className="h-3.5 w-3.5" />
                       <span>Stalker ({ENDPOINTS.filter(e => e.category === "stalker").length})</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => { setActiveFolder("canvas"); }}
-                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
-                        activeFolder === "canvas"
-                          ? "bg-white text-black font-semibold border-white"
-                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
-                      }`}
-                    >
-                      <Palette className="h-3.5 w-3.5" />
-                      <span>Canvas ({ENDPOINTS.filter(e => e.category === "canvas").length})</span>
                     </button>
 
                     <button
