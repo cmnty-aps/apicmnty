@@ -35,3 +35,13 @@ body {
     display: none;
   }
 }
+
+html.light-theme {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html.light-theme img,
+html.light-theme video,
+html.light-theme canvas {
+  filter: invert(1) hue-rotate(180deg);
+}

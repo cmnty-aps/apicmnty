@@ -748,6 +748,32 @@ export default function App() {
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem("isDarkMode");
+    return saved !== null ? saved === "true" : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("isDarkMode", isDarkMode.toString());
+    const themeColor = isDarkMode ? "#040405" : "#ffffff";
+    const statusBarStyle = isDarkMode ? "black-translucent" : "default";
+
+    const updateMetaContent = (nameSelector: string, content: string) => {
+        const meta = document.querySelector(`meta[name="${nameSelector}"]`);
+        if (meta) meta.setAttribute("content", content);
+    };
+
+    updateMetaContent("theme-color", themeColor);
+    updateMetaContent("msapplication-TileColor", themeColor);
+    updateMetaContent("msapplication-navbutton-color", themeColor);
+    updateMetaContent("apple-mobile-web-app-status-bar-style", statusBarStyle);
+
+    if (isDarkMode) {
+      document.documentElement.classList.remove("light-theme");
+    } else {
+      document.documentElement.classList.add("light-theme");
+    }
+  }, [isDarkMode]);
 
   // Visitor monitoring
   const [visitorInfo, setVisitorInfo] = useState<any>(null);
@@ -1108,11 +1134,14 @@ print(response.json())`;
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2.5 text-zinc-400 text-xs font-semibold">
-              <div className="relative inline-flex h-[18px] w-9 flex-shrink-0 cursor-pointer rounded-full bg-zinc-600 transition-colors duration-200">
-                <span className="translate-x-[18px] pointer-events-none inline-block h-[14px] w-[14px] transform rounded-full bg-white transition duration-200 mt-[2px] ml-[2px]"></span>
+            <div 
+              className="flex items-center gap-2.5 text-zinc-400 text-xs font-semibold cursor-pointer"
+              onClick={() => setIsDarkMode(!isDarkMode)}
+            >
+              <div className="relative inline-flex h-[18px] w-9 flex-shrink-0 rounded-full transition-colors duration-200 bg-zinc-600">
+                <span className={`pointer-events-none inline-block h-[14px] w-[14px] transform rounded-full bg-white transition duration-200 mt-[2px] ml-[2px] ${isDarkMode ? 'translate-x-[18px]' : 'translate-x-[0px]'}`}></span>
               </div>
-              <span className="text-zinc-300">Dark</span>
+              <span className="text-zinc-300 w-8">{isDarkMode ? "Dark" : "Light"}</span>
             </div>
             
             <div className="relative">
@@ -1611,13 +1640,8 @@ print(response.json())`;
                                 <input
                                   type="text"
                                   value={customPath}
-                                  onChange={(e) => setCustomPath(e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      sendRequest();
-                                    }
-                                  }}
-                                  className="flex-1 bg-transparent px-2 py-2.5 text-white font-medium focus:outline-none placeholder-zinc-800 text-[11px] font-mono"
+                                  readOnly
+                                  className="flex-1 bg-transparent px-2 py-2.5 text-zinc-400 font-medium focus:outline-none placeholder-zinc-800 text-[11px] font-mono cursor-default select-none"
                                   placeholder="/api/v1/..."
                                 />
                                 <button
