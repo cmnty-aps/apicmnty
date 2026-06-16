@@ -1379,6 +1379,41 @@ app.get(["/api/maker/fakeovo", "/maker/fakeovo"], async (req, res) => {
   }
 });
 
+// Maker Endpoint: fakeberita
+app.get(["/api/maker/fakeberita", "/maker/fakeberita"], async (req, res) => {
+  const text = req.query.text as string || "Viral! Jokowi mencuri 19jt lapangan pekerjaan dari anaknya";
+  const url = req.query.url as string || "https://www.upload.ee/image/19400325/images.webp";
+  const targetUrl = `https://api-nanzz.my.id/docs/api/maker/berita.php?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Berita image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Fake Berita Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Tools Endpoint: Web Phishing Check
 app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
   const start = Date.now();
@@ -1421,6 +1456,246 @@ app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
     });
   } catch (error: any) {
     console.error("WebPhishing error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Asah Otak
+app.get(["/api/game/asahotak", "/game/asahotak"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/asahotak";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Asah Otak error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Lirik
+app.get(["/api/game/tebaklirik", "/game/tebaklirik"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebaklirik";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Lirik error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Kata
+app.get(["/api/game/tebakkata", "/game/tebakkata"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakkata";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Kata error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Kimia
+app.get(["/api/game/tebakkimia", "/game/tebakkimia"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakkimia";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Kimia error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Surah
+app.get(["/api/game/surah", "/game/surah"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/surah";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Surah error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak-tebakan
+app.get(["/api/game/tebaktebakan", "/game/tebaktebakan"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebaktebakan";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak-tebakan error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,
@@ -1668,6 +1943,208 @@ app.get(["/api/game/tebakjkt/image", "/game/tebakjkt/image"], async (req, res) =
   } catch (error: any) {
     console.error("Tebak JKT image proxy error:", error.message);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+// Game Endpoint: Karakter Free Fire
+app.get(["/api/game/karakter-freefire", "/game/karakter-freefire"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/karakter-freefire";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Rewrite image URL to use our own domain via proxy
+    if (cleanedData && cleanedData.data && typeof cleanedData.data.gambar === "string") {
+      const origGambar = cleanedData.data.gambar;
+      const fileName = origGambar.substring(origGambar.lastIndexOf("/") + 1);
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      const baseUrl = `${protocol}://${host}`;
+      cleanedData.data.gambar = `${baseUrl}/game/karakter-freefire/image?file=${fileName}`;
+    }
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Karakter Free Fire error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Karakter Free Fire Image Proxy
+app.get(["/api/game/karakter-freefire/image", "/game/karakter-freefire/image"], async (req, res) => {
+  const file = req.query.file as string;
+  if (!file) {
+    return res.status(400).send("Parameter 'file' is required");
+  }
+  
+  const safeFile = path.basename(file);
+  const targetUrl = `https://raw.githubusercontent.com/siputzx/karakter-freefire/refs/heads/main/files/${safeFile}`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch image");
+    }
+    
+    const contentType = response.headers.get("content-type") || "image/png";
+    res.setHeader("Content-Type", contentType);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    res.send(buffer);
+  } catch (error: any) {
+    console.error("Karakter Free Fire image proxy error:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Game Endpoint: Tebak Hero ML
+app.get(["/api/game/tebakheroml", "/game/tebakheroml"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakheroml";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Hero ML error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Gambar
+app.get(["/api/game/tebakgambar", "/game/tebakgambar"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakgambar";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Gambar error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Family 100
+app.get(["/api/game/family100", "/game/family100"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/family100";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Family 100 error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
   }
 });
 
@@ -1931,6 +2408,129 @@ app.get(["/api/game/tebakwarna/image", "/game/tebakwarna/image"], async (req, re
   }
 });
 
+// Game Endpoint: Tebak Bendera
+app.get(["/api/game/tebakbendera", "/game/tebakbendera"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakbendera";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Bendera error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Kartun
+app.get(["/api/game/tebakkartun", "/game/tebakkartun"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakkartun";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Kartun error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Game Endpoint: Tebak Game
+app.get(["/api/game/tebakgame", "/game/tebakgame"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.siputzx.my.id/api/games/tebakgame";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Tebak Game error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Game Endpoint: Tebak Kalimat
 app.get(["/api/game/tebakkalimat", "/game/tebakkalimat"], async (req, res) => {
   const start = Date.now();
@@ -2002,6 +2602,111 @@ app.get(["/api/game/susunkata", "/game/susunkata"], async (req, res) => {
     });
   } catch (error: any) {
     console.error("Susun Kata error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Information Endpoint: Cuaca
+app.get(["/api/information/cuaca", "/information/cuaca"], async (req, res) => {
+  const start = Date.now();
+  const kota = req.query.kota as string || "jakarta";
+  const targetUrl = `https://api.nexray.eu.cc/information/cuaca?kota=${encodeURIComponent(kota)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Rewrite target image URLs to use local proxy/domain for custom domain requirement
+    if (cleanedData && cleanedData.result && Array.isArray(cleanedData.result.forecasts)) {
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      const baseUrl = `${protocol}://${host}`;
+      
+      cleanedData.result.forecasts = cleanedData.result.forecasts.map((forecast: any) => {
+        if (typeof forecast.image_url === "string" && (forecast.image_url.includes("api.nexray.eu.cc/tmp/") || forecast.image_url.includes("nexray.eu.cc/tmp/"))) {
+          try {
+            const url = new URL(forecast.image_url);
+            forecast.image_url = `${baseUrl}${url.pathname}${url.search}`;
+          } catch (e) {
+            const matches = forecast.image_url.match(/\/tmp\/[a-zA-Z0-9_\-\.]+/);
+            if (matches) {
+              forecast.image_url = `${baseUrl}${matches[0]}`;
+            }
+          }
+        }
+        return forecast;
+      });
+    }
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Cuaca information error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Information Endpoint: Grow A Garden
+app.get(["/api/information/growagarden", "/information/growagarden"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = "https://api.nexray.eu.cc/information/growagarden";
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Grow A Garden error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,
@@ -2208,6 +2913,594 @@ app.get(["/api/information/gempa", "/information/gempa"], async (req, res) => {
     });
   } catch (error: any) {
     console.error("Gempa information error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Apple Music
+app.get(["/api/search/applemusic", "/search/applemusic"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "Jogja istimewa";
+  const targetUrl = `https://api.nexray.eu.cc/search/applemusic?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Apple Music search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Bilibili
+app.get(["/api/search/bilibili", "/search/bilibili"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "anime";
+  const targetUrl = `https://api.nexray.eu.cc/search/bilibili?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Bilibili search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Bing Image
+app.get(["/api/search/bingimage", "/search/bingimage"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "kucing";
+  const targetUrl = `https://api.nexray.eu.cc/search/bingimage?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Bing Image search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Resep Koki
+app.get(["/api/search/resep", "/search/resep"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "rendang";
+  const targetUrl = `https://api.nexray.eu.cc/search/resep?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Resep Koki search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: SFile
+app.get(["/api/search/sfile", "/search/sfile"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "scrape";
+  const targetUrl = `https://api.nexray.eu.cc/search/sfile?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("SFile search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Lyrics
+app.get(["/api/search/lyrics", "/search/lyrics"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "someone like you";
+  const targetUrl = `https://api.nexray.eu.cc/search/lyrics?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Lyrics search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: CapCut
+app.get(["/api/search/capcut", "/search/capcut"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "jj";
+  const targetUrl = `https://api.nexray.eu.cc/search/capcut?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("CapCut search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: GitHub
+app.get(["/api/search/github", "/search/github"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "Bot whatsapp";
+  const targetUrl = `https://api.nexray.eu.cc/search/github?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("GitHub search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: HappyMood
+app.get(["/api/search/happymood", "/search/happymood"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "Mobile legend";
+  const targetUrl = `https://api.nexray.eu.cc/search/happymood?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("HappyMood search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: NPM-Package
+app.get(["/api/search/npmjs", "/search/npmjs"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "api";
+  const targetUrl = `https://api.nexray.eu.cc/search/npmjs?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("NPM Package search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Pinterest
+app.get(["/api/search/pinterest", "/search/pinterest"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "pp couple";
+  const targetUrl = `https://api.nexray.eu.cc/search/pinterest?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Pinterest search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: SoundCloud
+app.get(["/api/search/soundcloud", "/search/soundcloud"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "mangu";
+  const targetUrl = `https://api.nexray.eu.cc/search/soundcloud?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("SoundCloud search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: Spotify
+app.get(["/api/search/spotify", "/search/spotify"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "jakarta hari ini";
+  const targetUrl = `https://api.nexray.eu.cc/search/spotify?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Spotify search error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Search Endpoint: TikTok
+app.get(["/api/search/tiktok", "/search/tiktok"], async (req, res) => {
+  const start = Date.now();
+  const q = req.query.q as string || "vilmei";
+  const targetUrl = `https://api.nexray.eu.cc/search/tiktok?q=${encodeURIComponent(q)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("TikTok search error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,

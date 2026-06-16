@@ -36,7 +36,9 @@ import {
   Wifi,
   MessageCircle,
   Info,
-  Gamepad2
+  Gamepad2,
+  Music,
+  UserSearch
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -362,6 +364,27 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "maker-fakeberita",
+    category: "canvas",
+    name: "Fake News Maker",
+    provider: "nan-z",
+    path: "/maker/fakeberita",
+    method: "GET",
+    description: "Hasilkan gambar parodi berita televisi (Fake News) dengan Headline dan gambar kustom secara real-time.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Headline Berita",
+        defaultValue: "Viral! Jokowi mencuri 19jt lapangan pekerjaan dari anaknya"
+      },
+      {
+        name: "url",
+        placeholder: "URL Gambar",
+        defaultValue: "https://www.upload.ee/image/19400325/images.webp"
+      }
+    ]
+  },
+  {
     id: "canvas-starboy",
     category: "canvas",
     name: "Starboy Canvas",
@@ -400,6 +423,15 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // GAME CATEGORY
   {
+    id: "game-asahotak",
+    category: "game",
+    name: "Asah Otak (Kuis)",
+    provider: "siputzx",
+    path: "/game/asahotak",
+    method: "GET",
+    description: "Mendapatkan kuis game Asah Otak acak untuk mengasah otak Anda dengan pertanyaan cerdas dan kunci jawabannya secara real-time."
+  },
+  {
     id: "game-caklontong",
     category: "game",
     name: "Cak Lontong (Kuis)",
@@ -431,6 +463,15 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "game-family100",
+    category: "game",
+    name: "Family 100 (Kuis)",
+    provider: "siputzx",
+    path: "/game/family100",
+    method: "GET",
+    description: "Mendapatkan kuis game Family 100 acak lengkap dengan pertanyaan dan jawaban survei populer secara real-time."
+  },
+  {
     id: "game-lengkapikalimat",
     category: "game",
     name: "Lengkapi Kalimat (Kuis)",
@@ -458,6 +499,60 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Mendapatkan kuis tebak member JKT48 acak yang berisi foto siluet/petunjuk member dan jawabannya secara real-time."
   },
   {
+    id: "game-karakterff",
+    category: "game",
+    name: "Karakter Free Fire (Kuis)",
+    provider: "siputzx",
+    path: "/game/karakter-freefire",
+    method: "GET",
+    description: "Mendapatkan kuis game gratis tebak Karakter Free Fire acak lengkap dengan petunjuk gambar dan jawaban secara real-time."
+  },
+  {
+    id: "game-tebakbendera",
+    category: "game",
+    name: "Tebak Bendera (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakbendera",
+    method: "GET",
+    description: "Mendapatkan kuis tebak bendera negara acak lengkap dengan gambar bendera dan kunci jawabannya secara real-time."
+  },
+  {
+    id: "game-tebakkartun",
+    category: "game",
+    name: "Tebak Kartun (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakkartun",
+    method: "GET",
+    description: "Mendapatkan kuis tebak kartun populer acak lengkap dengan petunjuk gambar dan kunci jawabannya secara real-time."
+  },
+  {
+    id: "game-tebakgambar",
+    category: "game",
+    name: "Tebak Gambar (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakgambar",
+    method: "GET",
+    description: "Mendapatkan kuis game gratis tebak gambar acak lengkap dengan petunjuk gambar dan jawaban secara real-time."
+  },
+  {
+    id: "game-tebakgame",
+    category: "game",
+    name: "Tebak Game (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakgame",
+    method: "GET",
+    description: "Mendapatkan kuis game gratis tebak judul game acak lengkap dengan petunjuk gambar/deskripsi dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-tebakheroml",
+    category: "game",
+    name: "Tebak Hero ML (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakheroml",
+    method: "GET",
+    description: "Mendapatkan kuis game tebak nama Hero Mobile Legends: Bang Bang acak berdasarkan siluet, deskripsi, atau gambar secara real-time."
+  },
+  {
     id: "game-tebaklagu",
     category: "game",
     name: "Tebak Lagu (Kuis)",
@@ -465,6 +560,33 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/game/tebaklagu",
     method: "GET",
     description: "Mendapatkan kuis tebak judul lagu acak yang berisi petunjuk audio/deskripsi lagu dan jawaban secara real-time."
+  },
+  {
+    id: "game-tebaklirik",
+    category: "game",
+    name: "Tebak Lirik (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebaklirik",
+    method: "GET",
+    description: "Mendapatkan kuis game gratis tebak lirik lagu acak dengan penggalan lirik lagu dan jawaban lengkap secara real-time."
+  },
+  {
+    id: "game-tebakkata",
+    category: "game",
+    name: "Tebak Kata (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakkata",
+    method: "GET",
+    description: "Mendapatkan kuis tebak kata acak lengkap dengan petunjuk pemicu pemikiran dan solusi jawaban secara real-time."
+  },
+  {
+    id: "game-tebakkimia",
+    category: "game",
+    name: "Tebak Kimia (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebakkimia",
+    method: "GET",
+    description: "Mendapatkan kuis tebak unsur atau senyawa kimia secara acak yang berisi lambang/nama beserta jawaban lengkap secara real-time."
   },
   {
     id: "game-tebakkalimat",
@@ -483,6 +605,24 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/game/tebaklogo",
     method: "GET",
     description: "Mendapatkan kuis tebak logo perusahaan/organisasi acak yang berisi gambar logo dan kunci jawaban secara real-time."
+  },
+  {
+    id: "game-tebaksurah",
+    category: "game",
+    name: "Tebak Surah (Kuis)",
+    provider: "siputzx",
+    path: "/game/surah",
+    method: "GET",
+    description: "Mendapatkan kuis game Tebak Surah acak dari Al-Qur'an untuk menebak nama surah berdasarkan ayat secara real-time."
+  },
+  {
+    id: "game-tebaktebakan",
+    category: "game",
+    name: "Tebak-tebakan (Kuis)",
+    provider: "siputzx",
+    path: "/game/tebaktebakan",
+    method: "GET",
+    description: "Mendapatkan kuis Tebak-tebakan jenaka dan teka-teki lucu acak lengkap dengan kunci jawabannya secara real-time."
   },
   {
     id: "game-tebakwarna",
@@ -505,6 +645,39 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // INFORMATION CATEGORY
   {
+    id: "information-cuaca",
+    category: "information",
+    name: "Informasi Cuaca BMKG",
+    provider: "nexray",
+    path: "/information/cuaca",
+    method: "GET",
+    description: "Mendapatkan data prakiraan cuaca real-time dari BMKG untuk kota/lokasi spesifik secara real-time.",
+    queryParams: [
+      {
+        name: "kota",
+        placeholder: "Pilih kota (contoh: jakarta)",
+        defaultValue: "jakarta",
+        options: [
+          "jakarta",
+          "bandung",
+          "surabaya",
+          "medan",
+          "yogyakarta",
+          "makassar",
+          "purwokerto",
+          "kepulauan seribu",
+          "bali",
+          "palembang",
+          "semarang",
+          "malang",
+          "bogor",
+          "tangerang",
+          "bekasi"
+        ]
+      }
+    ]
+  },
+  {
     id: "information-gempa",
     category: "information",
     name: "Informasi Gempa BMKG",
@@ -512,6 +685,15 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/information/gempa",
     method: "GET",
     description: "Mendapatkan data real-time informasi gempa bumi terkini dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)."
+  },
+  {
+    id: "information-growagarden",
+    category: "information",
+    name: "Grow A Garden Stock",
+    provider: "nexray",
+    path: "/information/growagarden",
+    method: "GET",
+    description: "Mendapatkan informasi data stok dari merchant Grow A Garden secara real-time."
   },
   {
     id: "information-harilibur",
@@ -553,6 +735,176 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Mendapatkan Jadwal TV untuk channel spesifik.",
     queryParams: [
       { name: "channel", placeholder: "mnctv", defaultValue: "mnctv" }
+    ]
+  },
+
+  // SEARCH CATEGORY
+  {
+    id: "search-applemusic",
+    category: "search",
+    name: "Apple Music",
+    provider: "nexray",
+    path: "/search/applemusic",
+    method: "GET",
+    description: "Mencari musik atau lagu favorit Anda langsung dari hulu Apple Music secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "Jogja istimewa", defaultValue: "Jogja istimewa" }
+    ]
+  },
+  {
+    id: "search-bilibili",
+    category: "search",
+    name: "Bilibili Search",
+    provider: "nexray",
+    path: "/search/bilibili",
+    method: "GET",
+    description: "Mencari video menarik di platform Bilibili berdasarkan kata kunci secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "anime", defaultValue: "anime" }
+    ]
+  },
+  {
+    id: "search-bingimage",
+    category: "search",
+    name: "Bing Image Search",
+    provider: "nexray",
+    path: "/search/bingimage",
+    method: "GET",
+    description: "Mencari dan menampilkan berbagai gambar berkualitas tinggi menggunakan Bing Image Search secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "kucing", defaultValue: "kucing" }
+    ]
+  },
+  {
+    id: "search-capcut",
+    category: "search",
+    name: "CapCut Search",
+    provider: "nexray",
+    path: "/search/capcut",
+    method: "GET",
+    description: "Mencari template video CapCut populer dan menarik rasa ingin tahu Anda secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "jj", defaultValue: "jj" }
+    ]
+  },
+  {
+    id: "search-github",
+    category: "search",
+    name: "GitHub Search",
+    provider: "nexray",
+    path: "/search/github",
+    method: "GET",
+    description: "Mencari berkas, kode, atau repositori di GitHub secara real-time berdasarkan kata kunci.",
+    queryParams: [
+      { name: "q", placeholder: "Bot whatsapp", defaultValue: "Bot whatsapp" }
+    ]
+  },
+  {
+    id: "search-happymood",
+    category: "search",
+    name: "HappyMood Search",
+    provider: "nexray",
+    path: "/search/happymood",
+    method: "GET",
+    description: "Mencari game dan aplikasi modifikasi pilihan Anda di HappyMod secara gratis dan real-time.",
+    queryParams: [
+      { name: "q", placeholder: "Mobile legend", defaultValue: "Mobile legend" }
+    ]
+  },
+  {
+    id: "search-lyrics",
+    category: "search",
+    name: "Lyrics Search",
+    provider: "nexray",
+    path: "/search/lyrics",
+    method: "GET",
+    description: "Mencari lirik lagu lengkap berdasarkan judul lagu pilihan Anda secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "someone like you", defaultValue: "someone like you" }
+    ]
+  },
+  {
+    id: "search-npmjs",
+    category: "search",
+    name: "NPM Package",
+    provider: "nexray",
+    path: "/search/npmjs",
+    method: "GET",
+    description: "Mencari dan menemukan berkas package langsung dari NPM registry secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "api", defaultValue: "api" }
+    ]
+  },
+  {
+    id: "search-pinterest",
+    category: "search",
+    name: "Pinterest Search",
+    provider: "nexray",
+    path: "/search/pinterest",
+    method: "GET",
+    description: "Mencari foto, ide kreatif, atau wallpaper estetika di Pinterest secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "pp couple", defaultValue: "pp couple" }
+    ]
+  },
+  {
+    id: "search-resep",
+    category: "search",
+    name: "Resep Koki",
+    provider: "nexray",
+    path: "/search/resep",
+    method: "GET",
+    description: "Mencari resep makanan lezat nusantara langsung dari ResepKoki.id secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "rendang", defaultValue: "rendang" }
+    ]
+  },
+  {
+    id: "search-sfile",
+    category: "search",
+    name: "SFile Search",
+    provider: "nexray",
+    path: "/search/sfile",
+    method: "GET",
+    description: "Mencari dan menemukan file yang di-upload di SFile.mobi secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "scrape", defaultValue: "scrape" }
+    ]
+  },
+  {
+    id: "search-soundcloud",
+    category: "search",
+    name: "SoundCloud Search",
+    provider: "nexray",
+    path: "/search/soundcloud",
+    method: "GET",
+    description: "Mencari dan mendengarkan berbagai lagu menarik di SoundCloud secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "mangu", defaultValue: "mangu" }
+    ]
+  },
+  {
+    id: "search-spotify",
+    category: "search",
+    name: "Spotify Search",
+    provider: "nexray",
+    path: "/search/spotify",
+    method: "GET",
+    description: "Mencari lagu atau album favorit di Spotify secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "jakarta hari ini", defaultValue: "jakarta hari ini" }
+    ]
+  },
+  {
+    id: "search-tiktok",
+    category: "search",
+    name: "TikTok Search",
+    provider: "nexray",
+    path: "/search/tiktok",
+    method: "GET",
+    description: "Mencari video, pengguna, atau konten populer di TikTok secara real-time.",
+    queryParams: [
+      { name: "q", placeholder: "vilmei", defaultValue: "vilmei" }
     ]
   },
 
@@ -1490,6 +1842,18 @@ print(response.json())`;
                     </button>
 
                     <button
+                      onClick={() => { setActiveFolder("search"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "search"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <Search className="h-3.5 w-3.5" />
+                      <span>Search ({ENDPOINTS.filter(e => e.category === "search").length})</span>
+                    </button>
+
+                    <button
                       onClick={() => { setActiveFolder("stalker"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "stalker"
@@ -1497,7 +1861,7 @@ print(response.json())`;
                           : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
                       }`}
                     >
-                      <Search className="h-3.5 w-3.5" />
+                      <UserSearch className="h-3.5 w-3.5" />
                       <span>Stalker ({ENDPOINTS.filter(e => e.category === "stalker").length})</span>
                     </button>
 

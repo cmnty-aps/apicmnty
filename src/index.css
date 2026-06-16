@@ -42,6 +42,7 @@ html.light-theme {
 
 html.light-theme img,
 html.light-theme video,
-html.light-theme canvas {
+html.light-theme canvas,
+html.light-theme iframe {
   filter: invert(1) hue-rotate(180deg);
 }
