@@ -352,18 +352,6 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "maker-fakeovo",
-    category: "canvas",
-    name: "Fake OVO Maker",
-    provider: "cuki",
-    path: "/maker/fakeovo",
-    method: "GET",
-    description: "Hasilkan gambar bukti saldo OVO palsu dengan nominal kustom. Mengembalikan response dalam bentuk gambar.",
-    queryParams: [
-      { name: "amount", placeholder: "Nominal (contoh: 200000)", defaultValue: "200000" }
-    ]
-  },
-  {
     id: "maker-fakeberita",
     category: "canvas",
     name: "Fake News Maker",
@@ -381,6 +369,65 @@ const ENDPOINTS: EndpointSpec[] = [
         name: "url",
         placeholder: "URL Gambar",
         defaultValue: "https://www.upload.ee/image/19400325/images.webp"
+      }
+    ]
+  },
+  {
+    id: "maker-fakeovo",
+    category: "canvas",
+    name: "Fake OVO Maker",
+    provider: "cuki",
+    path: "/maker/fakeovo",
+    method: "GET",
+    description: "Hasilkan gambar bukti saldo OVO palsu dengan nominal kustom. Mengembalikan response dalam bentuk gambar.",
+    queryParams: [
+      { name: "amount", placeholder: "Nominal (contoh: 200000)", defaultValue: "200000" }
+    ]
+  },
+  {
+    id: "maker-iqc-group",
+    category: "canvas",
+    name: "iqc group",
+    provider: "cuki",
+    path: "/maker/iqc-group",
+    method: "GET",
+    description: "Hasilkan gambar parodi grup chat QC iPhone kustom dengan setting nama, pesan, baterai, dan waktu.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks Pesan",
+        defaultValue: "hai kak 🥺👉🏻👈🏻"
+      },
+      {
+        name: "name",
+        placeholder: "Nama",
+        defaultValue: "cmnty universe"
+      },
+      {
+        name: "battery",
+        placeholder: "Persentase Baterai",
+        defaultValue: "100"
+      },
+      {
+        name: "time",
+        placeholder: "Waktu (00.00)",
+        defaultValue: "00.00"
+      }
+    ]
+  },
+  {
+    id: "maker-iqc",
+    category: "canvas",
+    name: "iqc",
+    provider: "nexray",
+    path: "/maker/iqc",
+    method: "GET",
+    description: "Membuat gambar IQC kustom dari input dokumen teks atau pesan pilihan Anda.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks Informasi (contoh: cmnty the api free)",
+        defaultValue: "cmnty the api free"
       }
     ]
   },

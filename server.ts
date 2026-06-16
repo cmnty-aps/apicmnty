@@ -1414,6 +1414,77 @@ app.get(["/api/maker/fakeberita", "/maker/fakeberita"], async (req, res) => {
   }
 });
 
+// Maker Endpoint: iqc-group
+app.get(["/api/maker/iqc-group", "/maker/iqc-group"], async (req, res) => {
+  const text = req.query.text as string || "hai kak 🥺👉🏻👈🏻";
+  const name = req.query.name as string || "cmnty universe";
+  const battery = req.query.battery as string || "100";
+  const time = req.query.time as string || "00.00";
+  const targetUrl = `https://api.cuki.biz.id/api/maker/iqc-group?apikey=cuki-x&text=${encodeURIComponent(text)}&name=${encodeURIComponent(name)}&battery=${encodeURIComponent(battery)}&time=${encodeURIComponent(time)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate IQC Group image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("IQC Group Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: iqc
+app.get(["/api/maker/iqc", "/maker/iqc"], async (req, res) => {
+  const text = req.query.text as string || "cmnty the api free";
+  const targetUrl = `https://api.nexray.eu.cc/maker/iqc?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate IQC image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("IQC Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Tools Endpoint: Web Phishing Check
 app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
   const start = Date.now();
