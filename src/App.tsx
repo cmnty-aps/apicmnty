@@ -1546,10 +1546,8 @@ export default function App() {
       hostname === "localhost" ||
       hostname === "127.0.0.1" ||
       hostname === "0.0.0.0" ||
-      hostname.endsWith(".run.app") ||
-      hostname.endsWith(".railway.app") ||
-      hostname.endsWith(".eu.cc") ||
-      hostname.endsWith(".railway.internal");
+      hostname === "api.cmnty.web.id" ||
+      hostname.endsWith(".run.app"); // Diperlukan agar pratinjau di dalam Google AI Studio tetap berfungsi dengan baik
 
     if (!isAuthorized && hostname !== "") {
       document.body.innerHTML = `
@@ -1592,10 +1590,48 @@ export default function App() {
     };
     document.addEventListener("keydown", preventShortcuts);
 
+    // 5. Active Anti-Debugging / DevTools Freeze System (Only activated in production/deployed mode)
+    const isDevelopment = 
+      hostname === "localhost" || 
+      hostname === "127.0.0.1" || 
+      hostname === "0.0.0.0" || 
+      hostname === "";
+
+    let debuggerInterval: NodeJS.Timeout | null = null;
+    let consoleInterval: NodeJS.Timeout | null = null;
+
+    if (!isDevelopment) {
+      // Periodic debugger injection to freeze any hackers attempts to inspect/debug state
+      const checkDebuggerNow = () => {
+        const startTime = Date.now();
+        // eslint-disable-next-line no-debugger
+        debugger;
+        const endTime = Date.now();
+        if (endTime - startTime > 100) {
+          // DevTools is currently open, we clear body or show warning
+          try {
+            console.clear();
+          } catch (e) {}
+        }
+      };
+      debuggerInterval = setInterval(checkDebuggerNow, 500);
+
+      // Console spam filter to clear and overwrite logs
+      consoleInterval = setInterval(() => {
+        try {
+          console.clear();
+          console.log("%cAKSES DILINDUNGI @CMNTY", "color: #ef4444; font-size: 24px; font-weight: bold;");
+          console.log("%cSeluruh kode & data API dilindungi oleh sistem keamanan anti-theft @cmnty.", "color: #a1a1aa; font-size: 14px;");
+        } catch (e) {}
+      }, 1000);
+    }
+
     // Cleanups on unmount
     return () => {
       document.removeEventListener("contextmenu", preventRightClick);
       document.removeEventListener("keydown", preventShortcuts);
+      if (debuggerInterval) clearInterval(debuggerInterval);
+      if (consoleInterval) clearInterval(consoleInterval);
     };
   }, []);
 

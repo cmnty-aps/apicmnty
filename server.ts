@@ -55,6 +55,70 @@ function logRequest(method: string, url: string, status: number, durationMs: num
   broadcast({ type: "TRAFFIC_LOG", log });
 }
 
+// Rate Limiter storage
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+// Security Headers & Rate Limiting Middlewares
+app.use((req, res, next) => {
+  // 1. Add standard HTTP Security Headers & CORS for Developer Integration
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("X-Download-Options", "noopen");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  // 2. Simple In-Memory Rate Limiting
+  // Only apply rate limits to API routes to prevent resource exhaustion and brute-forcing
+  const isApiRoute = req.path.startsWith("/api/") || 
+                     req.path.startsWith("/payment/") || 
+                     req.path.startsWith("/ai/") || 
+                     req.path.startsWith("/berita/") || 
+                     req.path.startsWith("/tools/") || 
+                     req.path.startsWith("/canvas/") || 
+                     req.path.startsWith("/information/") || 
+                     req.path.startsWith("/stalker/") || 
+                     req.path.startsWith("/maker/") ||
+                     req.path.startsWith("/game/");
+
+  if (isApiRoute && !req.path.includes("/v1/logs") && !req.path.includes("visitor")) {
+    const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+    const ip = Array.isArray(rawIp) ? rawIp[0] : (rawIp as string).split(",")[0].trim();
+    
+    const now = Date.now();
+    const limitWindowMs = 60 * 1000; // 1 minute window
+    const maxRequests = 100; // Limit to 100 requests per minute
+    
+    let rateData = rateLimitMap.get(ip);
+    
+    if (!rateData || now > rateData.resetTime) {
+      rateData = {
+        count: 1,
+        resetTime: now + limitWindowMs
+      };
+      rateLimitMap.set(ip, rateData);
+    } else {
+      rateData.count++;
+      if (rateData.count > maxRequests) {
+        return res.status(429).json({
+          status: false,
+          statusCode: 429,
+          author: "@cmnty - Public-api",
+          message: "Terlalu banyak permintaan (Too many requests). Keamanan mendeteksi aktivitas mencurigakan. Coba lagi dalam 1 menit."
+        });
+      }
+    }
+  }
+
+  next();
+});
+
 // Anti-Theft / Anti-Scraping / WebToZip & HTTrack Security Middlewares
 app.use((req, res, next) => {
   const userAgent = (req.headers["user-agent"] || "").toLowerCase();
