@@ -38,7 +38,8 @@ import {
   Info,
   Gamepad2,
   Music,
-  UserSearch
+  UserSearch,
+  Shuffle
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -80,6 +81,7 @@ interface EndpointSpec {
   method: string;
   description: string;
   queryParams?: QueryParamSpec[];
+  responseType?: "json" | "image" | "audio";
 }
 
 const ENDPOINTS: EndpointSpec[] = [
@@ -229,6 +231,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/ai/gemini-tts",
     method: "GET",
+    responseType: "audio",
     description: "Ubah teks menjadi suara menggunakan teknologi Gemini TTS murni.",
     queryParams: [
       { name: "text", placeholder: "Teks yang ingin diubah (contoh: halo apa kabar)", defaultValue: "halo apa kabar" }
@@ -253,6 +256,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/ai/ideogram",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar berkualitas tinggi dengan teks yang jelas dan desain estetis menggunakan model Ideogram AI.",
     queryParams: [
       { name: "prompt", placeholder: "Contoh: kucing lucu pake topi", defaultValue: "kucing" }
@@ -317,6 +321,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/maker/brathd",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar teks bergaya Brat dengan kualitas tinggi yang tajam.",
     queryParams: [
       {
@@ -333,6 +338,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/maker/brat",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar teks bergaya Brat kustom dengan kata-kata pilihan Anda.",
     queryParams: [
       {
@@ -381,6 +387,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "siputzx",
     path: "/canvas/ektp",
     method: "GET",
+    responseType: "image",
     description: "Generate gambar EKTP kustom dengan parameter yang lengkap (provinsi, nik, nama, dll) untuk keperluan sandbox. Mengembalikan response dalam bentuk buffer gambar.",
     queryParams: [
       { name: "provinsi", placeholder: "JAWA BARAT", defaultValue: "JAWA BARAT" },
@@ -410,6 +417,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nan-z",
     path: "/maker/fakedana",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar bukti saldo DANA palsu dengan nominal kustom. Mengembalikan response dalam bentuk gambar.",
     queryParams: [
       { name: "text", placeholder: "Nominal (contoh: 200000)", defaultValue: "200000" }
@@ -422,6 +430,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nan-z",
     path: "/maker/fakeberita",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar parodi berita televisi (Fake News) dengan Headline dan gambar kustom.",
     queryParams: [
       {
@@ -443,6 +452,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "cuki",
     path: "/maker/fakeovo",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar bukti saldo OVO palsu dengan nominal kustom. Mengembalikan response dalam bentuk gambar.",
     queryParams: [
       { name: "amount", placeholder: "Nominal (contoh: 200000)", defaultValue: "200000" }
@@ -455,6 +465,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/maker/iqc",
     method: "GET",
+    responseType: "image",
     description: "Membuat gambar IQC kustom dari input dokumen teks atau pesan pilihan Anda.",
     queryParams: [
       {
@@ -471,6 +482,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "cuki",
     path: "/maker/iqc-group",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar parodi grup chat QC iPhone kustom dengan setting nama, pesan, baterai, dan waktu.",
     queryParams: [
       {
@@ -502,6 +514,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "cuki",
     path: "/maker/iqc-image",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar parodi bukti QC iPhone dengan kustomisasi gambar, teks, baterai, waktu, dan pilihan operator seluler.",
     queryParams: [
       {
@@ -539,6 +552,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/maker/qc",
     method: "GET",
+    responseType: "image",
     description: "Membuat gambar quoted chat dari teks.",
     queryParams: [
       {
@@ -570,6 +584,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "nexray",
     path: "/maker/smeme",
     method: "GET",
+    responseType: "image",
     description: "Membuat meme dengan teks atas dan bawah.",
     queryParams: [
       {
@@ -596,6 +611,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "cuki",
     path: "/canvas/starboy",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan gambar gaya 'Starboy' dari URL gambar dengan penghapusan latar belakang otomatis secara instan.",
     queryParams: [
       { name: "image", placeholder: "URL Gambar (https://...)", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1775993980606.jpeg" }
@@ -608,6 +624,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "cuki",
     path: "/canvas/susu-original",
     method: "GET",
+    responseType: "image",
     description: "Memasukkan subjek ke dalam template susu kedua menggunakan penghapusan latar belakang otomatis. Mengembalikan response dalam bentuk image buffer.",
     queryParams: [
       { name: "image", placeholder: "URL Gambar (https://...)", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1777998261437.jpeg" }
@@ -620,6 +637,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "cuki",
     path: "/canvas/susu-taro",
     method: "GET",
+    responseType: "image",
     description: "Memasukkan subjek ke dalam template susu taro menggunakan penghapusan latar belakang otomatis. Mengembalikan response dalam bentuk image buffer.",
     queryParams: [
       { name: "image", placeholder: "URL Gambar (https://...)", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1777998261437.jpeg" }
@@ -943,6 +961,38 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
 
+  // RANDOM CATEGORY
+  {
+    id: "random-hentai",
+    category: "random",
+    name: "Random Hentai",
+    provider: "ourin",
+    path: "/random/hentai",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar anime hentai secara acak untuk keperluan koleksi atau referensi.",
+  },
+  {
+    id: "random-kasedaiki",
+    category: "random",
+    name: "Random Kasedaiki",
+    provider: "ourin",
+    path: "/random/kasedaiki",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar anime Kasedaiki secara acak.",
+  },
+  {
+    id: "random-animegangbang",
+    category: "random",
+    name: "Anime Gangbang",
+    provider: "ourin",
+    path: "/random/animegangbang",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar Anime Gangbang secara acak.",
+  },
+
   // SEARCH CATEGORY
   {
     id: "search-applemusic",
@@ -1191,6 +1241,18 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // TOOLS CATEGORY
   {
+    id: "tools-infonegara",
+    category: "tools",
+    name: "Info Negara",
+    provider: "cuki",
+    path: "/tools/infonegara",
+    method: "GET",
+    description: "Mendapatkan informasi detail mengenai suatu negara termasuk bendera, mata uang, bahasa, dan data lainnya.",
+    queryParams: [
+      { name: "name", placeholder: "Nama negara (contoh: Indonesia)", defaultValue: "Indonesia" }
+    ]
+  },
+  {
     id: "tools-kodepos",
     category: "tools",
     name: "Pencarian Kode Pos",
@@ -1200,6 +1262,30 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Layanan pencarian kode pos wilayah administratif Republik Indonesia secara instan dengan parameter pencarian daerah.",
     queryParams: [
       { name: "form", placeholder: "Nama daerah (contoh: purbalingga)", defaultValue: "jakarta" }
+    ]
+  },
+  {
+    id: "tools-translate",
+    category: "tools",
+    name: "Translate",
+    provider: "siputzx",
+    path: "/tools/translate",
+    method: "GET",
+    description: "Menerjemahkan teks dari satu bahasa ke bahasa lain secara akurat menggunakan layanan penerjemahan instan.",
+    queryParams: [
+      { name: "text", placeholder: "Teks yang ingin diterjemahkan", defaultValue: "I love you" },
+      { 
+        name: "source", 
+        placeholder: "Bahasa asal", 
+        defaultValue: "en",
+        options: ["en", "id", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
+      },
+      { 
+        name: "target", 
+        placeholder: "Bahasa tujuan", 
+        defaultValue: "id",
+        options: ["id", "en", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
+      }
     ]
   },
   {
@@ -1256,12 +1342,31 @@ const ENDPOINTS: EndpointSpec[] = [
     id: "tools-ssweb",
     category: "tools",
     name: "Website Screenshot",
-    provider: "nexray",
+    provider: "siputzx",
     path: "/tools/ssweb",
     method: "GET",
-    description: "Ambil tangkapan layar (screenshot) dari URL situs web yang diberikan secara instan.",
+    responseType: "image",
+    description: "Mengambil tangkapan layar (screenshot) dari sebuah website berdasarkan URL yang diberikan dengan pilihan perangkat, tema, dan mode satu halaman penuh.",
     queryParams: [
-      { name: "url", placeholder: "https://google.com", defaultValue: "https://google.com" }
+      { name: "url", placeholder: "https://example.com", defaultValue: "https://api.cmnty.web.id" },
+      { 
+        name: "device", 
+        placeholder: "Pilih Perangkat", 
+        defaultValue: "desktop",
+        options: ["desktop", "mobile", "tablet"]
+      },
+      { 
+        name: "theme", 
+        placeholder: "Pilih Tema", 
+        defaultValue: "dark",
+        options: ["dark", "light"]
+      },
+      { 
+        name: "fullPage", 
+        placeholder: "Halaman Penuh?", 
+        defaultValue: "false",
+        options: ["true", "false"]
+      }
     ]
   }
 ];
@@ -1579,9 +1684,11 @@ export default function App() {
 
   const getCodeSnippet = (ep: EndpointSpec, currentCustomPath: string) => {
     const fullApiPath = `${appBaseUrl}${currentCustomPath}`;
+    const isJsonResponse = !ep.responseType || ep.responseType === "json";
+
     if (selectedCodeLang === "curl") {
       const method = ep.method || "GET";
-      const headers = `-H "Accept: application/json"`;
+      const headers = isJsonResponse ? `-H "Accept: application/json"` : "";
       
       if (method === "POST") {
         const body: Record<string, any> = {};
@@ -1593,16 +1700,27 @@ export default function App() {
           else body[key] = sVal;
         });
         return `curl -X POST "${appBaseUrl}${ep.path}" \\
-  ${headers} \\
-  -H "Content-Type: application/json" \\
+  ${headers ? `${headers} \\\n  ` : ""}-H "Content-Type: application/json" \\
   -d '${JSON.stringify(body, null, 2)}'`;
       }
 
-      return `curl -X GET "${fullApiPath}" \\
-  ${headers}`;
+      return `curl -X GET "${fullApiPath}"${headers ? ` \\\n  ${headers}` : ""}`;
     }
     if (selectedCodeLang === "javascript") {
       const method = ep.method || "GET";
+      const acceptHeader = isJsonResponse ? `\n    "Accept": "application/json",` : "";
+      const thenBlock = isJsonResponse 
+        ? `.then(response => response.json())
+.then(data => console.log(data));`
+        : (ep.responseType === "image" 
+            ? `.then(response => response.blob())
+.then(blob => {
+  const url = URL.createObjectURL(blob);
+  console.log("Image URL:", url);
+});` 
+            : `.then(response => response.blob())
+.then(blob => console.log("Blob received:", blob));`);
+
       if (method === "POST") {
         const body: Record<string, any> = {};
         Object.entries(queryParams).forEach(([key, val]) => {
@@ -1614,28 +1732,32 @@ export default function App() {
         });
         return `fetch("${appBaseUrl}${ep.path}", {
   method: "POST",
-  headers: {
-    "Accept": "application/json",
+  headers: {${acceptHeader}
     "Content-Type": "application/json"
   },
   body: JSON.stringify(${JSON.stringify(body, null, 2)})
 })
-.then(response => response.json())
-.then(data => console.log(data));`;
+${thenBlock}`;
       }
       return `fetch("${fullApiPath}", {
-  method: "GET",
+  method: "GET"${isJsonResponse ? `,
   headers: {
     "Accept": "application/json"
-  }
+  }` : ""}
 })
-.then(response => response.json())
-.then(data => console.log(data));`;
+${thenBlock}`;
     }
     if (selectedCodeLang === "python") {
       const method = ep.method || "GET";
-      const headers = `headers = {"Accept": "application/json"}`;
-      
+      const acceptHeader = isJsonResponse ? `"Accept": "application/json"` : "";
+      const printBlock = isJsonResponse 
+        ? `print(response.json())`
+        : (ep.responseType === "image" 
+            ? `with open("result.png", "wb") as f:
+    f.write(response.content)
+print("Image saved to result.png")`
+            : `print("Response content received:", response.content[:100])`);
+
       if (method === "POST") {
         const body: Record<string, any> = {};
         Object.entries(queryParams).forEach(([key, val]) => {
@@ -1649,23 +1771,21 @@ export default function App() {
 import json
 
 url = "${appBaseUrl}${ep.path}"
-headers = {
-    "Accept": "application/json",
+headers = {${acceptHeader ? `\n    ${acceptHeader},` : ""}
     "Content-Type": "application/json"
 }
 payload = ${JSON.stringify(body, null, 4)}
 
 response = requests.post(url, headers=headers, json=payload)
-print(response.json())`;
+${printBlock}`;
       }
 
       return `import requests
 
 url = "${fullApiPath}"
-headers = {"Accept": "application/json"}
-
-response = requests.get(url, headers=headers)
-print(response.json())`;
+${acceptHeader ? `headers = {${acceptHeader}}\n` : ""}
+response = requests.get(url${acceptHeader ? ", headers=headers" : ""})
+${printBlock}`;
     }
     return "";
   };
@@ -2113,6 +2233,18 @@ print(response.json())`;
                     >
                       <Info className="h-3.5 w-3.5" />
                       <span>Info ({ENDPOINTS.filter(e => e.category === "information").length})</span>
+                    </button>
+
+                    <button
+                      onClick={() => { setActiveFolder("random"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "random"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <Shuffle className="h-3.5 w-3.5" />
+                      <span>Random ({ENDPOINTS.filter(e => e.category === "random").length})</span>
                     </button>
 
                     <button

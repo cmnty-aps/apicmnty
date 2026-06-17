@@ -275,6 +275,57 @@ app.get(["/api/v1/berita/:provider", "/berita/:provider"], async (req, res) => {
   }
 });
 
+// Tools Endpoint: infonegara
+app.get(["/api/tools/infonegara", "/tools/infonegara"], async (req, res) => {
+  const start = Date.now();
+  const name = req.query.name || "Indonesia";
+  const targetUrl = `https://api.cuki.biz.id/api/tools/infonegara?apikey=cuki-x&name=${encodeURIComponent(name as string)}`;
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+
+    const textData = await response.text();
+    let jsonData;
+    try {
+      jsonData = JSON.parse(textData);
+    } catch (e) {
+      jsonData = { raw: textData };
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+        request_id: Math.random().toString(36).substring(7)
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(jsonData);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    const duration = Date.now() - start;
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Tools Endpoint: kodepos
 app.get(["/api/v1/tools/kodepos", "/tools/kodepos"], async (req, res) => {
   const start = Date.now();
@@ -322,6 +373,66 @@ app.get(["/api/v1/tools/kodepos", "/tools/kodepos"], async (req, res) => {
       author: "@cmnty - Public-api",
       responseTimeMs: duration,
       timestamp: new Date().toISOString(),
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: Translate
+app.get(["/api/tools/translate", "/tools/translate"], async (req, res) => {
+  const start = Date.now();
+  const text = req.query.text as string;
+  const source = req.query.source as string || "en";
+  const target = req.query.target as string || "id";
+
+  if (!text) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'text' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/tools/translate?text=${encodeURIComponent(text)}&source=${source}&target=${target}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    
+    const textData = await response.text();
+    let jsonData;
+    try {
+      jsonData = JSON.parse(textData);
+    } catch (e) {
+      jsonData = { raw: textData };
+    }
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(jsonData);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Translate error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
       message: getErrorMessage(500),
     });
   }
@@ -3241,6 +3352,105 @@ app.get(["/api/information/gempa", "/information/gempa"], async (req, res) => {
   }
 });
 
+// Random Endpoint: Hentai
+app.get(["/api/random/hentai", "/random/hentai"], async (req, res) => {
+  const targetUrl = `https://api.ourin.my.id/api/anime-hentai`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Hentai error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Kasedaiki
+app.get(["/api/random/kasedaiki", "/random/kasedaiki"], async (req, res) => {
+  const targetUrl = `https://api.ourin.my.id/api/kasedaiki`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Kasedaiki error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Anime Gangbang
+app.get(["/api/random/animegangbang", "/random/animegangbang"], async (req, res) => {
+  const targetUrl = `https://api.ourin.my.id/api/anime-gangbang`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Anime Gangbang error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Search Endpoint: Apple Music
 app.get(["/api/search/applemusic", "/search/applemusic"], async (req, res) => {
   const start = Date.now();
@@ -3832,6 +4042,9 @@ app.get(["/api/search/tiktok", "/search/tiktok"], async (req, res) => {
 // Tools Endpoint: Website Screenshot
 app.get(["/api/tools/ssweb", "/tools/ssweb"], async (req, res) => {
   const url = req.query.url as string;
+  const device = req.query.device as string || "desktop";
+  const theme = req.query.theme as string || "dark";
+  const fullPage = req.query.fullPage as string || "false";
   
   if (!url) {
     return res.status(400).json({
@@ -3842,7 +4055,7 @@ app.get(["/api/tools/ssweb", "/tools/ssweb"], async (req, res) => {
     });
   }
 
-  const targetUrl = `https://api.nexray.eu.cc/tools/ssweb?url=${encodeURIComponent(url)}`;
+  const targetUrl = `https://api.siputzx.my.id/api/tools/ssweb?url=${encodeURIComponent(url)}&device=${device}&theme=${theme}&fullPage=${fullPage}`;
 
   try {
     const response = await fetch(targetUrl);
@@ -4333,23 +4546,9 @@ app.get(["/api/stalker/tiktok", "/stalker/tiktok"], async (req, res) => {
 });
 
 // Tools Endpoint: BentoSnap Record
-app.all(["/api/tools/record", "/tools/record"], async (req, res) => {
+app.post(["/api/tools/record", "/tools/record"], async (req, res) => {
   const start = Date.now();
   const targetUrl = "https://shinana-bentosnap.hf.space/api/record";
-  
-  // Use query params for GET, body for POST
-  const payload = req.method === "GET" ? req.query : req.body;
-
-  // Convert string values from query params to numbers/booleans where appropriate
-  const processedPayload: any = { ...payload };
-  if (req.method === "GET") {
-    if (processedPayload.duration_ms) processedPayload.duration_ms = parseInt(processedPayload.duration_ms);
-    if (processedPayload.wait_ms) processedPayload.wait_ms = parseInt(processedPayload.wait_ms);
-    if (processedPayload.scroll === "true") processedPayload.scroll = true;
-    if (processedPayload.scroll === "false") processedPayload.scroll = false;
-    if (processedPayload.dark_mode === "true") processedPayload.dark_mode = true;
-    if (processedPayload.dark_mode === "false") processedPayload.dark_mode = false;
-  }
   
   try {
     const response = await fetch(targetUrl, {
@@ -4358,17 +4557,11 @@ app.all(["/api/tools/record", "/tools/record"], async (req, res) => {
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
-      body: JSON.stringify(processedPayload)
+      body: JSON.stringify(req.body)
     });
     
     const duration = Date.now() - start;
-    const textData = await response.text();
-    let data;
-    try {
-      data = JSON.parse(textData);
-    } catch (e) {
-      data = { error: "Invalid JSON response from upstream", raw: textData };
-    }
+    const data = await response.json();
     
     if (!response.ok) {
       return res.status(response.status).json({
