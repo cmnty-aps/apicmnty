@@ -879,24 +879,7 @@ const ENDPOINTS: EndpointSpec[] = [
       {
         name: "kota",
         placeholder: "Pilih kota (contoh: jakarta)",
-        defaultValue: "jakarta",
-        options: [
-          "jakarta",
-          "bandung",
-          "surabaya",
-          "medan",
-          "yogyakarta",
-          "makassar",
-          "purwokerto",
-          "kepulauan seribu",
-          "bali",
-          "palembang",
-          "semarang",
-          "malang",
-          "bogor",
-          "tangerang",
-          "bekasi"
-        ]
+        defaultValue: "jakarta"
       }
     ]
   },
@@ -1553,7 +1536,7 @@ export default function App() {
       document.body.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #040405; color: #ef4444; font-family: sans-serif; text-align: center; padding: 20px;">
           <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 12px; letter-spacing: -0.025em;">DOMAIN TIDAK DIIZINKAN</h1>
-          <p style="color: #a1a1aa; font-size: 14px; max-width: 500px; line-height: 1.6;">Domain <strong>${hostname}</strong> telah diblokir secara otomatis karena terindikasi menggunakan kode ilegal cetakan webtozip atau kloning tidak resmi. Silakan hubungi @cmnty untuk akses terverifikasi.</p>
+          <p style="color: #a1a1aa; font-size: 14px; max-width: 500px; line-height: 1.6;">Domain <strong>${hostname}</strong> telah diblokir secara otomatis karena terindikasi menggunakan kode ilegal. Silakan hubungi @cmnty.official untuk akses terverifikasi.</p>
         </div>
       `;
       return;
@@ -1964,24 +1947,24 @@ ${printBlock}`;
                 className="w-full h-full object-cover z-10 loading-screen-video"
                 onContextMenu={(e) => e.preventDefault()}
               />
-              <div className="absolute bottom-6 left-0 right-0 z-30 flex flex-col items-center">
-                <div className="w-48 h-[1px] bg-zinc-950 rounded-full overflow-hidden mb-3">
+              <div className="absolute bottom-4 left-0 right-0 z-30 flex flex-col items-center">
+                <div className="w-48 h-[2px] bg-zinc-900 rounded-full overflow-hidden mb-3.5">
                   <motion.div 
                     initial={{ x: "-100%" }}
                     animate={{ x: "100%" }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="w-full h-full bg-zinc-500"
+                    className="w-full h-full bg-zinc-300"
                   />
                 </div>
-                <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-zinc-500 animate-pulse">Welcome Developer</span>
+                <span className="text-xs uppercase tracking-[0.3em] font-bold font-mono text-zinc-100 animate-pulse">Welcome Developer</span>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Visual background grid layout - styled exactly like the screenshot */}
-      <div className="absolute inset-0 bg-[#040405] bg-[linear-gradient(to_right,#0f0f12_1px,transparent_1px),linear-gradient(to_bottom,#0f0f12_1px,transparent_1px)] bg-[size:30px_30px] opacity-25 pointer-events-none text-left" />
+      {/* Visual background grid layout - styled exactly like the screenshot with subtle elegant grid lines */}
+      <div className="absolute inset-0 bg-[#040405] bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:30px_30px] opacity-40 pointer-events-none text-left" />
 
       {/* Decorative Top Glowing Line */}
       <div className="fixed top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-transparent via-white to-transparent shadow-[0_0_30px_rgba(255,255,255,0.8)] z-[100] pointer-events-none" />
