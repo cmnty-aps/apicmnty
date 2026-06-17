@@ -6,7 +6,7 @@ import {
   LayoutGrid,
   Newspaper,
   Wrench,
-  Layers,
+  CreditCard,
   Palette,
   BrainCircuit,
   Terminal,
@@ -961,6 +961,36 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
 
+  // PAYMENT CATEGORY
+  {
+    id: "payment-saweriacreate",
+    category: "payment",
+    name: "Saweria Create",
+    provider: "nexray",
+    path: "/payment/saweria/create",
+    method: "GET",
+    description: "Membuat detail transaksi pembayaran saweria menggunakan parameter username, nominal, sender, email, dan pesan.",
+    queryParams: [
+      { name: "username", placeholder: "Username Saweria (contoh: ojixcmnty)", defaultValue: "ojixcmnty" },
+      { name: "amount", placeholder: "Nominal saldo (contoh: 10000)", defaultValue: "10000" },
+      { name: "sender", placeholder: "Nama pengirim (contoh: oji)", defaultValue: "oji" },
+      { name: "email", placeholder: "Email pengirim (contoh: cmnty.api@gmail.com)", defaultValue: "cmnty.api@gmail.com" },
+      { name: "pesan", placeholder: "Pesan untuk penerima (contoh: halo)", defaultValue: "halo" }
+    ]
+  },
+  {
+    id: "payment-saweriacheck",
+    category: "payment",
+    name: "Saweria Check",
+    provider: "nexray",
+    path: "/payment/saweria/check",
+    method: "GET",
+    description: "Cek status pembayaran saweria menggunakan ID transaksi.",
+    queryParams: [
+      { name: "transactionid", placeholder: "ID Transaksi (contoh: 2a277a97-c9b2-4fc3-a27d-72fd89025124)", defaultValue: "2a277a97-c9b2-4fc3-a27d-72fd89025124" }
+    ]
+  },
+
   // RANDOM CATEGORY
   {
     id: "random-hentai",
@@ -1494,6 +1524,79 @@ export default function App() {
 
   useEffect(() => {
     fetchVisitorInfo();
+  }, []);
+
+  // Webtozip & Content Theft Protection System
+  useEffect(() => {
+    // 1. Block offline file execution (e.g., double clicking downloaded index.html)
+    if (window.location.protocol === "file:") {
+      document.body.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #040405; color: #ef4444; font-family: sans-serif; text-align: center; padding: 20px;">
+          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 12px; letter-spacing: -0.025em;">AKSES DITOLAK (ACCESS DENIED)</h1>
+          <p style="color: #a1a1aa; font-size: 14px; max-width: 500px; line-height: 1.6;">Pencurian atau penggandaan file/kode web terdeteksi. Berkas lokal tidak diizinkan untuk dijalankan secara langsung. Seluruh sistem dilindungi oleh keamanan anti-cloning @cmnty.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // 2. Block theft from running on unauthorized domains
+    const hostname = window.location.hostname;
+    const isAuthorized = 
+      hostname === "" ||
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0" ||
+      hostname.endsWith(".run.app") ||
+      hostname.endsWith(".railway.app") ||
+      hostname.endsWith(".eu.cc") ||
+      hostname.endsWith(".railway.internal");
+
+    if (!isAuthorized && hostname !== "") {
+      document.body.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #040405; color: #ef4444; font-family: sans-serif; text-align: center; padding: 20px;">
+          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 12px; letter-spacing: -0.025em;">DOMAIN TIDAK DIIZINKAN</h1>
+          <p style="color: #a1a1aa; font-size: 14px; max-width: 500px; line-height: 1.6;">Domain <strong>${hostname}</strong> telah diblokir secara otomatis karena terindikasi menggunakan kode ilegal cetakan webtozip atau kloning tidak resmi. Silakan hubungi @cmnty untuk akses terverifikasi.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // 3. Prevent contextual right click
+    const preventRightClick = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+    document.addEventListener("contextmenu", preventRightClick);
+
+    // 4. Prevent keyboards shortcuts for inspecting and viewing code source
+    const preventShortcuts = (e: KeyboardEvent) => {
+      // F12 key
+      if (e.key === "F12" || e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect tool)
+      if (e.ctrlKey && e.shiftKey && (e.key?.toLowerCase() === "i" || e.key?.toLowerCase() === "j" || e.key?.toLowerCase() === "c" || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+U (View source)
+      if (e.ctrlKey && (e.key?.toLowerCase() === "u" || e.keyCode === 85)) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+S / Cmd+S (Save page)
+      if ((e.ctrlKey || e.metaKey) && (e.key?.toLowerCase() === "s" || e.keyCode === 83)) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    document.addEventListener("keydown", preventShortcuts);
+
+    // Cleanups on unmount
+    return () => {
+      document.removeEventListener("contextmenu", preventRightClick);
+      document.removeEventListener("keydown", preventShortcuts);
+    };
   }, []);
 
   // Metrics monitoring
@@ -2233,6 +2336,18 @@ ${printBlock}`;
                     >
                       <Info className="h-3.5 w-3.5" />
                       <span>Info ({ENDPOINTS.filter(e => e.category === "information").length})</span>
+                    </button>
+
+                    <button
+                      onClick={() => { setActiveFolder("payment"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "payment"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <CreditCard className="h-3.5 w-3.5" />
+                      <span>Payment ({ENDPOINTS.filter(e => e.category === "payment").length})</span>
                     </button>
 
                     <button

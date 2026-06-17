@@ -55,6 +55,55 @@ function logRequest(method: string, url: string, status: number, durationMs: num
   broadcast({ type: "TRAFFIC_LOG", log });
 }
 
+// Anti-Theft / Anti-Scraping / WebToZip & HTTrack Security Middlewares
+app.use((req, res, next) => {
+  const userAgent = (req.headers["user-agent"] || "").toLowerCase();
+  
+  // List of blocked crawler / scraper / copier user-agents
+  const blockedAgents = [
+    "webtozip",
+    "web2zip",
+    "httrack",
+    "wget",
+    "offline",
+    "teleport",
+    "sitesucker",
+    "webcopier",
+    "downloader",
+    "cloner",
+    "extractor",
+    "scrap",
+    "crawl",
+    "spider",
+    "headless",
+    "puppeteer"
+  ];
+
+  const isBlockedAgent = blockedAgents.some(agent => userAgent.includes(agent));
+
+  if (isBlockedAgent) {
+    const isAssetOrPage = !req.path.startsWith("/api/") && 
+                          !req.path.startsWith("/payment/") && 
+                          !req.path.startsWith("/ai/") && 
+                          !req.path.startsWith("/berita/") && 
+                          !req.path.startsWith("/tools/") && 
+                          !req.path.startsWith("/stalker/") && 
+                          !req.path.startsWith("/maker/") && 
+                          !req.path.startsWith("/game/");
+    
+    if (isAssetOrPage || userAgent.includes("webtozip") || userAgent.includes("httrack")) {
+      return res.status(403).json({
+        status: false,
+        statusCode: 403,
+        author: "@cmnty - Public-api",
+        message: "Forbidden - Website scraping and cloner tools (WebToZip, HTTrack, etc.) are strictly blocked by security protocols."
+      });
+    }
+  }
+
+  next();
+});
+
 // Global logger middleware for API routes
 app.use((req, res, next) => {
   const start = Date.now();
@@ -70,7 +119,8 @@ app.use((req, res, next) => {
       req.path.startsWith("/information/") || 
       req.path.startsWith("/stalker/") || 
       req.path.startsWith("/maker/") ||
-      req.path.startsWith("/game/")
+      req.path.startsWith("/game/") ||
+      req.path.startsWith("/payment/")
     ) && !req.path.includes("visitor") && !req.path.includes("/v1/logs");
     
     // Ignore internal dev calls or static files if needed, but here we track APIs
@@ -4630,6 +4680,108 @@ app.get(["/output/:filename", "/recordings/:filename"], async (req, res) => {
     res.status(502).json({
       status: false,
       message: "Proxy error: " + error.message
+    });
+  }
+});
+
+// Payment Endpoint: Saweria Create
+app.get(["/api/payment/saweria/create", "/payment/saweria/create"], async (req, res) => {
+  const start = Date.now();
+  const { username, amount, sender, email, pesan } = req.query;
+
+  if (!username || !amount || !sender || !email || !pesan) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameters username, amount, sender, email, and pesan are required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/payment/saweria/create?username=${encodeURIComponent(username as string)}&amount=${encodeURIComponent(amount as string)}&sender=${encodeURIComponent(sender as string)}&email=${encodeURIComponent(email as string)}&pesan=${encodeURIComponent(pesan as string)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Saweria Create error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Payment Endpoint: Saweria Check
+app.get(["/api/payment/saweria/check", "/payment/saweria/check"], async (req, res) => {
+  const start = Date.now();
+  const { transactionid } = req.query;
+
+  if (!transactionid) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter transactionid is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/payment/saweria/check?transactionid=${encodeURIComponent(transactionid as string)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Saweria Check error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
     });
   }
 });
