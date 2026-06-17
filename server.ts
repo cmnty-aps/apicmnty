@@ -1485,6 +1485,253 @@ app.get(["/api/maker/iqc", "/maker/iqc"], async (req, res) => {
   }
 });
 
+// Maker Endpoint: iqc-image
+app.get(["/api/maker/iqc-image", "/maker/iqc-image"], async (req, res) => {
+  const image = req.query.image as string || "https://c.termai.cc/i176/VPoSY.png";
+  const text = req.query.text as string || "https://api.cmnty.web.id";
+  const battery = req.query.battery as string || "100";
+  const time = req.query.time as string || "00.00";
+  const provider = req.query.provider as string || "TELKOMSEL";
+  const targetUrl = `https://api.cuki.biz.id/api/maker/iqc-image?apikey=cuki-x&image=${encodeURIComponent(image)}&text=${encodeURIComponent(text)}&battery=${encodeURIComponent(battery)}&time=${encodeURIComponent(time)}&provider=${encodeURIComponent(provider)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate IQC Image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("IQC Image Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: brat
+app.get(["/api/maker/brat", "/maker/brat"], async (req, res) => {
+  const text = req.query.text as string || "cmnty universe";
+  const targetUrl = `https://api.nexray.eu.cc/maker/brat?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Brat image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Brat Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: brathd
+app.get(["/api/maker/brathd", "/maker/brathd"], async (req, res) => {
+  const text = req.query.text as string || "api.cmnty.web.id aja";
+  const targetUrl = `https://api.nexray.eu.cc/maker/brathd?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Brat HD image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Brat HD Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: bratvid
+app.get(["/api/maker/bratvid", "/maker/bratvid"], async (req, res) => {
+  const text = req.query.text as string || "halo semua, nyari api gratis? yg api.cmnty.web.id solusinya";
+  const targetUrl = `https://api.nexray.eu.cc/maker/bratvid?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "video/mp4";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Bratvid",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Bratvid Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: bratvidhd
+app.get(["/api/maker/bratvidhd", "/maker/bratvidhd"], async (req, res) => {
+  const text = req.query.text as string || "halo semua, nyari api gratis? yg api.cmnty.web.id solusinya";
+  const targetUrl = `https://api.nexray.eu.cc/maker/bratvidhd?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "video/mp4";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Bratvid HD",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Bratvid HD Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: qc
+app.get(["/api/maker/qc", "/maker/qc"], async (req, res) => {
+  const text = req.query.text as string || "halo semua welcome to api cmnty";
+  const name = req.query.name as string || "cmnty";
+  const avatar = req.query.avatar as string || "https://c.termai.cc/i176/VPoSY.png";
+  const color = req.query.color as string || "kuning";
+  const targetUrl = `https://api.nexray.eu.cc/maker/qc?text=${encodeURIComponent(text)}&name=${encodeURIComponent(name)}&avatar=${encodeURIComponent(avatar)}&color=${encodeURIComponent(color)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Qc image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Qc Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: smeme
+app.get(["/api/maker/smeme", "/maker/smeme"], async (req, res) => {
+  const text_atas = req.query.text_atas as string || "halo";
+  const text_bawah = req.query.text_bawah as string || "apa kabar";
+  const background = req.query.background as string || "https://c.termai.cc/i176/VPoSY.png";
+  const targetUrl = `https://api.nexray.eu.cc/maker/smeme?text_atas=${encodeURIComponent(text_atas)}&text_bawah=${encodeURIComponent(text_bawah)}&background=${encodeURIComponent(background)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Smeme image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Smeme Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Tools Endpoint: Web Phishing Check
 app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
   const start = Date.now();

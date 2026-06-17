@@ -311,6 +311,70 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // CANVAS CATEGORY
   {
+    id: "maker-brathd",
+    category: "canvas",
+    name: "Brat HD Maker",
+    provider: "nexray",
+    path: "/maker/brathd",
+    method: "GET",
+    description: "Hasilkan gambar teks bergaya Brat dengan kualitas tinggi yang tajam.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks (contoh: api.cmnty.web.id aja)",
+        defaultValue: "api.cmnty.web.id aja"
+      }
+    ]
+  },
+  {
+    id: "maker-brat",
+    category: "canvas",
+    name: "Brat Maker",
+    provider: "nexray",
+    path: "/maker/brat",
+    method: "GET",
+    description: "Hasilkan gambar teks bergaya Brat kustom dengan kata-kata pilihan Anda.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks (contoh: cmnty universe)",
+        defaultValue: "cmnty universe"
+      }
+    ]
+  },
+  {
+    id: "maker-bratvidhd",
+    category: "canvas",
+    name: "Bratvid HD Maker",
+    provider: "nexray",
+    path: "/maker/bratvidhd",
+    method: "GET",
+    description: "Hasilkan video teks bergaya Brat dengan kualitas HD kustom.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks (contoh: halo semua, nyari api gratis? yg api.cmnty.web.id solusinya)",
+        defaultValue: "halo semua, nyari api gratis? yg api.cmnty.web.id solusinya"
+      }
+    ]
+  },
+  {
+    id: "maker-bratvid",
+    category: "canvas",
+    name: "Bratvid Maker",
+    provider: "nexray",
+    path: "/maker/bratvid",
+    method: "GET",
+    description: "Hasilkan video teks bergaya Brat kustom dengan kata-kata pilihan Anda.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks (contoh: halo semua, nyari api gratis? yg api.cmnty.web.id solusinya)",
+        defaultValue: "halo semua, nyari api gratis? yg api.cmnty.web.id solusinya"
+      }
+    ]
+  },
+  {
     id: "canvas-ektp",
     category: "canvas",
     name: "EKTP Generator",
@@ -385,6 +449,22 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "maker-iqc",
+    category: "canvas",
+    name: "iqc",
+    provider: "nexray",
+    path: "/maker/iqc",
+    method: "GET",
+    description: "Membuat gambar IQC kustom dari input dokumen teks atau pesan pilihan Anda.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Teks Informasi (contoh: cmnty the api free)",
+        defaultValue: "cmnty the api free"
+      }
+    ]
+  },
+  {
     id: "maker-iqc-group",
     category: "canvas",
     name: "iqc group",
@@ -416,18 +496,96 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "maker-iqc",
+    id: "maker-iqc-image",
     category: "canvas",
-    name: "iqc",
-    provider: "nexray",
-    path: "/maker/iqc",
+    name: "iqc-image",
+    provider: "cuki",
+    path: "/maker/iqc-image",
     method: "GET",
-    description: "Membuat gambar IQC kustom dari input dokumen teks atau pesan pilihan Anda.",
+    description: "Hasilkan gambar parodi bukti QC iPhone dengan kustomisasi gambar, teks, baterai, waktu, dan pilihan operator seluler.",
+    queryParams: [
+      {
+        name: "image",
+        placeholder: "URL Gambar (https://...)",
+        defaultValue: "https://c.termai.cc/i176/VPoSY.png"
+      },
+      {
+        name: "text",
+        placeholder: "Teks Pesan",
+        defaultValue: "https://api.cmnty.web.id"
+      },
+      {
+        name: "battery",
+        placeholder: "Persentase Baterai",
+        defaultValue: "100"
+      },
+      {
+        name: "time",
+        placeholder: "Waktu (00.00)",
+        defaultValue: "00.00"
+      },
+      {
+        name: "provider",
+        placeholder: "Pilih Provider",
+        defaultValue: "TELKOMSEL",
+        options: ["INDOSAT", "XL", "TELKOMSEL", "SMARTFREN", "TRI", "AXIS", "LIVE.ON", "BY.U"]
+      }
+    ]
+  },
+  {
+    id: "maker-qc",
+    category: "canvas",
+    name: "Qc Maker",
+    provider: "nexray",
+    path: "/maker/qc",
+    method: "GET",
+    description: "Membuat gambar quoted chat dari teks.",
     queryParams: [
       {
         name: "text",
-        placeholder: "Teks Informasi (contoh: cmnty the api free)",
-        defaultValue: "cmnty the api free"
+        placeholder: "Teks",
+        defaultValue: "halo semua welcome to api cmnty"
+      },
+      {
+        name: "name",
+        placeholder: "Nama",
+        defaultValue: "cmnty"
+      },
+      {
+        name: "avatar",
+        placeholder: "URL Avatar",
+        defaultValue: "https://c.termai.cc/i176/VPoSY.png"
+      },
+      {
+        name: "color",
+        placeholder: "Warna (misal: kuning)",
+        defaultValue: "kuning"
+      }
+    ]
+  },
+  {
+    id: "maker-smeme",
+    category: "canvas",
+    name: "Smeme Maker",
+    provider: "nexray",
+    path: "/maker/smeme",
+    method: "GET",
+    description: "Membuat meme dengan teks atas dan bawah.",
+    queryParams: [
+      {
+        name: "text_atas",
+        placeholder: "Teks Atas",
+        defaultValue: "halo"
+      },
+      {
+        name: "text_bawah",
+        placeholder: "Teks Bawah",
+        defaultValue: "apa kabar"
+      },
+      {
+        name: "background",
+        placeholder: "URL Latar Belakang",
+        defaultValue: "https://c.termai.cc/i176/VPoSY.png"
       }
     ]
   },
@@ -1522,7 +1680,27 @@ print(response.json())`;
 
       {/* Navbar Header exactly matching screenshot layout */}
       <header className="border-b border-zinc-900 bg-[#040405]/75 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        {/* Video Background Section - Right Side Slanted */}
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+          <div 
+            className="absolute right-0 top-0 bottom-0 w-[60%] overflow-hidden"
+            style={{ clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 0% 100%)' }}
+          >
+            <video 
+              src="https://c.termai.cc/v104/N1zu.mp4" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale hover:grayscale-0 transition-all duration-700"
+            />
+            {/* Subtle overlay to enhance text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#040405] via-transparent to-transparent opacity-60" />
+            <div className="absolute inset-0 bg-zinc-950/20" />
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigateTo("landing")}
