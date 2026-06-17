@@ -46,3 +46,13 @@ html.light-theme canvas,
 html.light-theme iframe {
   filter: invert(1) hue-rotate(180deg);
 }
+
+/* Loading screen theme compensation - ensure it stays pure black */
+html.light-theme .loading-screen-container {
+  filter: invert(1) hue-rotate(180deg) !important;
+  background: black !important;
+}
+
+html.light-theme .loading-screen-video {
+  filter: none !important;
+}

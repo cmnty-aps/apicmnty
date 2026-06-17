@@ -16,6 +16,7 @@ interface ApiLog {
 const app = express();
 const PORT = 3000;
 
+app.set("json spaces", 2);
 app.use(express.json());
 
 // WebSocket server instance

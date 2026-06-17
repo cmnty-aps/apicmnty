@@ -1337,6 +1337,15 @@ export default function App() {
   const [visitorLoading, setVisitorLoading] = useState<boolean>(true);
   const [visitorError, setVisitorError] = useState<string | null>(null);
   const [mapZoom, setMapZoom] = useState<number>(14);
+  const [appIsLoading, setAppIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Reveal app after short delay for loading animation
+    const timer = setTimeout(() => {
+      setAppIsLoading(false);
+    }, 3500); // 3.5s loading time
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchVisitorInfo = async () => {
     setVisitorLoading(true);
@@ -1672,6 +1681,46 @@ print(response.json())`;
 
   return (
     <div className="min-h-screen bg-[#040405] text-[#fafafa] selection:bg-white selection:text-black">
+      <AnimatePresence>
+        {appIsLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="fixed inset-0 z-[9999] bg-black flex items-center justify-center pointer-events-auto loading-screen-container"
+          >
+            <div className="relative w-full max-w-sm aspect-video overflow-hidden">
+              {/* Invisible protection layer to prevent direct interaction/theft */}
+              <div 
+                className="absolute inset-0 z-20 cursor-default" 
+                onContextMenu={(e) => e.preventDefault()}
+              />
+              <video
+                src="https://c.termai.cc/v138/eyH.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                disablePictureInPicture
+                className="w-full h-full object-cover z-10 loading-screen-video"
+                onContextMenu={(e) => e.preventDefault()}
+              />
+              <div className="absolute bottom-6 left-0 right-0 z-30 flex flex-col items-center">
+                <div className="w-48 h-[1px] bg-zinc-950 rounded-full overflow-hidden mb-3">
+                  <motion.div 
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="w-full h-full bg-zinc-500"
+                  />
+                </div>
+                <span className="text-[10px] uppercase tracking-[0.3em] font-mono text-zinc-500 animate-pulse">Welcome Developer</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Visual background grid layout - styled exactly like the screenshot */}
       <div className="absolute inset-0 bg-[#040405] bg-[linear-gradient(to_right,#0f0f12_1px,transparent_1px),linear-gradient(to_bottom,#0f0f12_1px,transparent_1px)] bg-[size:30px_30px] opacity-25 pointer-events-none text-left" />
 
