@@ -879,7 +879,7 @@ const ENDPOINTS: EndpointSpec[] = [
       {
         name: "kota",
         placeholder: "Pilih kota (contoh: jakarta)",
-        defaultValue: "jakarta"
+        defaultValue: "Cendana, kutasari, Jawa tengah"
       }
     ]
   },
