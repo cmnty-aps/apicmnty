@@ -1660,7 +1660,7 @@ export default function App() {
         } else if (data.type === "TRAFFIC_LOG") {
           setTrafficLogs((prev) => {
             const next = [data.log, ...prev];
-            return next.slice(0, 30);
+            return next.slice(0, 15);
           });
         } else if (data.type === "VISITOR_COUNT") {
           setLiveVisitors(data.count);

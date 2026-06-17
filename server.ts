@@ -47,7 +47,7 @@ function logRequest(method: string, url: string, status: number, durationMs: num
     durationMs,
   };
   requestLogs.unshift(log);
-  if (requestLogs.length > 50) {
+  if (requestLogs.length > 15) {
     requestLogs.pop();
   }
   
