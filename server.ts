@@ -4333,9 +4333,23 @@ app.get(["/api/stalker/tiktok", "/stalker/tiktok"], async (req, res) => {
 });
 
 // Tools Endpoint: BentoSnap Record
-app.post(["/api/tools/record", "/tools/record"], async (req, res) => {
+app.all(["/api/tools/record", "/tools/record"], async (req, res) => {
   const start = Date.now();
   const targetUrl = "https://shinana-bentosnap.hf.space/api/record";
+  
+  // Use query params for GET, body for POST
+  const payload = req.method === "GET" ? req.query : req.body;
+
+  // Convert string values from query params to numbers/booleans where appropriate
+  const processedPayload: any = { ...payload };
+  if (req.method === "GET") {
+    if (processedPayload.duration_ms) processedPayload.duration_ms = parseInt(processedPayload.duration_ms);
+    if (processedPayload.wait_ms) processedPayload.wait_ms = parseInt(processedPayload.wait_ms);
+    if (processedPayload.scroll === "true") processedPayload.scroll = true;
+    if (processedPayload.scroll === "false") processedPayload.scroll = false;
+    if (processedPayload.dark_mode === "true") processedPayload.dark_mode = true;
+    if (processedPayload.dark_mode === "false") processedPayload.dark_mode = false;
+  }
   
   try {
     const response = await fetch(targetUrl, {
@@ -4344,11 +4358,17 @@ app.post(["/api/tools/record", "/tools/record"], async (req, res) => {
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(processedPayload)
     });
     
     const duration = Date.now() - start;
-    const data = await response.json();
+    const textData = await response.text();
+    let data;
+    try {
+      data = JSON.parse(textData);
+    } catch (e) {
+      data = { error: "Invalid JSON response from upstream", raw: textData };
+    }
     
     if (!response.ok) {
       return res.status(response.status).json({
