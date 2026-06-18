@@ -55,6 +55,40 @@ function logRequest(method: string, url: string, status: number, durationMs: num
   broadcast({ type: "TRAFFIC_LOG", log });
 }
 
+// Helper to dynamically detect if a request path targets an API endpoint
+function isApiRouteFunc(reqPath: string): boolean {
+  if (reqPath === "/" || reqPath === "") return false;
+
+  // Ignore internal metrics, logs and visitor counters from registering in public logs
+  if (
+    reqPath.includes("/v1/logs") || 
+    reqPath.includes("visitor") || 
+    reqPath.includes("/socket.io")
+  ) {
+    return false;
+  }
+
+  // Ignore HMR and framework source files
+  if (
+    reqPath.startsWith("/@vite") ||
+    reqPath.startsWith("/@fs") ||
+    reqPath.startsWith("/src/") ||
+    reqPath.startsWith("/node_modules/") ||
+    reqPath.startsWith("/index.html") ||
+    reqPath.startsWith("/vite.svg")
+  ) {
+    return false;
+  }
+
+  // Ignore common asset file formats automatically
+  const isStaticAsset = /\.(js|css|png|jpg|jpeg|gif|svg|ico|json|map|txt|woff|woff2|ttf|mp3|mp4|webp|html|webmanifest)$/i.test(reqPath);
+  if (isStaticAsset) {
+    return false;
+  }
+
+  return true;
+}
+
 // Rate Limiter storage
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
@@ -96,40 +130,6 @@ app.use((req, res, next) => {
 
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
-  }
-
-  // Helper to dynamically detect if a request path targets an API endpoint
-  function isApiRouteFunc(reqPath: string): boolean {
-    if (reqPath === "/" || reqPath === "") return false;
-
-    // Ignore internal metrics, logs and visitor counters from registering in public logs
-    if (
-      reqPath.includes("/v1/logs") || 
-      reqPath.includes("visitor") || 
-      reqPath.includes("/socket.io")
-    ) {
-      return false;
-    }
-
-    // Ignore HMR and framework source files
-    if (
-      reqPath.startsWith("/@vite") ||
-      reqPath.startsWith("/@fs") ||
-      reqPath.startsWith("/src/") ||
-      reqPath.startsWith("/node_modules/") ||
-      reqPath.startsWith("/index.html") ||
-      reqPath.startsWith("/vite.svg")
-    ) {
-      return false;
-    }
-
-    // Ignore common asset file formats automatically
-    const isStaticAsset = /\.(js|css|png|jpg|jpeg|gif|svg|ico|json|map|txt|woff|woff2|ttf|mp3|mp4|webp|html|webmanifest)$/i.test(reqPath);
-    if (isStaticAsset) {
-      return false;
-    }
-
-    return true;
   }
 
   // 2. Simple In-Memory Rate Limiting
@@ -229,22 +229,8 @@ app.use((req, res, next) => {
   
   // Listen for the finish event to log the request once completed
   res.on("finish", () => {
-    // Check if path is a dynamic API route, and ignore logs/visitor checks
-    const isApiCall = (
-      req.path === "/api" || 
-      req.path.startsWith("/api/") ||
-      (req.path !== "/" && 
-       !req.path.includes("/v1/logs") && 
-       !req.path.includes("visitor") &&
-       !req.path.includes("/socket.io") &&
-       !req.path.startsWith("/@vite") &&
-       !req.path.startsWith("/@fs") &&
-       !req.path.startsWith("/src/") &&
-       !req.path.startsWith("/node_modules/") &&
-       !req.path.startsWith("/index.html") &&
-       !req.path.startsWith("/vite.svg") &&
-       !/\.(js|css|png|jpg|jpeg|gif|svg|ico|json|map|txt|woff|woff2|ttf|mp3|mp4|webp|html|webmanifest)$/i.test(req.path))
-    );
+    // Check if path is a dynamic API route using the unified helper
+    const isApiCall = isApiRouteFunc(req.path);
     
     // Ignore internal dev calls or static files if needed, but here we track APIs
     if (isApiCall) {
