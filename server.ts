@@ -21,6 +21,55 @@ const PORT = 3000;
 app.set("json spaces", 2);
 app.use(express.json());
 
+// Strict workspace & server protection middleware to prevent source/secret leaks (anti-hacker)
+app.use((req, res, next) => {
+  const normalizedPath = decodeURIComponent(req.path).toLowerCase();
+  
+  // Specific files containing backend source or configuration secrets
+  const blockedFiles = [
+    "server.ts",
+    ".env",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "metadata.json",
+    "components.json",
+    "vite.config.ts",
+    "firestore.rules",
+    "firebase-blueprint.json"
+  ];
+  
+  // Block any path containing or matching these crucial environment / source files
+  const isBlockedFile = blockedFiles.some(file => 
+    normalizedPath === `/${file}` || 
+    normalizedPath.endsWith(`/${file}`) || 
+    normalizedPath.includes(`/${file}/`)
+  );
+
+  // Block forbidden extensions
+  const blockedExtensions = [".env", ".yml", ".yaml", ".sh", ".git", ".gitignore", ".bat", ".cmd"];
+  const isBlockedExtension = blockedExtensions.some(ext => normalizedPath.endsWith(ext));
+
+  // In production, also block direct access to typescript/source folders
+  const isProductionSourceLeak = process.env.NODE_ENV === "production" && 
+                                 (normalizedPath.endsWith(".ts") || 
+                                  normalizedPath.endsWith(".tsx") || 
+                                  normalizedPath.includes("/src/") ||
+                                  normalizedPath.startsWith("/src/"));
+
+  if (isBlockedFile || isBlockedExtension || isProductionSourceLeak) {
+    console.warn(`[Security Alert] Blocked suspicious request to: ${req.originalUrl} from IP: ${req.ip}`);
+    return res.status(403).json({
+      status: false,
+      statusCode: 403,
+      author: "@cmnty - Public-api",
+      message: "Access Forbidden - Target resource is a restricted security file."
+    });
+  }
+  
+  next();
+});
+
 // Initialize cfiles folder
 const cfilesDir = path.join(process.cwd(), "cfiles");
 if (!fs.existsSync(cfilesDir)) {
@@ -228,31 +277,23 @@ app.use((req, res, next) => {
   ];
 
   const isBlockedAgent = blockedAgents.some(agent => userAgent.includes(agent));
+  
+  // Check if any headers contain webtozip, web2zip, or httrack signatures
+  const hasSuspiciousHeaders = Object.entries(req.headers).some(([key, val]) => {
+    const k = key.toLowerCase();
+    const v = String(val).toLowerCase();
+    return k.includes("webtozip") || k.includes("web2zip") || k.includes("httrack") ||
+           v.includes("webtozip") || v.includes("web2zip") || v.includes("httrack");
+  });
 
-  if (isBlockedAgent) {
-    // Helper helper check inline
-    const isAssetOrPage = !res.req.path.startsWith("/api/") && 
-                          !res.req.path.startsWith("/payment/") && 
-                          !res.req.path.startsWith("/ai/") && 
-                          !res.req.path.startsWith("/berita/") && 
-                          !res.req.path.startsWith("/downloader/") && 
-                          !res.req.path.startsWith("/tools/") && 
-                          !res.req.path.startsWith("/canvas/") && 
-                          !res.req.path.startsWith("/information/") && 
-                          !res.req.path.startsWith("/stalker/") && 
-                          !res.req.path.startsWith("/maker/") && 
-                          !res.req.path.startsWith("/game/") && 
-                          !res.req.path.startsWith("/random/") && 
-                          !res.req.path.startsWith("/search/");
-    
-    if (isAssetOrPage || userAgent.includes("webtozip") || userAgent.includes("httrack")) {
-      return res.status(403).json({
-        status: false,
-        statusCode: 403,
-        author: "@cmnty - Public-api",
-        message: "Forbidden - Website scraping and cloner tools (WebToZip, HTTrack, etc.) are strictly blocked by security protocols."
-      });
-    }
+  if (isBlockedAgent || hasSuspiciousHeaders) {
+    console.warn(`[Security Alert] Blocked scraper/cloner request to: ${req.originalUrl} from IP: ${req.ip}`);
+    return res.status(403).json({
+      status: false,
+      statusCode: 403,
+      author: "@cmnty - Public-api",
+      message: "Forbidden - Website scraping and cloner tools (WebToZip, HTTrack, web2zip, etc.) are strictly blocked by security protocols."
+    });
   }
 
   next();
