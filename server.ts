@@ -6189,6 +6189,28 @@ app.delete("/api/oji/delete", (req, res) => {
   }
 });
 
+// GET /sitemap.xml and /googled682f72610ad7e5d.html endpoints
+app.get("/sitemap.xml", (req, res) => {
+  const filePatch = path.join(process.cwd(), "public", "sitemap.xml");
+  if (fs.existsSync(filePatch)) {
+    res.header("Content-Type", "application/xml");
+    res.sendFile(filePatch);
+  } else {
+    res.status(404).send("Sitemap not found");
+  }
+});
+
+app.get("/googled682f72610ad7e5d.html", (req, res) => {
+  const filePatch = path.join(process.cwd(), "public", "googled682f72610ad7e5d.html");
+  if (fs.existsSync(filePatch)) {
+    res.header("Content-Type", "text/html");
+    res.sendFile(filePatch);
+  } else {
+    res.status(404).send("Verification file not found");
+  }
+});
+
+
 // Serve frontend build static files in production, mount Vite in development
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
