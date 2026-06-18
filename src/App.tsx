@@ -1491,7 +1491,7 @@ const ENDPOINTS: EndpointSpec[] = [
     responseType: "image",
     description: "Menghapus background dari gambar dengan rapi menggunakan teknologi AI canggih.",
     queryParams: [
-      { name: "url", placeholder: "https://api.cmnty.web.id/cfiles/bG8WZNTh3Nln.jpg", defaultValue: "https://api.cmnty.web.id/cfiles/bG8WZNTh3Nln.jpg" }
+      { name: "url", placeholder: "https://api.cmnty.web.id/view-v1/i147/8EoJeQ.jpg", defaultValue: "https://api.cmnty.web.id/view-v1/i147/8EoJeQ.jpg" }
     ]
   },
   {
