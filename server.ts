@@ -60,6 +60,30 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 // Security Headers & Rate Limiting Middlewares
 app.use((req, res, next) => {
+  // Override res.json to guarantee that status, statusCode, and author are serialized at the very top of the JSON payload
+  const originalJson = res.json;
+  res.json = function (this: any, body: any): any {
+    if (body && typeof body === "object" && !Array.isArray(body)) {
+      const ordered: any = {};
+      if ("status" in body) {
+        ordered.status = body.status;
+      }
+      if ("statusCode" in body) {
+        ordered.statusCode = body.statusCode;
+      }
+      if ("author" in body) {
+        ordered.author = body.author;
+      }
+      for (const key of Object.keys(body)) {
+        if (key !== "status" && key !== "statusCode" && key !== "author") {
+          ordered[key] = body[key];
+        }
+      }
+      return originalJson.call(this, ordered);
+    }
+    return originalJson.call(this, body);
+  };
+
   // 1. Add standard HTTP Security Headers & CORS for Developer Integration
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -74,20 +98,45 @@ app.use((req, res, next) => {
     return res.sendStatus(200);
   }
 
+  // Helper to dynamically detect if a request path targets an API endpoint
+  function isApiRouteFunc(reqPath: string): boolean {
+    if (reqPath === "/" || reqPath === "") return false;
+
+    // Ignore internal metrics, logs and visitor counters from registering in public logs
+    if (
+      reqPath.includes("/v1/logs") || 
+      reqPath.includes("visitor") || 
+      reqPath.includes("/socket.io")
+    ) {
+      return false;
+    }
+
+    // Ignore HMR and framework source files
+    if (
+      reqPath.startsWith("/@vite") ||
+      reqPath.startsWith("/@fs") ||
+      reqPath.startsWith("/src/") ||
+      reqPath.startsWith("/node_modules/") ||
+      reqPath.startsWith("/index.html") ||
+      reqPath.startsWith("/vite.svg")
+    ) {
+      return false;
+    }
+
+    // Ignore common asset file formats automatically
+    const isStaticAsset = /\.(js|css|png|jpg|jpeg|gif|svg|ico|json|map|txt|woff|woff2|ttf|mp3|mp4|webp|html|webmanifest)$/i.test(reqPath);
+    if (isStaticAsset) {
+      return false;
+    }
+
+    return true;
+  }
+
   // 2. Simple In-Memory Rate Limiting
   // Only apply rate limits to API routes to prevent resource exhaustion and brute-forcing
-  const isApiRoute = req.path.startsWith("/api/") || 
-                     req.path.startsWith("/payment/") || 
-                     req.path.startsWith("/ai/") || 
-                     req.path.startsWith("/berita/") || 
-                     req.path.startsWith("/tools/") || 
-                     req.path.startsWith("/canvas/") || 
-                     req.path.startsWith("/information/") || 
-                     req.path.startsWith("/stalker/") || 
-                     req.path.startsWith("/maker/") ||
-                     req.path.startsWith("/game/");
+  const isApiRoute = isApiRouteFunc(req.path);
 
-  if (isApiRoute && !req.path.includes("/v1/logs") && !req.path.includes("visitor")) {
+  if (isApiRoute) {
     const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
     const ip = Array.isArray(rawIp) ? rawIp[0] : (rawIp as string).split(",")[0].trim();
     
@@ -146,14 +195,20 @@ app.use((req, res, next) => {
   const isBlockedAgent = blockedAgents.some(agent => userAgent.includes(agent));
 
   if (isBlockedAgent) {
-    const isAssetOrPage = !req.path.startsWith("/api/") && 
-                          !req.path.startsWith("/payment/") && 
-                          !req.path.startsWith("/ai/") && 
-                          !req.path.startsWith("/berita/") && 
-                          !req.path.startsWith("/tools/") && 
-                          !req.path.startsWith("/stalker/") && 
-                          !req.path.startsWith("/maker/") && 
-                          !req.path.startsWith("/game/");
+    // Helper helper check inline
+    const isAssetOrPage = !res.req.path.startsWith("/api/") && 
+                          !res.req.path.startsWith("/payment/") && 
+                          !res.req.path.startsWith("/ai/") && 
+                          !res.req.path.startsWith("/berita/") && 
+                          !res.req.path.startsWith("/downloader/") && 
+                          !res.req.path.startsWith("/tools/") && 
+                          !res.req.path.startsWith("/canvas/") && 
+                          !res.req.path.startsWith("/information/") && 
+                          !res.req.path.startsWith("/stalker/") && 
+                          !res.req.path.startsWith("/maker/") && 
+                          !res.req.path.startsWith("/game/") && 
+                          !res.req.path.startsWith("/random/") && 
+                          !res.req.path.startsWith("/search/");
     
     if (isAssetOrPage || userAgent.includes("webtozip") || userAgent.includes("httrack")) {
       return res.status(403).json({
@@ -174,18 +229,22 @@ app.use((req, res, next) => {
   
   // Listen for the finish event to log the request once completed
   res.on("finish", () => {
+    // Check if path is a dynamic API route, and ignore logs/visitor checks
     const isApiCall = (
-      req.path.startsWith("/api/") || 
-      req.path.startsWith("/ai/") || 
-      req.path.startsWith("/berita/") || 
-      req.path.startsWith("/tools/") || 
-      req.path.startsWith("/canvas/") || 
-      req.path.startsWith("/information/") || 
-      req.path.startsWith("/stalker/") || 
-      req.path.startsWith("/maker/") ||
-      req.path.startsWith("/game/") ||
-      req.path.startsWith("/payment/")
-    ) && !req.path.includes("visitor") && !req.path.includes("/v1/logs");
+      req.path === "/api" || 
+      req.path.startsWith("/api/") ||
+      (req.path !== "/" && 
+       !req.path.includes("/v1/logs") && 
+       !req.path.includes("visitor") &&
+       !req.path.includes("/socket.io") &&
+       !req.path.startsWith("/@vite") &&
+       !req.path.startsWith("/@fs") &&
+       !req.path.startsWith("/src/") &&
+       !req.path.startsWith("/node_modules/") &&
+       !req.path.startsWith("/index.html") &&
+       !req.path.startsWith("/vite.svg") &&
+       !/\.(js|css|png|jpg|jpeg|gif|svg|ico|json|map|txt|woff|woff2|ttf|mp3|mp4|webp|html|webmanifest)$/i.test(req.path))
+    );
     
     // Ignore internal dev calls or static files if needed, but here we track APIs
     if (isApiCall) {
