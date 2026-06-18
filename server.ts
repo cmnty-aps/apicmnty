@@ -1749,6 +1749,40 @@ app.get(["/api/maker/iqc-image", "/maker/iqc-image"], async (req, res) => {
   }
 });
 
+// Maker Endpoint: Nulis
+app.get(["/api/maker/nulis", "/maker/nulis"], async (req, res) => {
+  const text = req.query.text as string || "Detik tak pernah menunggu, Tapi selalu memberi ruang. Untuk mereka yang berani Memulai meski terlambat.";
+  const targetUrl = `https://api.nexray.eu.cc/maker/nulis?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Nulis image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Nulis Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Maker Endpoint: brat
 app.get(["/api/maker/brat", "/maker/brat"], async (req, res) => {
   const text = req.query.text as string || "cmnty universe";
@@ -2000,6 +2034,753 @@ app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
     });
   } catch (error: any) {
     console.error("WebPhishing error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: CapCut
+app.get(["/api/downloader/capcut", "/downloader/capcut"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/capcut?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("CapCut Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: Douyin
+app.get(["/api/downloader/douyin", "/downloader/douyin"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/douyin?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Douyin Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: Facebook
+app.get(["/api/downloader/facebook", "/downloader/facebook"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/facebook?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Facebook Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: GDrive
+app.get(["/api/downloader/gdrive", "/downloader/gdrive"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/gdrive?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("GDrive Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: GitHub
+app.get(["/api/downloader/github", "/downloader/github"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "application/vnd.github.v3+json"
+  };
+
+  try {
+    const gistRegex = /gist\.github(?:usercontent)?\.com\/(?:[^\/]+\/)?([a-f0-9]+)/i;
+    const rawRegex = /raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/i;
+    const fileRegex = /github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)/i;
+    const treeRegex = /github\.com\/([^\/]+)\/([^\/]+)\/tree\/([^\/]+)\/(.+)/i;
+    const repoRegex = /github\.com\/([^\/]+)\/([^\/]+)/i;
+
+    let result: any = null;
+    let type = "unknown";
+
+    if (gistRegex.test(url)) {
+      type = "gist";
+      const match = url.match(gistRegex);
+      const gistId = match ? match[1] : "";
+      const apiResponse = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
+      
+      if (!apiResponse.ok) {
+        throw new Error(`GitHub API returned status ${apiResponse.status}`);
+      }
+
+      const gistData = await apiResponse.json();
+      
+      const files: any = {};
+      for (const [filename, fileObj] of Object.entries(gistData.files || {})) {
+        const file = fileObj as any;
+        files[filename] = {
+          filename: file.filename,
+          type: file.type,
+          language: file.language,
+          raw_url: file.raw_url,
+          size: file.size,
+          content: file.content
+        };
+      }
+
+      result = {
+        id: gistData.id,
+        description: gistData.description,
+        owner: gistData.owner ? {
+          login: gistData.owner.login,
+          avatar_url: gistData.owner.avatar_url,
+          html_url: gistData.owner.html_url
+        } : null,
+        created_at: gistData.created_at,
+        updated_at: gistData.updated_at,
+        html_url: gistData.html_url,
+        files: files
+      };
+
+    } else if (rawRegex.test(url)) {
+      type = "raw";
+      const match = url.match(rawRegex);
+      const owner = match ? match[1] : "";
+      const repo = match ? match[2] : "";
+      const branch = match ? match[3] : "";
+      const filePath = match ? match[4] : "";
+
+      const contentRes = await fetch(url, { headers });
+      let textContent = "";
+      if (contentRes.ok) {
+        textContent = await contentRes.text();
+      }
+
+      result = {
+        owner,
+        repo,
+        branch,
+        path: filePath,
+        raw_url: url,
+        filename: filePath.split("/").pop(),
+        download_url: url,
+        content: textContent.length < 50000 ? textContent : "[Truncated / File too large]"
+      };
+
+    } else if (fileRegex.test(url)) {
+      type = "file";
+      const match = url.match(fileRegex);
+      const owner = match ? match[1] : "";
+      const repo = match ? match[2] : "";
+      const branch = match ? match[3] : "";
+      const filePath = match ? match[4] : "";
+
+      const apiResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`, { headers });
+      if (!apiResponse.ok) {
+        throw new Error(`GitHub API returned status ${apiResponse.status}`);
+      }
+
+      const fileData = await apiResponse.json();
+      let decodedContent = null;
+      if (fileData.content && fileData.encoding === "base64") {
+        decodedContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+      }
+
+      result = {
+        owner,
+        repo,
+        branch,
+        path: fileData.path,
+        name: fileData.name,
+        size: fileData.size,
+        sha: fileData.sha,
+        download_url: fileData.download_url,
+        html_url: fileData.html_url,
+        content: decodedContent || fileData.content
+      };
+
+    } else if (treeRegex.test(url)) {
+      type = "directory";
+      const match = url.match(treeRegex);
+      const owner = match ? match[1] : "";
+      const repo = match ? match[2] : "";
+      const branch = match ? match[3] : "";
+      const dirPath = match ? match[4] : "";
+
+      const apiResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${dirPath}?ref=${branch}`, { headers });
+      if (!apiResponse.ok) {
+        throw new Error(`GitHub API returned status ${apiResponse.status}`);
+      }
+
+      const files = await apiResponse.json();
+      result = {
+        owner,
+        repo,
+        branch,
+        path: dirPath,
+        files: Array.isArray(files) ? files.map((file: any) => ({
+          name: file.name,
+          path: file.path,
+          type: file.type,
+          size: file.size,
+          sha: file.sha,
+          download_url: file.download_url,
+          html_url: file.html_url
+        })) : []
+      };
+
+    } else if (repoRegex.test(url)) {
+      type = "repository";
+      const match = url.match(repoRegex);
+      const owner = match ? match[1] : "";
+      let repo = match ? match[2] : "";
+      if (repo.endsWith(".git")) {
+        repo = repo.substring(0, repo.length - 4);
+      }
+
+      const apiResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+      if (!apiResponse.ok) {
+        throw new Error(`GitHub API returned status ${apiResponse.status}`);
+      }
+
+      const repoData = await apiResponse.json();
+      result = {
+        id: repoData.id,
+        name: repoData.name,
+        full_name: repoData.full_name,
+        owner: {
+          login: repoData.owner.login,
+          avatar_url: repoData.owner.avatar_url,
+          html_url: repoData.owner.html_url
+        },
+        description: repoData.description,
+        created_at: repoData.created_at,
+        updated_at: repoData.updated_at,
+        pushed_at: repoData.pushed_at,
+        homepage: repoData.homepage,
+        size: repoData.size,
+        stargazers_count: repoData.stargazers_count,
+        watchers_count: repoData.watchers_count,
+        language: repoData.language,
+        forks_count: repoData.forks_count,
+        default_branch: repoData.default_branch,
+        license: repoData.license ? repoData.license.name : null,
+        html_url: repoData.html_url,
+        clone_url: repoData.clone_url,
+        zip_download_url: `https://github.com/${owner}/${repo}/archive/refs/heads/${repoData.default_branch || "main"}.zip`
+      };
+    } else {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Invalid GitHub URL format"
+      });
+    }
+
+    const duration = Date.now() - start;
+
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      type: type,
+      result: result,
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error("GitHub Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: error.message || getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: Lahelu
+app.get(["/api/downloader/lahelu", "/downloader/lahelu"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/lahelu?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Lahelu Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: Snack Video
+app.get(["/api/downloader/snackvideo", "/downloader/snackvideo"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/snackvideo?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("SnackVideo Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: TikTok
+app.get(["/api/downloader/tiktok", "/downloader/tiktok"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("TikTok Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: TikTok V1
+app.get(["/api/downloader/tiktokv1", "/downloader/tiktokv1"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/tiktok/v2?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("TikTok Downloader V1 error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: Twitter
+app.get(["/api/downloader/twitter", "/downloader/twitter"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/twitter?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Twitter Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Downloader Endpoint: Ummy
+app.get(["/api/downloader/ummy", "/downloader/ummy"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/d/ummy?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Ummy Downloader error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,

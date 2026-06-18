@@ -39,7 +39,8 @@ import {
   Gamepad2,
   Music,
   UserSearch,
-  Shuffle
+  Shuffle,
+  Download
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -546,6 +547,23 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "maker-nulis",
+    category: "canvas",
+    name: "Nulis",
+    provider: "nexray",
+    path: "/maker/nulis",
+    method: "GET",
+    responseType: "image",
+    description: "Membuat gambar tulisan dengan gaya buku tulis.",
+    queryParams: [
+      {
+        name: "text",
+        placeholder: "Masukkan teks untuk ditulis di buku tulis",
+        defaultValue: "Detik tak pernah menunggu, Tapi selalu memberi ruang. Untuk mereka yang berani Memulai meski terlambat."
+      }
+    ]
+  },
+  {
     id: "maker-qc",
     category: "canvas",
     name: "Qc Maker",
@@ -641,6 +659,140 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Memasukkan subjek ke dalam template susu taro menggunakan penghapusan latar belakang otomatis. Mengembalikan response dalam bentuk image buffer.",
     queryParams: [
       { name: "image", placeholder: "URL Gambar (https://...)", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1777998261437.jpeg" }
+    ]
+  },
+
+  // DOWNLOADER CATEGORY
+  {
+    id: "downloader-capcut",
+    category: "downloader",
+    name: "CapCut Downloader",
+    provider: "siputzx",
+    path: "/downloader/capcut",
+    method: "GET",
+    description: "Mengunduh video CapCut tanpa watermark menggunakan URL CapCut.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video CapCut", defaultValue: "https://www.capcut.com/tv2/ZSmm1R7Sd/" }
+    ]
+  },
+  {
+    id: "downloader-douyin",
+    category: "downloader",
+    name: "Douyin Downloader",
+    provider: "siputzx",
+    path: "/downloader/douyin",
+    method: "GET",
+    description: "Mengunduh video Douyin menggunakan URL video Douyin.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video Douyin", defaultValue: "https://www.douyin.com/video/7256984651137289483" }
+    ]
+  },
+  {
+    id: "downloader-facebook",
+    category: "downloader",
+    name: "Facebook Downloader",
+    provider: "siputzx",
+    path: "/downloader/facebook",
+    method: "GET",
+    description: "Mengunduh video dari Facebook dalam berbagai kualitas (SD, HD, 4K) menggunakan layanan SnapVid.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video Facebook", defaultValue: "https://www.facebook.com/share/r/1CbPCn9MQw/" }
+    ]
+  },
+  {
+    id: "downloader-gdrive",
+    category: "downloader",
+    name: "GDrive Downloader",
+    provider: "siputzx",
+    path: "/downloader/gdrive",
+    method: "GET",
+    description: "Mendapatkan link download langsung untuk file Google Drive menggunakan URL publik file tersebut.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL file Google Drive", defaultValue: "https://drive.google.com/file/d/1YTD7Ymux9puFNqu__5WPlYdFZHcGI3Wz/view?usp=drivesdk" }
+    ]
+  },
+  {
+    id: "downloader-github",
+    category: "downloader",
+    name: "GitHub Downloader",
+    provider: "GitHub",
+    path: "/downloader/github",
+    method: "GET",
+    description: "Mengunduh atau memperoleh data terstruktur (repositori, file, raw, atau gist) secara langsung dari GitHub.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL GitHub (Repo, File, Raw, atau Gist)", defaultValue: "https://github.com/octocat/Spoon-Knife" }
+    ]
+  },
+  {
+    id: "downloader-lahelu",
+    category: "downloader",
+    name: "Lahelu Downloader",
+    provider: "siputzx",
+    path: "/downloader/lahelu",
+    method: "GET",
+    description: "Mengambil informasi media dan metadata dari post Lahelu.com menggunakan URL post.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL post Lahelu.com", defaultValue: "https://lahelu.com/post/PMujNAfxy" }
+    ]
+  },
+  {
+    id: "downloader-snackvideo",
+    category: "downloader",
+    name: "SnackVideo Downloader",
+    provider: "siputzx",
+    path: "/downloader/snackvideo",
+    method: "GET",
+    description: "Mengunduh informasi detail dan link unduhan langsung dari video SnackVideo.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video SnackVideo", defaultValue: "https://s.snackvideo.com/p/dwlMd51U" }
+    ]
+  },
+  {
+    id: "downloader-tiktok",
+    category: "downloader",
+    name: "TikTok Downloader",
+    provider: "siputzx",
+    path: "/downloader/tiktok",
+    method: "GET",
+    description: "Mengunduh video atau slideshow TikTok menggunakan engine SnapTik.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video TikTok", defaultValue: "https://vt.tiktok.com/ZSjXNEnbC/" }
+    ]
+  },
+  {
+    id: "downloader-tiktokv1",
+    category: "downloader",
+    name: "TikTok Downloader V1",
+    provider: "siputzx",
+    path: "/downloader/tiktokv1",
+    method: "GET",
+    description: "Mengunduh video dan foto TikTok menggunakan URL TikTok.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video atau foto TikTok", defaultValue: "https://vt.tiktok.com/ZSjXNEnbC/" }
+    ]
+  },
+  {
+    id: "downloader-twitter",
+    category: "downloader",
+    name: "Twitter Downloader",
+    provider: "siputzx",
+    path: "/downloader/twitter",
+    method: "GET",
+    description: "Mengunduh video dari Twitter/X menggunakan URL postingan.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL postingan Twitter/X", defaultValue: "https://twitter.com/9GAG/status/1661175429859012608" }
+    ]
+  },
+  {
+    id: "downloader-ummy",
+    category: "downloader",
+    name: "Ummy Downloader",
+    provider: "siputzx",
+    path: "/downloader/ummy",
+    method: "GET",
+    description: "Downloader universal dan pengambil informasi profil/stalker Instagram melalui engine ummy.net.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL atau username Instagram", defaultValue: "nasaartemis" }
     ]
   },
 
@@ -2331,6 +2483,18 @@ ${printBlock}`;
                     >
                       <Palette className="h-3.5 w-3.5" />
                       <span>Canvas ({ENDPOINTS.filter(e => e.category === "canvas").length})</span>
+                    </button>
+
+                    <button
+                      onClick={() => { setActiveFolder("downloader"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "downloader"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      <span>Downloader ({ENDPOINTS.filter(e => e.category === "downloader").length})</span>
                     </button>
 
                     <button
