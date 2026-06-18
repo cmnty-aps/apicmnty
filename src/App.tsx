@@ -40,7 +40,8 @@ import {
   Music,
   UserSearch,
   Shuffle,
-  Download
+  Download,
+  Upload
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -1533,6 +1534,18 @@ const ENDPOINTS: EndpointSpec[] = [
         options: ["true", "false"]
       }
     ]
+  },
+  {
+    id: "uploader-upload",
+    category: "uploader",
+    name: "Uploader File",
+    provider: "cfiles",
+    path: "/uploader/upload",
+    method: "POST",
+    description: "Mengunggah berkas apa saja (gambar, audio, dokumen, video, dll) secara gratis dan aman, lalu mendapatkan URL publik yang dapat diakses langsung.",
+    queryParams: [
+      { name: "file", placeholder: "Pilih berkas untuk diunggah", defaultValue: "" }
+    ]
   }
 ];
 
@@ -1553,6 +1566,112 @@ export default function App() {
   const [hasAttempted, setHasAttempted] = useState(false);
   const responseRef = useRef<HTMLDivElement>(null);
 
+  // Custom upload file hook/state
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+
+  // Oji Administration state
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return sessionStorage.getItem("oji_admin_auth") === "true";
+  });
+  const [adminFiles, setAdminFiles] = useState<any[]>([]);
+  const [adminFilesLoading, setAdminFilesLoading] = useState(false);
+  const [adminFilesError, setAdminFilesError] = useState<string | null>(null);
+  const [adminSearchQuery, setAdminSearchQuery] = useState("");
+  const [deleteConfirmationFile, setDeleteConfirmationFile] = useState<string | null>(null);
+
+  // Clean-up file selection on card expand change
+  useEffect(() => {
+    setUploadFile(null);
+  }, [expandedCardId]);
+
+  const fetchAdminFiles = async () => {
+    setAdminFilesLoading(true);
+    setAdminFilesError(null);
+    try {
+      const pass = sessionStorage.getItem("oji_admin_pass") || "";
+      const res = await fetch(`/api/oji/files?password=${encodeURIComponent(pass)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status) {
+          setAdminFiles(data.result);
+        } else {
+          setAdminFilesError(data.message || "Gagal mengambil data berkas.");
+        }
+      } else {
+        const errData = await res.json().catch(() => ({ message: "Akses ditolak." }));
+        setAdminFilesError(errData.message || "Gagal berkomunikasi dengan server.");
+      }
+    } catch (err) {
+      setAdminFilesError("Kesalahan jaringan.");
+    } finally {
+      setAdminFilesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAdminAuthenticated) {
+      fetchAdminFiles();
+    }
+  }, [isAdminAuthenticated]);
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminFilesLoading(true);
+    setAdminFilesError(null);
+    try {
+      const res = await fetch(`/api/oji/files?password=${encodeURIComponent(adminPassword)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status) {
+          sessionStorage.setItem("oji_admin_auth", "true");
+          sessionStorage.setItem("oji_admin_pass", adminPassword);
+          setIsAdminAuthenticated(true);
+          setAdminFiles(data.result);
+        } else {
+          setAdminFilesError("Kata sandi salah. Coba lagi.");
+        }
+      } else {
+        const errData = await res.json().catch(() => ({ message: "Akses ditolak." }));
+        setAdminFilesError(errData.message || "Kata sandi salah atau tidak diizinkan.");
+      }
+    } catch (err) {
+      setAdminFilesError("Kesalahan jaringan.");
+    } finally {
+      setAdminFilesLoading(false);
+    }
+  };
+
+  const handleAdminLogout = () => {
+    sessionStorage.removeItem("oji_admin_auth");
+    sessionStorage.removeItem("oji_admin_pass");
+    setIsAdminAuthenticated(false);
+    setAdminFiles([]);
+  };
+
+  const handleAdminDeleteFile = async (filename: string) => {
+    try {
+      const pass = sessionStorage.getItem("oji_admin_pass") || "";
+      const res = await fetch(`/api/oji/delete?password=${encodeURIComponent(pass)}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ filename })
+      });
+      if (res.ok) {
+        // Refresh files
+        fetchAdminFiles();
+        setDeleteConfirmationFile(null);
+      } else {
+        const data = await res.json().catch(() => ({ message: "Gagal menghapus berkas." }));
+        alert(data.message || "Gagal menghapus berkas.");
+      }
+    } catch (err) {
+      alert("Terjadi kesalahan koneksi.");
+    }
+  };
+
   // Auto-scroll to response when result arrives
   useEffect(() => {
     if (hasAttempted && !isLoading && (apiResponse || imageUrl || errorText)) {
@@ -1565,10 +1684,14 @@ export default function App() {
   // Application View State
   const navigate = useNavigate();
   const location = useLocation();
-  const currentView = location.pathname === "/docs" ? "explorer" : "landing";
+  const currentView = location.pathname === "/docs" 
+    ? "explorer" 
+    : location.pathname === "/oji" 
+    ? "admin" 
+    : "landing";
 
-  const navigateTo = (view: "landing" | "explorer") => {
-    navigate(view === "explorer" ? "/docs" : "/");
+  const navigateTo = (view: "landing" | "explorer" | "admin") => {
+    navigate(view === "explorer" ? "/docs" : view === "admin" ? "/oji" : "/");
   };
 
   // General Application Copy helpers
@@ -1867,27 +1990,45 @@ export default function App() {
     try {
       let response;
       if (method === "POST") {
-        const body: Record<string, any> = {};
-        Object.entries(queryParams).forEach(([key, val]) => {
-          const sVal = val as string;
-          if (sVal === "true") body[key] = true;
-          else if (sVal === "false") body[key] = false;
-          else if (!isNaN(Number(sVal)) && sVal.trim() !== "" && !key.includes("url")) {
-            // Only convert to number if it's not a URL or specifically needed as string
-            body[key] = Number(sVal);
-          } else {
-            body[key] = sVal;
+        if (endpoint?.id === "uploader-upload") {
+          if (!uploadFile) {
+            setErrorText("Silakan pilih file terlebih dahulu untuk diunggah.");
+            setIsLoading(false);
+            return;
           }
-        });
+          const formData = new FormData();
+          formData.append("file", uploadFile);
 
-        response = await fetch(endpoint?.path || pathStr.split("?")[0], {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(body)
-        });
+          response = await fetch(endpoint.path, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "Accept": "application/json"
+            }
+          });
+        } else {
+          const body: Record<string, any> = {};
+          Object.entries(queryParams).forEach(([key, val]) => {
+            const sVal = val as string;
+            if (sVal === "true") body[key] = true;
+            else if (sVal === "false") body[key] = false;
+            else if (!isNaN(Number(sVal)) && sVal.trim() !== "" && !key.includes("url")) {
+              // Only convert to number if it's not a URL or specifically needed as string
+              body[key] = Number(sVal);
+            } else {
+              body[key] = sVal;
+            }
+          });
+
+          response = await fetch(endpoint?.path || pathStr.split("?")[0], {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(body)
+          });
+        }
       } else {
         response = await fetch(pathStr);
       }
@@ -2409,6 +2550,205 @@ ${printBlock}`;
 
               </div>
             </motion.div>
+          ) : currentView === "admin" ? (
+            <motion.div
+              key="admin"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6 w-full max-w-4xl mx-auto"
+            >
+              <button
+                onClick={() => navigateTo("landing")}
+                className="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-all text-xs font-bold uppercase tracking-widest group"
+              >
+                <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-0.5" />
+                <span>Back</span>
+              </button>
+
+              <div className="bg-[#050508] border border-zinc-850 rounded-lg p-6 shadow-xl relative text-left">
+                {!isAdminAuthenticated ? (
+                  <form onSubmit={handleAdminLogin} className="space-y-4 max-w-md mx-auto py-8">
+                    <div className="text-center space-y-2">
+                      <div className="mx-auto w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800/60 flex items-center justify-center">
+                        <Terminal className="h-4 w-4 text-zinc-400" />
+                      </div>
+                      <h3 className="text-sm font-extrabold uppercase tracking-widest text-zinc-200 font-mono">Oji Admin Gate</h3>
+                      <p className="text-[11px] text-zinc-500 font-mono">Input secure credentials below to manage files</p>
+                    </div>
+
+                    <div className="space-y-1.5 font-mono text-xs">
+                      <label className="text-[10px] text-zinc-500 font-bold uppercase">Admin Passphrase</label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={adminPassword}
+                        onChange={(e) => setAdminPassword(e.target.value)}
+                        className="w-full bg-[#09090c] border border-zinc-850/60 rounded px-3.5 py-2.5 text-xs text-center text-white focus:outline-none focus:border-zinc-700 font-mono tracking-widest transition-all"
+                        required
+                      />
+                    </div>
+
+                    {adminFilesError && (
+                      <div className="text-red-500 font-mono text-[11px] text-center bg-red-955/20 border border-red-900/40 p-2.5 rounded">
+                        {adminFilesError}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={adminFilesLoading}
+                      className="w-full bg-white hover:bg-zinc-200 text-black text-xs font-bold py-2.5 rounded transition-all uppercase font-mono cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      {adminFilesLoading ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Verify Access"
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-900 pb-5 gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <h3 className="text-sm font-extrabold uppercase tracking-widest text-zinc-200 font-mono">Oji Admin Dashboard</h3>
+                        </div>
+                        <p className="text-[11px] text-zinc-500 font-mono">Manage and review uploaded public assets</p>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={fetchAdminFiles}
+                          disabled={adminFilesLoading}
+                          className="p-1.5 px-3 text-[10px] font-mono text-zinc-400 hover:text-white border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 transition-all rounded flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          <RefreshCw className={`h-3 w-3 ${adminFilesLoading ? "animate-spin" : ""}`} />
+                          <span>Reload List</span>
+                        </button>
+                        <button
+                          onClick={handleAdminLogout}
+                          className="p-1.5 px-3 text-[10px] font-mono text-red-400 hover:text-white hover:bg-red-950/20 border border-red-900/30 bg-zinc-950 transition-all rounded"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
+                      <div className="bg-zinc-950/65 border border-zinc-900 p-4 rounded-lg space-y-1">
+                        <span className="text-[9px] uppercase font-bold tracking-wider text-zinc-500 font-mono">Total Files</span>
+                        <div className="text-xl font-bold text-white">{adminFiles.length} files</div>
+                      </div>
+                      <div className="bg-zinc-950/65 border border-zinc-900 p-4 rounded-lg space-y-1">
+                        <span className="text-[9px] uppercase font-bold tracking-wider text-zinc-500 font-mono font-bold">Estimated Disk Space</span>
+                        <div className="text-xl font-bold text-white">
+                          {(adminFiles.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                        <input
+                          type="text"
+                          placeholder="Search files by name..."
+                          value={adminSearchQuery}
+                          onChange={(e) => setAdminSearchQuery(e.target.value)}
+                          className="w-full bg-[#07070a] border border-zinc-850 rounded px-10 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-all font-mono"
+                        />
+                      </div>
+
+                      {adminFilesError && (
+                        <div className="text-red-500 font-mono text-[11px] text-center bg-red-955/20 border border-red-900/40 p-2.5 rounded">
+                          {adminFilesError}
+                        </div>
+                      )}
+
+                      <div className="border border-zinc-900 rounded-lg overflow-hidden bg-zinc-950/10">
+                        <div className="max-h-96 overflow-y-auto divide-y divide-zinc-900 font-mono text-xs">
+                          {adminFiles.filter(f => f.filename.toLowerCase().includes(adminSearchQuery.toLowerCase())).length === 0 ? (
+                            <div className="py-12 text-center text-zinc-600">
+                              {adminFilesLoading ? "Loading files..." : "No files matched search filter."}
+                            </div>
+                          ) : (
+                            adminFiles
+                              .filter(f => f.filename.toLowerCase().includes(adminSearchQuery.toLowerCase()))
+                              .map(file => (
+                                <div key={file.filename} className="p-3 bg-[#040406]/65 hover:bg-zinc-950/70 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                  <div className="space-y-1 min-w-0 flex-1">
+                                    <a
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noreferrer referrer"
+                                      className="text-zinc-200 hover:text-white font-bold truncate block hover:underline"
+                                    >
+                                      {file.filename}
+                                    </a>
+                                    <div className="flex items-center gap-2.5 text-[10px] text-zinc-500">
+                                      <span>{(file.size / 1024).toFixed(1)} KB</span>
+                                      <span>•</span>
+                                      <span>{new Date(file.createdAt).toLocaleString()}</span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <a
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noreferrer referrer"
+                                      className="p-1.5 px-3 border border-zinc-800 text-zinc-400 hover:text-white rounded bg-zinc-950 transition-all text-[11px] font-sans"
+                                    >
+                                      Open File
+                                    </a>
+                                    <button
+                                      onClick={() => setDeleteConfirmationFile(file.filename)}
+                                      className="p-1.5 border border-red-950 text-red-500 hover:text-white hover:bg-red-955 bg-zinc-950 rounded transition-all cursor-pointer"
+                                      title="Delete File"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {deleteConfirmationFile && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                  <div className="bg-[#050508] border border-zinc-800 rounded-lg p-5 max-w-sm w-full space-y-4 font-mono text-xs text-left">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] uppercase font-bold text-red-500">Konfirmasi Penghapusan</span>
+                      <h4 className="text-zinc-200 font-bold break-all">Hapus file "{deleteConfirmationFile}"?</h4>
+                    </div>
+                    <p className="text-zinc-500 font-sans text-[11px] leading-relaxed">
+                      Tindakan ini permanen dan tidak dapat dibatalkan. Berkas akan terhapus sepenuhnya dari sistem server.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setDeleteConfirmationFile(null)}
+                        className="flex-1 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-white py-2 text-zinc-400 rounded uppercase font-bold font-mono"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        onClick={() => handleAdminDeleteFile(deleteConfirmationFile)}
+                        className="flex-1 bg-red-650 hover:bg-red-750 text-white py-2 rounded uppercase font-bold font-mono"
+                      >
+                        Hapus Permanen
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           ) : (
             <motion.div
               key="explorer"
@@ -2580,6 +2920,18 @@ ${printBlock}`;
                       <Wrench className="h-3.5 w-3.5" />
                       <span>Tools ({ENDPOINTS.filter(e => e.category === "tools").length})</span>
                     </button>
+
+                    <button
+                      onClick={() => { setActiveFolder("uploader"); }}
+                      className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
+                        activeFolder === "uploader"
+                          ? "bg-white text-black font-semibold border-white"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-500 hover:text-white"
+                      }`}
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      <span>Uploader ({ENDPOINTS.filter(e => e.category === "uploader").length})</span>
+                    </button>
                   </div>
                   </div>
                 </div>
@@ -2679,6 +3031,33 @@ ${printBlock}`;
                                             <option key={opt} value={opt}>{opt}</option>
                                           ))}
                                         </select>
+                                      ) : q.name === "file" && ep.id === "uploader-upload" ? (
+                                        <div className="flex flex-col gap-2">
+                                          <input
+                                            type="file"
+                                            onChange={(e) => {
+                                              if (e.target.files && e.target.files.length > 0) {
+                                                const fileSelected = e.target.files[0];
+                                                setUploadFile(fileSelected);
+                                                handleQueryParamChange(ep, q.name, fileSelected.name);
+                                              }
+                                            }}
+                                            className="hidden"
+                                            id="file-upload-input"
+                                          />
+                                          <label
+                                            htmlFor="file-upload-input"
+                                            className="w-full bg-[#050507]/40 hover:bg-[#07070a] border border-dashed border-zinc-800 hover:border-zinc-700 rounded-lg p-6 flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center text-xs font-sans transition-all group"
+                                          >
+                                            <Upload className="h-5 w-5 text-zinc-500 group-hover:text-white transition-all animate-pulse" />
+                                            <span className="text-zinc-300 font-bold font-mono text-[11px]">
+                                              {uploadFile ? uploadFile.name : "Pilih atau Seret Berkas Di Sini"}
+                                            </span>
+                                            <span className="text-[10px] text-zinc-600 font-mono">
+                                              {uploadFile ? `Saran Ukuran: ${(uploadFile.size / (1024 * 1024)).toFixed(2)} MB` : "Mendukung segala jenis format file (Max 50MB)"}
+                                            </span>
+                                          </label>
+                                        </div>
                                       ) : (
                                         <input
                                           type="text"

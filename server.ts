@@ -3,6 +3,8 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import net from "net";
+import fs from "fs";
+import multer from "multer";
 
 interface ApiLog {
   id: string;
@@ -18,6 +20,33 @@ const PORT = 3000;
 
 app.set("json spaces", 2);
 app.use(express.json());
+
+// Initialize cfiles folder
+const cfilesDir = path.join(process.cwd(), "cfiles");
+if (!fs.existsSync(cfilesDir)) {
+  fs.mkdirSync(cfilesDir, { recursive: true });
+}
+
+// Multer Disk Storage Configuration (random secure IDs, supports any file extension)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, cfilesDir);
+  },
+  filename: (req, file, cb) => {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let randomId = "";
+    for (let i = 0; i < 12; i++) {
+      randomId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${randomId}${ext}`);
+  }
+});
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB maximum file size
+});
 
 // WebSocket server instance
 let wss: WebSocketServer;
@@ -59,10 +88,11 @@ function logRequest(method: string, url: string, status: number, durationMs: num
 function isApiRouteFunc(reqPath: string): boolean {
   if (reqPath === "/" || reqPath === "") return false;
 
-  // Ignore internal metrics, logs and visitor counters from registering in public logs
+  // Ignore internal metrics, logs, visitor counters, and admin /oji path from registering in public logs
   if (
     reqPath.includes("/v1/logs") || 
     reqPath.includes("visitor") || 
+    reqPath.includes("oji") ||
     reqPath.includes("/socket.io")
   ) {
     return false;
@@ -5672,6 +5702,160 @@ app.get(["/api/payment/saweria/check", "/payment/saweria/check"], async (req, re
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+// Mount Static File serving for uploaded user files
+app.use("/cfiles", express.static(cfilesDir));
+
+// GET /api/uploader/upload or /uploader/upload Guidelines
+app.get(["/api/uploader/upload", "/uploader/upload"], (req, res) => {
+  res.json({
+    status: true,
+    statusCode: 200,
+    author: "@cmnty - Public-api",
+    message: "Gunakan POST dengan body form-data 'file' untuk mengunggah berkas apa saja."
+  });
+});
+
+// POST /api/uploader/upload or /uploader/upload (multipart form)
+app.post(["/api/uploader/upload", "/uploader/upload"], (req, res) => {
+  const start = Date.now();
+  upload.single("file")(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: err.message || "Gagal mengunggah berkas."
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Silakan masukkan berkas dalam field 'file'."
+      });
+    }
+
+    const duration = Date.now() - start;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const fileUrl = `${protocol}://${host}/cfiles/${req.file.filename}`;
+    
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      result: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        url: fileUrl
+      }
+    });
+  });
+});
+
+// Admin endpoints for /oji
+// List all files
+app.get("/api/oji/files", (req, res) => {
+  const password = req.query.password || req.headers["x-admin-password"];
+  if (password !== "cmntyapi10081") {
+    return res.status(403).json({
+      status: false,
+      statusCode: 403,
+      author: "@cmnty - Public-api",
+      message: "Akses ditolak. Kata sandi tidak valid."
+    });
+  }
+
+  try {
+    const files = fs.readdirSync(cfilesDir);
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const fileList = files.map(file => {
+      const filePath = path.join(cfilesDir, file);
+      const stat = fs.statSync(filePath);
+      const fileUrl = `${protocol}://${host}/cfiles/${file}`;
+      return {
+        filename: file,
+        size: stat.size,
+        createdAt: stat.birthtime || stat.mtime,
+        url: fileUrl
+      };
+    }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      result: fileList
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal membaca direktori berkas: " + error.message
+    });
+  }
+});
+
+// Delete a file
+app.delete("/api/oji/delete", (req, res) => {
+  const password = req.query.password || req.headers["x-admin-password"] || req.body.password;
+  if (password !== "cmntyapi10081") {
+    return res.status(403).json({
+      status: false,
+      statusCode: 403,
+      author: "@cmnty - Public-api",
+      message: "Akses ditolak. Kata sandi tidak valid."
+    });
+  }
+
+  const filename = req.query.filename || req.body.filename;
+  if (!filename) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Nama berkas tidak boleh kosong."
+    });
+  }
+
+  // Prevent Directory Traversal / Escape attempts
+  const safeFilename = path.basename(filename as string);
+  const filePath = path.join(cfilesDir, safeFilename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({
+      status: false,
+      statusCode: 404,
+      author: "@cmnty - Public-api",
+      message: "Berkas tidak ditemukan."
+    });
+  }
+
+  try {
+    fs.unlinkSync(filePath);
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      message: `Berkas ${safeFilename} berhasil dihapus.`
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: "Gagal menghapus berkas: " + error.message
     });
   }
 });
