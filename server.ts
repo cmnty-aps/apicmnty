@@ -48,6 +48,11 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB maximum file size
 });
 
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
+
 // WebSocket server instance
 let wss: WebSocketServer;
 
@@ -2114,6 +2119,136 @@ app.get(["/api/tools/webphishing", "/tools/webphishing"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: Blur Face (Sensor Wajah)
+app.get(["/api/tools/blurface", "/tools/blurface"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/blurface?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "";
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to blur face from image",
+      });
+    }
+
+    if (contentType.includes("image/")) {
+      const buffer = await response.arrayBuffer();
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.send(Buffer.from(buffer));
+    } else {
+      const duration = Date.now() - start;
+      const data = await response.json();
+      const cleanedData = cleanAuthorFields(data);
+      
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      
+      const stringified = JSON.stringify(cleanedData);
+      const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+      
+      return res.json({
+        ...JSON.parse(replaced),
+        status: true,
+        statusCode: response.status,
+        author: "@cmnty - Public-api",
+        responseTimeMs: duration,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (error: any) {
+    console.error("Blur Face error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: "Bad Gateway. Server error or upstream timed out.",
+    });
+  }
+});
+
+// Tools Endpoint: Removebg (Hapus Background)
+app.get(["/api/tools/removebg", "/tools/removebg"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/removebg?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "";
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to remove background from image",
+      });
+    }
+
+    if (contentType.includes("image/")) {
+      const buffer = await response.arrayBuffer();
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.send(Buffer.from(buffer));
+    } else {
+      const duration = Date.now() - start;
+      const data = await response.json();
+      const cleanedData = cleanAuthorFields(data);
+      
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      
+      const stringified = JSON.stringify(cleanedData);
+      const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+      
+      return res.json({
+        ...JSON.parse(replaced),
+        status: true,
+        statusCode: response.status,
+        author: "@cmnty - Public-api",
+        responseTimeMs: duration,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (error: any) {
+    console.error("Removebg error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: "Bad Gateway. Server error or upstream timed out.",
     });
   }
 });
@@ -5722,6 +5857,22 @@ app.get(["/api/uploader/upload", "/uploader/upload"], (req, res) => {
 // POST /api/uploader/upload or /uploader/upload (multipart form)
 app.post(["/api/uploader/upload", "/uploader/upload"], (req, res) => {
   const start = Date.now();
+  
+  // Limit check to max 30 files in cfiles directory
+  try {
+    const existingFiles = fs.readdirSync(cfilesDir).filter(f => !f.startsWith("."));
+    if (existingFiles.length >= 30) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Batas penyimpanan maksimal 30 berkas pada server ini telah tercapai. Tidak dapat mengunggah berkas baru."
+      });
+    }
+  } catch (error: any) {
+    console.error("Storage count check error:", error.message);
+  }
+
   upload.single("file")(req, res, (err) => {
     if (err) {
       return res.status(400).json({
@@ -5760,6 +5911,143 @@ app.post(["/api/uploader/upload", "/uploader/upload"], (req, res) => {
       }
     });
   });
+});
+
+// GET /api/uploader/upload-v1 or /uploader/upload-v1 Guidelines
+app.get(["/api/uploader/upload-v1", "/uploader/upload-v1"], (req, res) => {
+  res.json({
+    status: true,
+    statusCode: 200,
+    author: "@cmnty - Public-api",
+    message: "Gunakan POST dengan body form-data 'file' untuk mengunggah berkas menggunakan Upload V1."
+  });
+});
+
+// POST /api/uploader/upload-v1 or /uploader/upload-v1 (forwarded to c.termai.cc with custom domain)
+app.post(["/api/uploader/upload-v1", "/uploader/upload-v1"], (req, res) => {
+  const start = Date.now();
+  memoryUpload.single("file")(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: err.message || "Gagal mengunggah berkas."
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Silakan masukkan berkas dalam field 'file'."
+      });
+    }
+
+    try {
+      const formData = new FormData();
+      const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+      formData.append("file", blob, req.file.originalname);
+
+      // default key for c.termai.cc upload
+      const key = "AIzaBj7z2z3xBjsk";
+      const targetUrl = `https://c.termai.cc/api/upload?key=${key}`;
+
+      const response = await fetch(targetUrl, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
+      });
+
+      const duration = Date.now() - start;
+
+      if (!response.ok) {
+        return res.status(response.status).json({
+          status: false,
+          statusCode: response.status,
+          author: "@cmnty - Public-api",
+          message: "Failed to upload file to the V1 storage backend"
+        });
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.path) {
+        return res.status(502).json({
+          status: false,
+          statusCode: 502,
+          author: "@cmnty - Public-api",
+          message: "Invalid response from the V1 storage backend"
+        });
+      }
+
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      
+      let customPath = data.path;
+      if (customPath && customPath.startsWith("https://c.termai.cc/")) {
+        customPath = customPath.replace("https://c.termai.cc/", `${protocol}://${host}/view-v1/`);
+      }
+
+      res.json({
+        status: true,
+        statusCode: 200,
+        author: "@cmnty - Public-api",
+        responseTimeMs: duration,
+        result: {
+          path: customPath,
+          mimetype: data.mimetype || data.mimeType || req.file.mimetype,
+          size: data.size || req.file.size
+        }
+      });
+    } catch (error: any) {
+      console.error("Upload V1 error:", error.message);
+      res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Bad Gateway. Server error or upstream timed out."
+      });
+    }
+  });
+});
+
+// Proxy for Upload V1 files (bypassing c.termai.cc and showing custom domain)
+app.get("/view-v1/:type/:filename", async (req, res) => {
+  const { type, filename } = req.params;
+  const targetUrl = `https://c.termai.cc/${type}/${encodeURIComponent(filename)}`;
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Referer": "https://c.termai.cc/"
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        status: false,
+        message: "File tidak ditemukan atau telah kedaluwarsa pada server Upload V1."
+      });
+    }
+
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=31536000"); // Cache v1 files heavily, 1 year
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("View V1 error:", error.message);
+    res.status(502).json({
+      status: false,
+      message: "Proxy error: " + error.message
+    });
+  }
 });
 
 // Admin endpoints for /oji

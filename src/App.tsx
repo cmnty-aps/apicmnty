@@ -1431,42 +1431,6 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "tools-translate",
-    category: "tools",
-    name: "Translate",
-    provider: "siputzx",
-    path: "/tools/translate",
-    method: "GET",
-    description: "Menerjemahkan teks dari satu bahasa ke bahasa lain secara akurat menggunakan layanan penerjemahan instan.",
-    queryParams: [
-      { name: "text", placeholder: "Teks yang ingin diterjemahkan", defaultValue: "I love you" },
-      { 
-        name: "source", 
-        placeholder: "Bahasa asal", 
-        defaultValue: "en",
-        options: ["en", "id", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
-      },
-      { 
-        name: "target", 
-        placeholder: "Bahasa tujuan", 
-        defaultValue: "id",
-        options: ["id", "en", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
-      }
-    ]
-  },
-  {
-    id: "tools-webphishing",
-    category: "tools",
-    name: "Web Phishing Check",
-    provider: "nexray",
-    path: "/tools/webphishing",
-    method: "GET",
-    description: "Cek apakah sebuah URL situs web terindikasi sebagai situs phishing atau berbahaya untuk keamanan data.",
-    queryParams: [
-      { name: "url", placeholder: "https://api.cmnty.web.id", defaultValue: "https://api.cmnty.web.id" }
-    ]
-  },
-  {
     id: "tools-bentosnap-record",
     category: "tools",
     name: "Web Record",
@@ -1505,6 +1469,32 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "tools-blurface",
+    category: "tools",
+    name: "Blur Face (Sensor Wajah)",
+    provider: "nexray",
+    path: "/tools/blurface",
+    method: "GET",
+    responseType: "image",
+    description: "Mendeteksi wajah dalam gambar secara otomatis dan memberikan efek blur/sensor yang rapi.",
+    queryParams: [
+      { name: "url", placeholder: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg" }
+    ]
+  },
+  {
+    id: "tools-removebg",
+    category: "tools",
+    name: "Removebg (Hapus Background)",
+    provider: "nexray",
+    path: "/tools/removebg",
+    method: "GET",
+    responseType: "image",
+    description: "Menghapus background dari gambar dengan rapi menggunakan teknologi AI canggih.",
+    queryParams: [
+      { name: "url", placeholder: "https://api.cmnty.web.id/cfiles/bG8WZNTh3Nln.jpg", defaultValue: "https://api.cmnty.web.id/cfiles/bG8WZNTh3Nln.jpg" }
+    ]
+  },
+  {
     id: "tools-ssweb",
     category: "tools",
     name: "Website Screenshot",
@@ -1536,11 +1526,59 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "tools-translate",
+    category: "tools",
+    name: "Translate",
+    provider: "siputzx",
+    path: "/tools/translate",
+    method: "GET",
+    description: "Menerjemahkan teks dari satu bahasa ke bahasa lain secara akurat menggunakan layanan penerjemahan instan.",
+    queryParams: [
+      { name: "text", placeholder: "Teks yang ingin diterjemahkan", defaultValue: "I love you" },
+      { 
+        name: "source", 
+        placeholder: "Bahasa asal", 
+        defaultValue: "en",
+        options: ["en", "id", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
+      },
+      { 
+        name: "target", 
+        placeholder: "Bahasa tujuan", 
+        defaultValue: "id",
+        options: ["id", "en", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
+      }
+    ]
+  },
+  {
+    id: "tools-webphishing",
+    category: "tools",
+    name: "Web Phishing Check",
+    provider: "nexray",
+    path: "/tools/webphishing",
+    method: "GET",
+    description: "Cek apakah sebuah URL situs web terindikasi sebagai situs phishing atau berbahaya untuk keamanan data.",
+    queryParams: [
+      { name: "url", placeholder: "https://api.cmnty.web.id", defaultValue: "https://api.cmnty.web.id" }
+    ]
+  },
+  {
     id: "uploader-upload",
     category: "uploader",
     name: "Uploader File",
     provider: "cfiles",
     path: "/uploader/upload",
+    method: "POST",
+    description: "Mengunggah berkas apa saja (gambar, audio, dokumen, video, dll) secara gratis dan aman, lalu mendapatkan URL publik yang dapat diakses langsung.",
+    queryParams: [
+      { name: "file", placeholder: "Pilih berkas untuk diunggah", defaultValue: "" }
+    ]
+  },
+  {
+    id: "uploader-upload-v1",
+    category: "uploader",
+    name: "Uploader File V1",
+    provider: "termai",
+    path: "/uploader/upload-v1",
     method: "POST",
     description: "Mengunggah berkas apa saja (gambar, audio, dokumen, video, dll) secara gratis dan aman, lalu mendapatkan URL publik yang dapat diakses langsung.",
     queryParams: [
@@ -1817,80 +1855,8 @@ export default function App() {
       return;
     }
 
-    // 3. Prevent contextual right click
-    const preventRightClick = (e: MouseEvent) => {
-      e.preventDefault();
-    };
-    document.addEventListener("contextmenu", preventRightClick);
-
-    // 4. Prevent keyboards shortcuts for inspecting and viewing code source
-    const preventShortcuts = (e: KeyboardEvent) => {
-      // F12 key
-      if (e.key === "F12" || e.keyCode === 123) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect tool)
-      if (e.ctrlKey && e.shiftKey && (e.key?.toLowerCase() === "i" || e.key?.toLowerCase() === "j" || e.key?.toLowerCase() === "c" || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+U (View source)
-      if (e.ctrlKey && (e.key?.toLowerCase() === "u" || e.keyCode === 85)) {
-        e.preventDefault();
-        return false;
-      }
-      // Ctrl+S / Cmd+S (Save page)
-      if ((e.ctrlKey || e.metaKey) && (e.key?.toLowerCase() === "s" || e.keyCode === 83)) {
-        e.preventDefault();
-        return false;
-      }
-    };
-    document.addEventListener("keydown", preventShortcuts);
-
-    // 5. Active Anti-Debugging / DevTools Freeze System (Only activated in production/deployed mode)
-    const isDevelopment = 
-      hostname === "localhost" || 
-      hostname === "127.0.0.1" || 
-      hostname === "0.0.0.0" || 
-      hostname === "";
-
-    let debuggerInterval: NodeJS.Timeout | null = null;
-    let consoleInterval: NodeJS.Timeout | null = null;
-
-    if (!isDevelopment) {
-      // Periodic debugger injection to freeze any hackers attempts to inspect/debug state
-      const checkDebuggerNow = () => {
-        const startTime = Date.now();
-        // eslint-disable-next-line no-debugger
-        debugger;
-        const endTime = Date.now();
-        if (endTime - startTime > 100) {
-          // DevTools is currently open, we clear body or show warning
-          try {
-            console.clear();
-          } catch (e) {}
-        }
-      };
-      debuggerInterval = setInterval(checkDebuggerNow, 500);
-
-      // Console spam filter to clear and overwrite logs
-      consoleInterval = setInterval(() => {
-        try {
-          console.clear();
-          console.log("%cAKSES DILINDUNGI @CMNTY", "color: #ef4444; font-size: 24px; font-weight: bold;");
-          console.log("%cSeluruh kode & data API dilindungi oleh sistem keamanan anti-theft @cmnty.", "color: #a1a1aa; font-size: 14px;");
-        } catch (e) {}
-      }, 1000);
-    }
-
-    // Cleanups on unmount
-    return () => {
-      document.removeEventListener("contextmenu", preventRightClick);
-      document.removeEventListener("keydown", preventShortcuts);
-      if (debuggerInterval) clearInterval(debuggerInterval);
-      if (consoleInterval) clearInterval(consoleInterval);
-    };
+    // Security copy and inspect prevention systems removed per requested
+    return () => {};
   }, []);
 
   // Metrics monitoring
@@ -1990,7 +1956,7 @@ export default function App() {
     try {
       let response;
       if (method === "POST") {
-        if (endpoint?.id === "uploader-upload") {
+        if (endpoint?.id === "uploader-upload" || endpoint?.id === "uploader-upload-v1") {
           if (!uploadFile) {
             setErrorText("Silakan pilih file terlebih dahulu untuk diunggah.");
             setIsLoading(false);
@@ -3031,7 +2997,7 @@ ${printBlock}`;
                                             <option key={opt} value={opt}>{opt}</option>
                                           ))}
                                         </select>
-                                      ) : q.name === "file" && ep.id === "uploader-upload" ? (
+                                      ) : q.name === "file" && (ep.id === "uploader-upload" || ep.id === "uploader-upload-v1") ? (
                                         <div className="flex flex-col gap-2">
                                           <input
                                             type="file"
