@@ -1528,6 +1528,62 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "tools-spamngl",
+    category: "tools",
+    name: "NGL Spam",
+    provider: "nexray",
+    path: "/tools/spamngl",
+    method: "GET",
+    description: "Send multiple anonymous messages to a user via NGL. Masukkan URL profil NGL, pesan, dan jumlah pengiriman.",
+    queryParams: [
+      { name: "url", placeholder: "https://ngl.link/username", defaultValue: "https://ngl.link/cmnty" },
+      { name: "pesan", placeholder: "Isi pesan", defaultValue: "Halo dari Cmnty API!" },
+      { name: "jumlah", placeholder: "Jumlah (contoh: 5)", defaultValue: "5" }
+    ]
+  },
+  {
+    id: "tools-webtozip",
+    category: "tools",
+    name: "Web to ZIP",
+    provider: "nexray",
+    path: "/tools/webtozip",
+    method: "GET",
+    description: "Convert website to ZIP file. Masukkan URL website yang ingin dikonversi.",
+    queryParams: [
+      { name: "url", placeholder: "https://cmnty.web.id", defaultValue: "https://cmnty.web.id" }
+    ]
+  },
+  {
+    id: "tools-wink",
+    category: "tools",
+    name: "Wink HDR",
+    provider: "nexray",
+    path: "/tools/wink",
+    method: "GET",
+    description: "Wink enhance video and image quality to HD resolution. Pilih tipe konten (image/video).",
+    queryParams: [
+      { name: "url", placeholder: "URL gambar atau video", defaultValue: "https://api.cmnty.web.id/view-v1/i152/atQXq9.jpg" },
+      { 
+        name: "type", 
+        placeholder: "Pilih Tipe", 
+        defaultValue: "image",
+        options: ["image", "video"]
+      }
+    ]
+  },
+  {
+    id: "tools-colorize",
+    category: "tools",
+    name: "Colorize",
+    provider: "nexray",
+    path: "/tools/colorize",
+    method: "GET",
+    description: "Warnai gambar hitam putih secara otomatis menggunakan AI.",
+    queryParams: [
+      { name: "url", placeholder: "URL gambar hitam putih", defaultValue: "https://api.cmnty.web.id/view-v1/i152/atQXq9.jpg" }
+    ]
+  },
+  {
     id: "tools-blurface",
     category: "tools",
     name: "Blur Face (Sensor Wajah)",
@@ -1618,6 +1674,18 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Cek apakah sebuah URL situs web terindikasi sebagai situs phishing atau berbahaya untuk keamanan data.",
     queryParams: [
       { name: "url", placeholder: "https://api.cmnty.web.id", defaultValue: "https://api.cmnty.web.id" }
+    ]
+  },
+  {
+    id: "tools-ytrecap",
+    category: "tools",
+    name: "YouTube Recap",
+    provider: "cuki",
+    path: "/tools/ytrecap",
+    method: "GET",
+    description: "Dapatkan AI-generated ringkasan (summary) dan transkrip dari video YouTube menggunakan Recapio API.",
+    queryParams: [
+      { name: "url", placeholder: "https://www.youtube.com/watch?v=2y1OxYwvkhY", defaultValue: "https://www.youtube.com/watch?v=2y1OxYwvkhY" }
     ]
   },
   {

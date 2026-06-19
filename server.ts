@@ -421,7 +421,8 @@ function cleanAuthorFields(obj: any): any {
   const forbiddenKeys = [
     "creator", "author", "signature", "signature_api", "copyright", 
     "status", "statusCode", "response_time", "responsetime", 
-    "exectime", "runtime", "executiontime", "timestamp", "time"
+    "exectime", "runtime", "executiontime", "timestamp", "time",
+    "createdby", "developer", "poweredby", "powered_by", "credit", "source", "success"
   ];
 
   for (const [key, value] of Object.entries(obj)) {
@@ -5963,6 +5964,331 @@ app.get(["/output/:filename", "/recordings/:filename"], async (req, res) => {
     res.status(502).json({
       status: false,
       message: "Proxy error: " + error.message
+    });
+  }
+});
+
+// Proxy for WebToZip files
+app.get("/api/downloadArchive/:filename", async (req, res) => {
+  const { filename } = req.params;
+  const targetUrl = `https://copier.saveweb2zip.com/api/downloadArchive/${filename}`;
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Referer": "https://saveweb2zip.com/"
+      }
+    });
+    
+    if (!response.ok) {
+       return res.status(response.status).json({
+         status: false,
+         statusCode: response.status,
+         author: "@cmnty - Public-api",
+         message: "Berkas tidak ditemukan atau telah kedaluwarsa."
+       });
+    }
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}.zip"`);
+    
+    const arrayBuffer = await response.arrayBuffer();
+    res.send(Buffer.from(arrayBuffer));
+  } catch (error: any) {
+    res.status(502).json({
+      status: false,
+      author: "@cmnty - Public-api",
+      message: "Gagal mengambil data dari upstream."
+    });
+  }
+});
+
+// Tools Endpoint: Web to ZIP
+app.get(["/api/tools/webtozip", "/tools/webtozip"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/webtozip?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Rewrite downloadUrl to use local proxy
+    if (cleanedData.result && cleanedData.result.downloadUrl) {
+       const upstreamUrl = cleanedData.result.downloadUrl;
+       if (upstreamUrl.includes("copier.saveweb2zip.com/api/downloadArchive/")) {
+          const urlObj = new URL(upstreamUrl);
+          const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+          const host = req.headers["x-forwarded-host"] || req.get("host");
+          cleanedData.result.downloadUrl = `${protocol}://${host}/api/downloadArchive${urlObj.pathname.replace("/api/downloadArchive", "")}`;
+       }
+    }
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Web to ZIP error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: Wink HDR
+app.get(["/api/tools/wink", "/tools/wink"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  const type = req.query.type as string; // image or video
+  
+  if (!url || !type) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameters 'url' and 'type' are required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/wink?url=${encodeURIComponent(url)}&type=${encodeURIComponent(type)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Custom domain rewrite for results if they contain nexray tmp links
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    const stringified = JSON.stringify(cleanedData);
+    const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+    const finalData = JSON.parse(replaced);
+
+    res.json({
+      ...finalData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Wink HDR error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: Colorize
+app.get(["/api/tools/colorize", "/tools/colorize"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/colorize?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    
+    // Custom domain rewrite for results
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    const stringified = JSON.stringify(cleanedData);
+    const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+    const finalData = JSON.parse(replaced);
+
+    res.json({
+      ...finalData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Colorize error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: NGL Spam
+app.get(["/api/tools/spamngl", "/tools/spamngl"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  const pesan = req.query.pesan as string;
+  const jumlah = req.query.jumlah as string;
+  
+  if (!url || !pesan || !jumlah) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameters 'url', 'pesan', and 'jumlah' are required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/spamngl?url=${encodeURIComponent(url)}&pesan=${encodeURIComponent(pesan)}&jumlah=${encodeURIComponent(jumlah)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("NGL Spam error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: YouTube Recap
+app.get(["/api/tools/ytrecap", "/tools/ytrecap"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.cuki.biz.id/api/tools/ytrecap?apikey=cuki-x&url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const rawResults = data.results || data.result || data;
+    const cleanedResults = cleanAuthorFields(rawResults);
+
+    res.json({
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      results: cleanedResults,
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("YouTube Recap error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
     });
   }
 });
