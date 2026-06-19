@@ -240,6 +240,20 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "ai-glm47flash",
+    category: "ai",
+    name: "GLM 4.7 Flash",
+    provider: "siputzx",
+    path: "/ai/glm47flash",
+    method: "GET",
+    description: "Lightning-fast AI chat powered by GLM 4.7 Flash. Built for speed and reliability, delivering sharp responses.",
+    queryParams: [
+      { name: "prompt", placeholder: "Pesan Anda (contoh: Hai, siapa kamu?)", defaultValue: "Halo, siapa kamu?" },
+      { name: "system", placeholder: "Sistem prompt (opsional)", defaultValue: "You are a helpful assistant." },
+      { name: "temperature", placeholder: "Suhu (opsional, default 0.7)", defaultValue: "0.7" }
+    ]
+  },
+  {
     id: "ai-gpt-3-5-turbo",
     category: "ai",
     name: "GPT-3.5 Turbo",
@@ -313,6 +327,51 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/berita/ffnews",
     method: "GET",
     description: "Mendapatkan rangkuman informasi berita game Free Fire terbaru."
+  },
+  {
+    id: "berita-merdeka",
+    category: "berita",
+    name: "Merdeka News",
+    provider: "merdeka",
+    path: "/berita/merdeka",
+    method: "GET",
+    description: "Dapatkan berita headlines, peristiwa hangat, dan isu terpopuler terbaru langsung dari rubrik peristiwa Merdeka.com."
+  },
+  {
+    id: "berita-kompas",
+    category: "berita",
+    name: "Kompas News",
+    provider: "kompas",
+    path: "/berita/kompas",
+    method: "GET",
+    description: "Mendapatkan liputan informasi, headlines, peristiwa terkini, dan artikel berita nasional terbaru langsung dari portal Kompas.com."
+  },
+  {
+    id: "berita-liputan6",
+    category: "berita",
+    name: "Liputan6 News",
+    provider: "liputan6",
+    path: "/berita/liputan6",
+    method: "GET",
+    description: "Mengambil berita utama headlines terkini, artikel peristiwa terpopuler, and berita terhangat harian langsung dari portal Liputan6.com."
+  },
+  {
+    id: "berita-sindonews",
+    category: "berita",
+    name: "Sindonews News",
+    provider: "sindonews",
+    path: "/berita/sindonews",
+    method: "GET",
+    description: "Mendapatkan liputan berita terkini, headlines peristiwa, dan isu nasional terpopuler dari portal berita Sindonews.com."
+  },
+  {
+    id: "berita-tribunnews",
+    category: "berita",
+    name: "Tribunnews News",
+    provider: "tribunnews",
+    path: "/berita/tribunnews",
+    method: "GET",
+    description: "Mengambil berita headlines, peristiwa hangat, dan berita daerah terpopuler dari jaringan info lokal Tribunnews.com."
   },
 
   // CANVAS CATEGORY
@@ -1728,6 +1787,32 @@ export default function App() {
     ? "admin" 
     : "landing";
 
+  // Sync activeFolder with URL query param 'folder'
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const folderName = params.get("folder");
+    if (folderName) {
+      setActiveFolder(folderName);
+    } else if (location.pathname === "/docs" && !params.get("folder")) {
+      setActiveFolder("all");
+    }
+  }, [location.search, location.pathname]);
+
+  const handleSetFolder = (folder: string) => {
+    setActiveFolder(folder);
+    const params = new URLSearchParams(location.search);
+    if (folder === "all") {
+      params.delete("folder");
+    } else {
+      params.set("folder", folder);
+    }
+    const newSearch = params.toString();
+    navigate({
+      pathname: location.pathname,
+      search: newSearch ? `?${newSearch}` : ""
+    }, { replace: true });
+  };
+
   const navigateTo = (view: "landing" | "explorer" | "admin") => {
     navigate(view === "explorer" ? "/docs" : view === "admin" ? "/oji" : "/");
   };
@@ -1762,6 +1847,52 @@ export default function App() {
       document.documentElement.classList.add("light-theme");
     }
   }, [isDarkMode]);
+
+  // Dynamic Page Title & Metadata Meta-Tag Updater
+  useEffect(() => {
+    let title = "Cmnty API - Platform REST API Publik Gratis Tercepat";
+    let description = "Platform API Publik Gratis Tercepat & Terlengkap. Hubungkan aplikasi, bot, dan website Anda dengan mudah menggunakan ratusan endpoint AI, Downloader, Anime, Tools, & Islami gratis.";
+
+    if (currentView === "admin") {
+      title = "Dashboard Admin | Cmnty API";
+      description = "Halaman administrasi khusus untuk mengelola berkas dan memantau lalu lintas API serta status sistem secara real-time di Cmnty API.";
+    } else if (currentView === "explorer") {
+      const activeEndpoint = ENDPOINTS.find(e => e.id === expandedCardId);
+      if (activeEndpoint) {
+        title = `${activeEndpoint.name} API | Cmnty API - Dokumentasi Resmi`;
+        description = `Gunakan endpoint ${activeEndpoint.name} secara gratis tanpa login atau API key. ${activeEndpoint.description}`;
+      } else if (activeFolder && activeFolder !== "all") {
+        const folderNameFormatted = activeFolder.charAt(0).toUpperCase() + activeFolder.slice(1);
+        title = `${folderNameFormatted} | Cmnty API`;
+        description = `Koleksi lengkap REST API kategori ${folderNameFormatted} gratis, andal, dan berkecepatan tinggi hanya di platform Cmnty API.`;
+      } else {
+        title = "Dokumentasi API Terlengkap | Cmnty API";
+        description = "Akses ratusan dokumentasi API Publik gratis terlengkap mulai dari Artificial Intelligence (AI), Downloader, Anime, Islami, Games, dan Tools.";
+      }
+    }
+
+    // Update document title
+    document.title = title;
+
+    // Helper functions to update meta values correctly and dynamically
+    const setMetaTag = (selector: string, attribute: string, contentValue: string) => {
+      const el = document.querySelector(selector);
+      if (el) {
+        el.setAttribute(attribute, contentValue);
+      }
+    };
+
+    // Standard DESCRIPTION tag
+    setMetaTag('meta[name="description"]', 'content', description);
+
+    // Open Graph (Facebook / WhatsApp / Discord / Telegram)
+    setMetaTag('meta[property="og:title"]', 'content', title);
+    setMetaTag('meta[property="og:description"]', 'content', description);
+
+    // Twitter / X card
+    setMetaTag('meta[property="twitter:title"]', 'content', title);
+    setMetaTag('meta[property="twitter:description"]', 'content', description);
+  }, [currentView, expandedCardId, activeFolder]);
 
   // Visitor monitoring
   const [visitorInfo, setVisitorInfo] = useState<any>(null);
@@ -2744,7 +2875,7 @@ ${printBlock}`;
                   {/* Folder categories selector - Horizontal Scrollable */}
                   <div className="flex overflow-x-auto gap-2 pb-1.5 text-xs font-mono scrollbar-hide snap-x no-scrollbar">
                     <button
-                      onClick={() => { setActiveFolder("all"); }}
+                      onClick={() => { handleSetFolder("all"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "all"
                           ? "bg-white text-black font-semibold border-white"
@@ -2756,7 +2887,7 @@ ${printBlock}`;
                     </button>
                     
                     <button
-                      onClick={() => { setActiveFolder("ai"); }}
+                      onClick={() => { handleSetFolder("ai"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "ai"
                           ? "bg-white text-black font-semibold border-white"
@@ -2768,7 +2899,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("berita"); }}
+                      onClick={() => { handleSetFolder("berita"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "berita"
                           ? "bg-white text-black font-semibold border-white"
@@ -2780,7 +2911,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("canvas"); }}
+                      onClick={() => { handleSetFolder("canvas"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "canvas"
                           ? "bg-white text-black font-semibold border-white"
@@ -2792,7 +2923,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("downloader"); }}
+                      onClick={() => { handleSetFolder("downloader"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "downloader"
                           ? "bg-white text-black font-semibold border-white"
@@ -2804,7 +2935,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("game"); }}
+                      onClick={() => { handleSetFolder("game"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "game"
                           ? "bg-white text-black font-semibold border-white"
@@ -2816,7 +2947,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("information"); }}
+                      onClick={() => { handleSetFolder("information"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "information"
                           ? "bg-white text-black font-semibold border-white"
@@ -2828,7 +2959,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("payment"); }}
+                      onClick={() => { handleSetFolder("payment"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "payment"
                           ? "bg-white text-black font-semibold border-white"
@@ -2840,7 +2971,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("random"); }}
+                      onClick={() => { handleSetFolder("random"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "random"
                           ? "bg-white text-black font-semibold border-white"
@@ -2852,7 +2983,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("search"); }}
+                      onClick={() => { handleSetFolder("search"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "search"
                           ? "bg-white text-black font-semibold border-white"
@@ -2864,7 +2995,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("stalker"); }}
+                      onClick={() => { handleSetFolder("stalker"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "stalker"
                           ? "bg-white text-black font-semibold border-white"
@@ -2876,7 +3007,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("tools"); }}
+                      onClick={() => { handleSetFolder("tools"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "tools"
                           ? "bg-white text-black font-semibold border-white"
@@ -2888,7 +3019,7 @@ ${printBlock}`;
                     </button>
 
                     <button
-                      onClick={() => { setActiveFolder("uploader"); }}
+                      onClick={() => { handleSetFolder("uploader"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
                         activeFolder === "uploader"
                           ? "bg-white text-black font-semibold border-white"

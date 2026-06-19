@@ -1,5 +1,5 @@
 {
-  "name": "CMNTY API Hub",
+  "name": "Cmnty API Hub",
   "description": "An advanced third-party API aggregator & gateway. Core integration includes news APIs (e.g., Antara news) and a gorgeous black-and-white terminal-like developer dashboard with glowing white shadows.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -66,6 +66,69 @@ app.use((req, res, next) => {
       message: "Access Forbidden - Target resource is a restricted security file."
     });
   }
+
+  // Expanded Protection against Automated Vulnerability Scanners, Bot Crawlers, and Exploits
+  // Skip scans inside the static file serving uploads directory /cfiles/ to preserve legitimate downloads
+  const isCfilesPath = normalizedPath.startsWith("/cfiles/");
+  if (!isCfilesPath) {
+    // 1. CMS and WordPress exploits probe patterns
+    const cmsKeywords = [
+      "/wp-admin",
+      "/wp-content",
+      "/wp-includes",
+      "/wp-json",
+      "xmlrpc.php",
+      "wp-login.php",
+      "/wp-",
+      "index.php",
+      "/joomla",
+      "/drupal"
+    ];
+
+    // 2. Control panels, workspace artifacts, database leaks, or cloud provider configuration files
+    const infraKeywords = [
+      "/workspaces/",
+      "/webhook-waiting",
+      "/webhook-test",
+      "/var/task",
+      "/v2/",
+      "/v3/",
+      "/etc/passwd",
+      "/webmin",
+      "/cpanel",
+      "/phpmyadmin",
+      "netlify.toml",
+      "vercel.json",
+      "docker-compose",
+      "dockerfile",
+      "config.json",
+      "configuration.php",
+      "database.sql",
+      "mysql.sql",
+      "backup.sql",
+      "dump.sql"
+    ];
+
+    const isCmsProbe = cmsKeywords.some(keyword => normalizedPath.includes(keyword));
+    const isInfraProbe = infraKeywords.some(keyword => normalizedPath.includes(keyword));
+
+    // 3. Scripting engine or database dump extensions targeted by bots
+    const scannerExtensions = [
+      ".php", ".php5", ".asp", ".aspx", ".jsp", ".jspx", ".cgi", 
+      ".pl", ".sql", ".bak", ".backup", ".sqlite", ".db"
+    ];
+    const isScannerExtension = scannerExtensions.some(ext => normalizedPath.endsWith(ext));
+
+    if (isCmsProbe || isInfraProbe || isScannerExtension) {
+      console.warn(`[Vulnerability Scan Blocked] Blocked scanner attempt to: ${req.originalUrl} from IP: ${req.ip}`);
+      return res.status(404).json({
+        status: false,
+        statusCode: 404,
+        author: "@cmnty - Public-api",
+        message: "Not Found - The requested resource or endpoint does not exist on this server."
+      });
+    }
+  }
   
   next();
 });
@@ -331,7 +394,7 @@ app.post("/api/v1/logs/clear", (req, res) => {
 
 // Supported providers list
 const SUPPORTED_PROVIDERS = {
-  berita: ["antara", "cnn", "cnbc", "cnbcindonesia", "ffnews", "tempo", "republika", "okezone"],
+  berita: ["antara", "cnn", "cnbc", "cnbcindonesia", "ffnews", "tempo", "republika", "okezone", "merdeka", "kompas", "tribunnews", "liputan6", "sindonews"],
 };
 
 // Custom error messages mapping
@@ -391,7 +454,18 @@ app.get(["/api/v1/berita/:provider", "/berita/:provider"], async (req, res) => {
     });
   }
 
-  const targetUrl = `https://api.nexray.eu.cc/berita/${targetProvider}`;
+  let targetUrl = `https://api.nexray.eu.cc/berita/${targetProvider}`;
+  if (targetProvider === "merdeka") {
+    targetUrl = "https://api.siputzx.my.id/api/berita/merdeka";
+  } else if (targetProvider === "kompas") {
+    targetUrl = "https://api.siputzx.my.id/api/berita/kompas";
+  } else if (targetProvider === "tribunnews") {
+    targetUrl = "https://api.siputzx.my.id/api/berita/tribunnews";
+  } else if (targetProvider === "liputan6") {
+    targetUrl = "https://api.siputzx.my.id/api/berita/liputan6";
+  } else if (targetProvider === "sindonews") {
+    targetUrl = "https://api.siputzx.my.id/api/berita/sindonews";
+  }
 
   try {
     const targetRes = await fetch(targetUrl);
@@ -437,14 +511,14 @@ app.get(["/api/v1/berita/:provider", "/berita/:provider"], async (req, res) => {
         status: 200,
         result: [
           {
-            title: "CMNTY API Sukses Mengintegrasikan Layanan",
+            title: "Cmnty API Sukses Mengintegrasikan Layanan",
             link: "#",
             image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
             isoDate: new Date().toISOString(),
-            description: "Gateway CMNTY API berhasil menghubungkan portal informasi ke dalam arsitektur berkinerja tinggi, dilengkapi sistem pemantauan latensi.",
+            description: "Gateway Cmnty API berhasil menghubungkan portal informasi ke dalam arsitektur berkinerja tinggi, dilengkapi sistem pemantauan latensi.",
           },
           {
-            title: "Pengembang CMNTY Merilis Dashboard API Minimalis Hitam Putih",
+            title: "Pengembang Cmnty Merilis Dashboard API Minimalis Hitam Putih",
             link: "#",
             image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=500",
             isoDate: new Date(Date.now() - 3600000).toISOString(),
@@ -480,6 +554,66 @@ app.get(["/api/v1/berita/:provider", "/berita/:provider"], async (req, res) => {
             image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=500",
             isoDate: new Date().toISOString(),
             description: "Sentimen positif pasar atas rilis dashboard API monokromatik terbaru memberikan dorongan segar bagi sektor inovasi finansial lokal.",
+          }
+        ]
+      },
+      merdeka: {
+        status: 200,
+        result: [
+          {
+            title: "Cmnty API Rilis Fitur Pemantauan Berita Merdeka Secara Instan",
+            link: "#",
+            image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
+            isoDate: new Date().toISOString(),
+            description: "Akses berita peristiwa terpopuler di Indonesia kini terintegrasi penuh lewat portal berkinerja tinggi Cmnty API tanpa API key."
+          }
+        ]
+      },
+      kompas: {
+        status: 200,
+        result: [
+          {
+            title: "Cmnty API Luncurkan Pemantauan Berita Kompas Tercepat",
+            link: "#",
+            image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
+            isoDate: new Date().toISOString(),
+            description: "Berita aktual dan terpercaya dari rubrik nasional Kompas kini dapat diakses dengan latensi sangat rendah melalui Cmnty API."
+          }
+        ]
+      },
+      tribunnews: {
+        status: 200,
+        result: [
+          {
+            title: "Cmnty API Mengintegrasikan Portal Berita Regional Tribunnews Terlengkap",
+            link: "#",
+            image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
+            isoDate: new Date().toISOString(),
+            description: "Akses berita aktual regional, nasional, dan lokal dari seluruh jaringan Tribunnews secara andal dengan latensi minimal di Cmnty API."
+          }
+        ]
+      },
+      liputan6: {
+        status: 200,
+        result: [
+          {
+            title: "Liputan6 Kini Hadir di Cmnty API Secara Real-time",
+            link: "#",
+            image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
+            isoDate: new Date().toISOString(),
+            description: "Dapatkan liputan akurat dan terpercaya dari portal Liputan6.com dengan respon super cepat dari ekosistem Cmnty API."
+          }
+        ]
+      },
+      sindonews: {
+        status: 200,
+        result: [
+          {
+            title: "Sindonews Kini Terhubung dengan Ekosistem Cmnty API",
+            link: "#",
+            image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=500",
+            isoDate: new Date().toISOString(),
+            description: "Berita terhangat dari Sindonews kini dapat diakses secara instan melalui infrastruktur Cmnty API yang dioptimalkan."
           }
         ]
       }
@@ -1520,6 +1654,59 @@ app.get(["/api/ai/aimuslim", "/ai/aimuslim"], async (req, res) => {
     });
   } catch (error: any) {
     console.error("AI Muslim error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// AI Chat: GLM 4.7 Flash
+app.get(["/api/ai/glm47flash", "/ai/glm47flash"], async (req, res) => {
+  const start = Date.now();
+  const prompt = req.query.prompt as string;
+  const system = (req.query.system as string) || "You are a helpful assistant.";
+  const temperature = req.query.temperature || "0.7";
+
+  if (!prompt) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'prompt' is required",
+    });
+  }
+
+  const targetUrl = `https://api.siputzx.my.id/api/ai/glm47flash?prompt=${encodeURIComponent(prompt)}&system=${encodeURIComponent(system)}&temperature=${encodeURIComponent(temperature as string)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("GLM 4.7 Flash error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,

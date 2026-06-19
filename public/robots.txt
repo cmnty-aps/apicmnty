@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /oji
+Disallow: /api/oji
+
+Sitemap: https://api.cmnty.web.id/sitemap.xml
