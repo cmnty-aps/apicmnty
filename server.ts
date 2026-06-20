@@ -2096,6 +2096,7 @@ app.get(["/api/maker/nulis", "/maker/nulis"], async (req, res) => {
 // Maker Endpoint: Brat Prabowo
 app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo"], async (req, res) => {
   try {
+    await ensureFontInstalled();
     const text = (req.query.teks as string || req.query.text as string || "Halo Indonesia").substring(0, 150);
 
     const imageUrl = "https://c.termai.cc/i134/Vd7gL.png";
@@ -6840,27 +6841,43 @@ app.get("/googled682f72610ad7e5d.html", (req, res) => {
 async function ensureFontInstalled() {
   const fontPath = path.join(process.cwd(), "Roboto-Bold.ttf");
   const fontUrl = "https://github.com/google/fonts/raw/main/apache/roboto/Roboto-Bold.ttf";
+  let buf: Buffer | null = null;
 
-  if (!fs.existsSync(fontPath)) {
+  if (fs.existsSync(fontPath)) {
+    try {
+      buf = fs.readFileSync(fontPath);
+      console.log("Loaded Roboto-Bold.ttf from local disk.");
+    } catch (err: any) {
+      console.error("Error reading local font file:", err.message);
+    }
+  }
+
+  if (!buf) {
     console.log("Downloading Roboto-Bold.ttf for server canvas text rendering...");
     try {
       const res = await fetch(fontUrl);
       if (!res.ok) throw new Error(`Status ${res.status}`);
-      const buf = Buffer.from(await res.arrayBuffer());
-      fs.writeFileSync(fontPath, buf);
-      console.log("Roboto-Bold.ttf font downloaded successfully.");
+      buf = Buffer.from(await res.arrayBuffer());
+      
+      // Try to save to disk block-safe for read-only hosts
+      try {
+        fs.writeFileSync(fontPath, buf);
+        console.log("Roboto-Bold.ttf font saved to disk.");
+      } catch (writeErr: any) {
+        console.warn("Could not write font file to disk (read-only filesystem):", writeErr.message);
+      }
     } catch (err: any) {
       console.error("Error downloading custom font:", err.message);
     }
   }
 
-  if (fs.existsSync(fontPath)) {
+  if (buf) {
     try {
-      GlobalFonts.registerFromPath(fontPath, "Arial");
-      GlobalFonts.registerFromPath(fontPath, "CustomArial");
-      console.log("Roboto-Bold.ttf successfully registered with GlobalFonts");
+      GlobalFonts.register(buf, "Arial");
+      GlobalFonts.register(buf, "CustomArial");
+      console.log("Roboto-Bold.ttf successfully registered with GlobalFonts from buffer in-memory.");
     } catch (err: any) {
-      console.error("Failed to register font with GlobalFonts:", err.message);
+      console.error("Failed to register font with GlobalFonts in-memory:", err.message);
     }
   }
 }
