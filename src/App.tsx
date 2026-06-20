@@ -376,6 +376,23 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // CANVAS CATEGORY
   {
+    id: "maker-brat-cmnty",
+    category: "canvas",
+    name: "Brat CMNTY",
+    provider: "cuki",
+    path: "/maker/brat/cmnty",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar teks bergaya Brat kustom dengan latar belakang CMNTY.",
+    queryParams: [
+      {
+        name: "teks",
+        placeholder: "Teks (contoh: Halo CMNTY)",
+        defaultValue: "Halo CMNTY"
+      }
+    ]
+  },
+  {
     id: "maker-brathd",
     category: "canvas",
     name: "Brat HD Maker",
@@ -389,6 +406,23 @@ const ENDPOINTS: EndpointSpec[] = [
         name: "text",
         placeholder: "Teks (contoh: api.cmnty.web.id aja)",
         defaultValue: "api.cmnty.web.id aja"
+      }
+    ]
+  },
+  {
+    id: "maker-brat-jokowi",
+    category: "canvas",
+    name: "Brat Jokowi",
+    provider: "cuki",
+    path: "/maker/brat/jokowi",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar teks bergaya Brat kustom dengan latar belakang Jokowi.",
+    queryParams: [
+      {
+        name: "teks",
+        placeholder: "Teks (contoh: Halo Jokowi)",
+        defaultValue: "Halo Jokowi"
       }
     ]
   },
@@ -410,14 +444,14 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "maker-bratprabowo",
+    id: "maker-brat-prabowo",
     category: "canvas",
     name: "Brat Prabowo",
-    provider: "cmnty",
+    provider: "cuki",
     path: "/maker/brat/prabowo",
     method: "GET",
     responseType: "image",
-    description: "Hasilkan gambar teks kustom bergaya Brat di atas papan tulis Prabowo.",
+    description: "Hasilkan gambar teks bergaya Brat kustom dengan latar belakang Prabowo.",
     queryParams: [
       {
         name: "teks",

@@ -5,7 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import net from "net";
 import fs from "fs";
 import multer from "multer";
-import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
+import sharp from "sharp";
 
 interface ApiLog {
   id: string;
@@ -2093,118 +2093,6 @@ app.get(["/api/maker/nulis", "/maker/nulis"], async (req, res) => {
   }
 });
 
-// Maker Endpoint: Brat Prabowo
-app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo"], async (req, res) => {
-  try {
-    await ensureFontInstalled();
-    const text = (req.query.teks as string || req.query.text as string || "Halo Indonesia").substring(0, 150);
-
-    const imageUrl = "https://c.termai.cc/i134/Vd7gL.png";
-
-    const response = await fetch(imageUrl);
-    const buffer = Buffer.from(await response.arrayBuffer());
-
-    const img = await loadImage(buffer);
-
-    const canvas = createCanvas(img.width, img.height);
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(img, 0, 0, img.width, img.height);
-
-    const boardX = img.width * 0.16;
-    const boardY = img.height * 0.66;
-    const boardW = img.width * 0.68;
-    const boardH = img.height * 0.26;
-
-    const padding = boardW * 0.08;
-    const textAreaW = boardW - padding * 2;
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#000000";
-
-    function wrapLines(txt: string, maxWidth: number) {
-      const words = txt.split(" ");
-      const lines: string[] = [];
-      let line = "";
-
-      for (const word of words) {
-        const testLine = line + word + " ";
-
-        if (
-          ctx.measureText(testLine).width > maxWidth &&
-          line !== ""
-        ) {
-          lines.push(line.trim());
-          line = word + " ";
-        } else {
-          line = testLine;
-        }
-      }
-
-      lines.push(line.trim());
-      return lines;
-    }
-
-    let fontSize = 80;
-    let lines: string[] = [];
-
-    while (fontSize > 32) {
-      ctx.font = `${fontSize}px CustomArial, Arial, sans-serif`;
-
-      lines = wrapLines(text, textAreaW);
-
-      const lineHeight = fontSize * 1.05;
-
-      if (
-        lines.length <= 3 &&
-        lines.length * lineHeight <= boardH
-      ) {
-        break;
-      }
-
-      fontSize--;
-    }
-
-    ctx.font = `${fontSize}px CustomArial, Arial, sans-serif`;
-
-    ctx.shadowColor = "rgba(0,0,0,0.12)";
-    ctx.shadowBlur = 2;
-    ctx.shadowOffsetX = 1;
-    ctx.shadowOffsetY = 1;
-
-    const lineHeight = fontSize * 1.05;
-
-    const startY =
-      boardY +
-      boardH / 2 -
-      (lines.length * lineHeight) / 2 +
-      lineHeight * 0.48;
-
-    lines.slice(0, 3).forEach((line, i) => {
-      ctx.fillText(
-        line,
-        boardX + boardW / 2,
-        startY + i * lineHeight
-      );
-    });
-
-    const png = await canvas.encode("png");
-
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(Buffer.from(png));
-  } catch (err: any) {
-    console.error("Brat Prabowo error:", err);
-    res.status(500).json({
-      status: false,
-      statusCode: 500,
-      author: "@cmnty - Public-api",
-      message: err.message
-    });
-  }
-});
-
 // Maker Endpoint: brat
 app.get(["/api/maker/brat", "/maker/brat"], async (req, res) => {
   const text = req.query.text as string || "cmnty universe";
@@ -2235,6 +2123,165 @@ app.get(["/api/maker/brat", "/maker/brat"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+function wrapText(text: string, maxChars: number = 18): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let line = "";
+
+  for (const word of words) {
+    if ((line + word).length > maxChars) {
+      lines.push(line.trim());
+      line = word + " ";
+    } else {
+      line += word + " ";
+    }
+  }
+
+  if (line.trim()) lines.push(line.trim());
+
+  return lines.slice(0, 3);
+}
+
+async function bratGenerator(imageUrl: string, text: string): Promise<Buffer> {
+  const response = await fetch(imageUrl);
+
+  if (!response.ok) {
+    throw new Error("Gagal mengambil gambar");
+  }
+
+  const imageBuffer = Buffer.from(
+    await response.arrayBuffer()
+  );
+
+  const metadata = await sharp(imageBuffer).metadata();
+
+  const width = metadata.width || 500;
+  const height = metadata.height || 500;
+
+  const boardX = width * 0.16;
+  const boardY = height * 0.66;
+  const boardW = width * 0.68;
+  const boardH = height * 0.26;
+
+  const lines = wrapText(text);
+
+  const fontSize = Math.floor(boardH / 4);
+
+  const lineHeight = fontSize * 1.1;
+
+  const startY =
+    boardY +
+    boardH / 2 -
+    (lines.length * lineHeight) / 2 +
+    lineHeight * 0.8;
+
+  const svg = `
+  <svg width="${width}" height="${height}">
+    <style>
+      text {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        fill: #000;
+      }
+    </style>
+
+    ${lines
+      .map(
+        (line, i) => `
+      <text
+        x="${boardX + boardW / 2}"
+        y="${startY + i * lineHeight}"
+        text-anchor="middle"
+        font-size="${fontSize}">
+        ${line
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")}
+      </text>
+    `
+      )
+      .join("")}
+  </svg>
+  `;
+
+  return await sharp(imageBuffer)
+    .composite([
+      {
+        input: Buffer.from(svg),
+        top: 0,
+        left: 0,
+      },
+    ])
+    .png()
+    .toBuffer();
+}
+
+// Maker Endpoint: brat cmnty
+app.get(["/api/maker/brat/cmnty", "/maker/brat/cmnty", "/brat/cmnty"], async (req, res) => {
+  const teks = (req.query.teks || req.query.text || "Halo CMNTY") as string;
+  try {
+    const image = await bratGenerator(
+      "https://c.termai.cc/i106/EHtPm.jpg",
+      teks
+    );
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(image);
+  } catch (err: any) {
+    console.error("Brat CMNTY error:", err.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: err.message || "Failed to generate image",
+    });
+  }
+});
+
+// Maker Endpoint: brat jokowi
+app.get(["/api/maker/brat/jokowi", "/maker/brat/jokowi", "/brat/jokowi"], async (req, res) => {
+  const teks = (req.query.teks || req.query.text || "Halo Jokowi") as string;
+  try {
+    const image = await bratGenerator(
+      "https://files.catbox.moe/qp05dv.png",
+      teks
+    );
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(image);
+  } catch (err: any) {
+    console.error("Brat Jokowi error:", err.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: err.message || "Failed to generate image",
+    });
+  }
+});
+
+// Maker Endpoint: brat prabowo
+app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo", "/brat/prabowo"], async (req, res) => {
+  const teks = (req.query.teks || req.query.text || "Halo Indonesia") as string;
+  try {
+    const image = await bratGenerator(
+      "https://c.termai.cc/i134/Vd7gL.png",
+      teks
+    );
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(image);
+  } catch (err: any) {
+    console.error("Brat Prabowo error:", err.message);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: err.message || "Failed to generate image",
     });
   }
 });
@@ -6837,54 +6884,8 @@ app.get("/googled682f72610ad7e5d.html", (req, res) => {
 });
 
 
-// Ensure Roboto font is downloaded and registered for napi-rs canvas text rendering on systems like Railway
-async function ensureFontInstalled() {
-  const fontPath = path.join(process.cwd(), "Roboto-Bold.ttf");
-  const fontUrl = "https://github.com/google/fonts/raw/main/apache/roboto/Roboto-Bold.ttf";
-  let buf: Buffer | null = null;
-
-  if (fs.existsSync(fontPath)) {
-    try {
-      buf = fs.readFileSync(fontPath);
-      console.log("Loaded Roboto-Bold.ttf from local disk.");
-    } catch (err: any) {
-      console.error("Error reading local font file:", err.message);
-    }
-  }
-
-  if (!buf) {
-    console.log("Downloading Roboto-Bold.ttf for server canvas text rendering...");
-    try {
-      const res = await fetch(fontUrl);
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      buf = Buffer.from(await res.arrayBuffer());
-      
-      // Try to save to disk block-safe for read-only hosts
-      try {
-        fs.writeFileSync(fontPath, buf);
-        console.log("Roboto-Bold.ttf font saved to disk.");
-      } catch (writeErr: any) {
-        console.warn("Could not write font file to disk (read-only filesystem):", writeErr.message);
-      }
-    } catch (err: any) {
-      console.error("Error downloading custom font:", err.message);
-    }
-  }
-
-  if (buf) {
-    try {
-      GlobalFonts.register(buf, "Arial");
-      GlobalFonts.register(buf, "CustomArial");
-      console.log("Roboto-Bold.ttf successfully registered with GlobalFonts from buffer in-memory.");
-    } catch (err: any) {
-      console.error("Failed to register font with GlobalFonts in-memory:", err.message);
-    }
-  }
-}
-
 // Serve frontend build static files in production, mount Vite in development
 async function startServer() {
-  await ensureFontInstalled();
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
