@@ -5,7 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import net from "net";
 import fs from "fs";
 import multer from "multer";
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
 
 interface ApiLog {
   id: string;
@@ -2149,7 +2149,7 @@ app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo"], async (req, res) => 
     let lines: string[] = [];
 
     while (fontSize > 32) {
-      ctx.font = `${fontSize}px Arial`;
+      ctx.font = `${fontSize}px CustomArial, Arial, sans-serif`;
 
       lines = wrapLines(text, textAreaW);
 
@@ -2165,7 +2165,7 @@ app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo"], async (req, res) => 
       fontSize--;
     }
 
-    ctx.font = `${fontSize}px Arial`;
+    ctx.font = `${fontSize}px CustomArial, Arial, sans-serif`;
 
     ctx.shadowColor = "rgba(0,0,0,0.12)";
     ctx.shadowBlur = 2;
@@ -6836,8 +6836,38 @@ app.get("/googled682f72610ad7e5d.html", (req, res) => {
 });
 
 
+// Ensure Roboto font is downloaded and registered for napi-rs canvas text rendering on systems like Railway
+async function ensureFontInstalled() {
+  const fontPath = path.join(process.cwd(), "Roboto-Bold.ttf");
+  const fontUrl = "https://github.com/google/fonts/raw/main/apache/roboto/Roboto-Bold.ttf";
+
+  if (!fs.existsSync(fontPath)) {
+    console.log("Downloading Roboto-Bold.ttf for server canvas text rendering...");
+    try {
+      const res = await fetch(fontUrl);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      fs.writeFileSync(fontPath, buf);
+      console.log("Roboto-Bold.ttf font downloaded successfully.");
+    } catch (err: any) {
+      console.error("Error downloading custom font:", err.message);
+    }
+  }
+
+  if (fs.existsSync(fontPath)) {
+    try {
+      GlobalFonts.registerFromPath(fontPath, "Arial");
+      GlobalFonts.registerFromPath(fontPath, "CustomArial");
+      console.log("Roboto-Bold.ttf successfully registered with GlobalFonts");
+    } catch (err: any) {
+      console.error("Failed to register font with GlobalFonts:", err.message);
+    }
+  }
+}
+
 // Serve frontend build static files in production, mount Vite in development
 async function startServer() {
+  await ensureFontInstalled();
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
