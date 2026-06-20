@@ -4822,6 +4822,72 @@ app.get(["/api/information/gempa", "/information/gempa"], async (req, res) => {
   }
 });
 
+// Random Endpoint: Anime Gangbang
+app.get(["/api/random/animegangbang", "/random/animegangbang"], async (req, res) => {
+  const targetUrl = `https://api.ourin.my.id/api/anime-gangbang`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Anime Gangbang error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Blue Archive
+app.get(["/api/random/blue-archive", "/random/blue-archive"], async (req, res) => {
+  const targetUrl = `https://api.nexray.eu.cc/random/ba`;
+  
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Blue Archive error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Random Endpoint: Hentai
 app.get(["/api/random/hentai", "/random/hentai"], async (req, res) => {
   const targetUrl = `https://api.ourin.my.id/api/anime-hentai`;
@@ -4879,39 +4945,6 @@ app.get(["/api/random/kasedaiki", "/random/kasedaiki"], async (req, res) => {
     res.send(Buffer.from(buffer));
   } catch (error: any) {
     console.error("Kasedaiki error:", error.message);
-    res.status(502).json({
-      status: false,
-      statusCode: 502,
-      author: "@cmnty - Public-api",
-      message: getErrorMessage(500),
-    });
-  }
-});
-
-// Random Endpoint: Anime Gangbang
-app.get(["/api/random/animegangbang", "/random/animegangbang"], async (req, res) => {
-  const targetUrl = `https://api.ourin.my.id/api/anime-gangbang`;
-  
-  try {
-    const response = await fetch(targetUrl);
-    const contentType = response.headers.get("content-type") || "image/png";
-    
-    if (!response.ok) {
-      const status = response.status;
-      return res.status(status).json({
-        status: false,
-        statusCode: status,
-        author: "@cmnty - Public-api",
-        message: getErrorMessage(status),
-      });
-    }
-
-    const buffer = await response.arrayBuffer();
-    res.setHeader("Content-Type", contentType);
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(Buffer.from(buffer));
-  } catch (error: any) {
-    console.error("Anime Gangbang error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,

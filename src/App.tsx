@@ -1215,6 +1215,26 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // RANDOM CATEGORY
   {
+    id: "random-animegangbang",
+    category: "random",
+    name: "Anime Gangbang",
+    provider: "ourin",
+    path: "/random/animegangbang",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar Anime Gangbang secara acak.",
+  },
+  {
+    id: "random-bluearchive",
+    category: "random",
+    name: "Blue Archive",
+    provider: "nexray",
+    path: "/random/blue-archive",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar Blue Archive secara acak.",
+  },
+  {
     id: "random-hentai",
     category: "random",
     name: "Random Hentai",
@@ -1233,16 +1253,6 @@ const ENDPOINTS: EndpointSpec[] = [
     method: "GET",
     responseType: "image",
     description: "Mendapatkan gambar anime Kasedaiki secara acak.",
-  },
-  {
-    id: "random-animegangbang",
-    category: "random",
-    name: "Anime Gangbang",
-    provider: "ourin",
-    path: "/random/animegangbang",
-    method: "GET",
-    responseType: "image",
-    description: "Mendapatkan gambar Anime Gangbang secara acak.",
   },
 
   // SEARCH CATEGORY
@@ -1906,6 +1916,7 @@ export default function App() {
   }, [location.search, location.pathname]);
 
   const handleSetFolder = (folder: string) => {
+    if (isLoading) return; // Block switching categories/folders while executing!
     setActiveFolder(folder);
     const params = new URLSearchParams(location.search);
     if (folder === "all") {
@@ -2156,6 +2167,7 @@ export default function App() {
 
   // Fetch initial Baseline response when switching to a different expanded card
   const selectEndpoint = (ep: EndpointSpec) => {
+    if (isLoading) return; // Block selecting or opening other endpoints while executing!
     setApiResponse(null);
     setErrorText(null);
     setHasAttempted(false);
@@ -2179,6 +2191,13 @@ export default function App() {
 
   // Run a custom request to path
   const sendRequestDirect = async (pathStr: string) => {
+    if (imageUrl) {
+      try {
+        URL.revokeObjectURL(imageUrl);
+      } catch (e) {
+        console.error("Revoke URL error:", e);
+      }
+    }
     setHasAttempted(true);
     setIsLoading(true);
     setApiResponse(null); // Reset response to trigger the loading state in UI
@@ -2234,7 +2253,15 @@ export default function App() {
           });
         }
       } else {
-        response = await fetch(pathStr);
+        // Automatically append timestamp as a unique query parameter to bust browser/proxy/CDN caches
+        const separator = pathStr.includes("?") ? "&" : "?";
+        const freshPathStr = `${pathStr}${separator}_t=${Date.now()}`;
+        response = await fetch(freshPathStr, {
+          headers: {
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+          }
+        });
       }
 
       const contentType = response.headers.get("content-type") || "";
@@ -2288,7 +2315,7 @@ export default function App() {
   };
 
   const sendRequest = async () => {
-    if (!customPath) return;
+    if (!customPath || isLoading) return;
     await sendRequestDirect(customPath);
   };
 
@@ -2980,7 +3007,9 @@ ${printBlock}`;
                   </div>
                   
                   {/* Folder categories selector - Horizontal Scrollable */}
-                  <div className="flex overflow-x-auto gap-2 pb-1.5 text-xs font-mono scrollbar-hide snap-x no-scrollbar">
+                  <div className={`flex overflow-x-auto gap-2 pb-1.5 text-xs font-mono scrollbar-hide snap-x no-scrollbar transition-all duration-200 ${
+                    isLoading ? "pointer-events-none opacity-40 cursor-not-allowed" : ""
+                  }`}>
                     <button
                       onClick={() => { handleSetFolder("all"); }}
                       className={`px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5 flex-shrink-0 snap-start ${
@@ -3150,7 +3179,8 @@ ${printBlock}`;
                     placeholder="Search endpoints..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-[#070709] border border-zinc-800 rounded-lg py-3 pl-10 pr-4 text-xs font-mono text-white placeholder-zinc-650 focus:outline-none focus:border-zinc-700 transition-all"
+                    disabled={isLoading}
+                    className="w-full bg-[#070709] border border-zinc-800 rounded-lg py-3 pl-10 pr-4 text-xs font-mono text-white placeholder-zinc-650 focus:outline-none focus:border-zinc-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -3174,7 +3204,14 @@ ${printBlock}`;
                   {/* Card head bar */}
                   <button
                     onClick={() => selectEndpoint(ep)}
-                    className="w-full px-4 py-3.5 hover:bg-zinc-950/40 transition-colors flex items-center justify-between text-left"
+                    disabled={isLoading}
+                    className={`w-full px-4 py-3.5 transition-colors flex items-center justify-between text-left ${
+                      isLoading 
+                        ? isExpanded 
+                          ? 'cursor-not-allowed bg-zinc-950/20' 
+                          : 'opacity-40 cursor-not-allowed'
+                        : 'hover:bg-zinc-950/40'
+                    }`}
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
