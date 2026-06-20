@@ -5,6 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import net from "net";
 import fs from "fs";
 import multer from "multer";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 
 interface ApiLog {
   id: string;
@@ -2088,6 +2089,117 @@ app.get(["/api/maker/nulis", "/maker/nulis"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: Brat Prabowo
+app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo"], async (req, res) => {
+  try {
+    const text = (req.query.teks as string || req.query.text as string || "Halo Indonesia").substring(0, 150);
+
+    const imageUrl = "https://c.termai.cc/i134/Vd7gL.png";
+
+    const response = await fetch(imageUrl);
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    const img = await loadImage(buffer);
+
+    const canvas = createCanvas(img.width, img.height);
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(img, 0, 0, img.width, img.height);
+
+    const boardX = img.width * 0.16;
+    const boardY = img.height * 0.66;
+    const boardW = img.width * 0.68;
+    const boardH = img.height * 0.26;
+
+    const padding = boardW * 0.08;
+    const textAreaW = boardW - padding * 2;
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#000000";
+
+    function wrapLines(txt: string, maxWidth: number) {
+      const words = txt.split(" ");
+      const lines: string[] = [];
+      let line = "";
+
+      for (const word of words) {
+        const testLine = line + word + " ";
+
+        if (
+          ctx.measureText(testLine).width > maxWidth &&
+          line !== ""
+        ) {
+          lines.push(line.trim());
+          line = word + " ";
+        } else {
+          line = testLine;
+        }
+      }
+
+      lines.push(line.trim());
+      return lines;
+    }
+
+    let fontSize = 80;
+    let lines: string[] = [];
+
+    while (fontSize > 32) {
+      ctx.font = `${fontSize}px Arial`;
+
+      lines = wrapLines(text, textAreaW);
+
+      const lineHeight = fontSize * 1.05;
+
+      if (
+        lines.length <= 3 &&
+        lines.length * lineHeight <= boardH
+      ) {
+        break;
+      }
+
+      fontSize--;
+    }
+
+    ctx.font = `${fontSize}px Arial`;
+
+    ctx.shadowColor = "rgba(0,0,0,0.12)";
+    ctx.shadowBlur = 2;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+
+    const lineHeight = fontSize * 1.05;
+
+    const startY =
+      boardY +
+      boardH / 2 -
+      (lines.length * lineHeight) / 2 +
+      lineHeight * 0.48;
+
+    lines.slice(0, 3).forEach((line, i) => {
+      ctx.fillText(
+        line,
+        boardX + boardW / 2,
+        startY + i * lineHeight
+      );
+    });
+
+    const png = await canvas.encode("png");
+
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(png));
+  } catch (err: any) {
+    console.error("Brat Prabowo error:", err);
+    res.status(500).json({
+      status: false,
+      statusCode: 500,
+      author: "@cmnty - Public-api",
+      message: err.message
     });
   }
 });

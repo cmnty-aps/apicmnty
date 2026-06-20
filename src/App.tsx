@@ -410,6 +410,23 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "maker-bratprabowo",
+    category: "canvas",
+    name: "Brat Prabowo",
+    provider: "cmnty",
+    path: "/maker/brat/prabowo",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar teks kustom bergaya Brat di atas papan tulis Prabowo.",
+    queryParams: [
+      {
+        name: "teks",
+        placeholder: "Teks (contoh: Halo Indonesia)",
+        defaultValue: "Halo Indonesia"
+      }
+    ]
+  },
+  {
     id: "maker-bratvidhd",
     category: "canvas",
     name: "Bratvid HD Maker",
