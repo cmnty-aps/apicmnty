@@ -5,8 +5,6 @@ import { WebSocketServer, WebSocket } from "ws";
 import net from "net";
 import fs from "fs";
 import multer from "multer";
-import sharp from "sharp";
-import os from "os";
 
 interface ApiLog {
   id: string;
@@ -849,7 +847,7 @@ app.get(["/api/canvas/ektp", "/canvas/ektp"], async (req, res) => {
 });
 
 // Proxy for external temporary files (like TTS results)
-app.get("/tmp/:filename", async (req, res) => {
+app.get(["/tmp/:filename", "/api/tmp/:filename"], async (req, res) => {
   const { filename } = req.params;
   const targetUrl = `https://api.nexray.eu.cc/tmp/${filename}`;
   
@@ -2128,247 +2126,6 @@ app.get(["/api/maker/brat", "/maker/brat"], async (req, res) => {
   }
 });
 
-function wrapText(text: string, maxChars: number = 18): string[] {
-  const words = text.split(" ");
-  const lines: string[] = [];
-  let line = "";
-
-  for (const word of words) {
-    if ((line + word).length > maxChars) {
-      lines.push(line.trim());
-      line = word + " ";
-    } else {
-      line += word + " ";
-    }
-  }
-
-  if (line.trim()) lines.push(line.trim());
-
-  return lines.slice(0, 3);
-}
-
-let cachedFontBase64 = "";
-
-async function ensureFonts(): Promise<string> {
-  if (cachedFontBase64) return cachedFontBase64;
-
-  const homedir = os.homedir();
-  const fontDirs = [
-    path.join(homedir, ".fonts"),
-    path.join(homedir, ".local", "share", "fonts"),
-    path.join(process.cwd(), ".fonts"),
-  ];
-
-  const fontFilename = "Roboto-Bold.ttf";
-
-  // Check if we already have it locally
-  for (const dir of fontDirs) {
-    const filePath = path.join(dir, fontFilename);
-    if (fs.existsSync(filePath)) {
-      try {
-        const buffer = fs.readFileSync(filePath);
-        cachedFontBase64 = buffer.toString("base64");
-        return cachedFontBase64;
-      } catch (err) {}
-    }
-  }
-
-  // If not, download it
-  const urls = [
-    "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf",
-    "https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Bold.ttf"
-  ];
-
-  for (const url of urls) {
-    try {
-      console.log(`Downloading TrueType font from ${url} for image rendering...`);
-      const response = await fetch(url);
-      if (response.ok) {
-        const buffer = Buffer.from(await response.arrayBuffer());
-        cachedFontBase64 = buffer.toString("base64");
-
-        // Write to all font directories so fontconfig can register it
-        for (const dir of fontDirs) {
-          try {
-            if (!fs.existsSync(dir)) {
-              fs.mkdirSync(dir, { recursive: true });
-            }
-            fs.writeFileSync(path.join(dir, fontFilename), buffer);
-            fs.writeFileSync(path.join(dir, "Roboto-Bold.ttf"), buffer);
-            fs.writeFileSync(path.join(dir, "Arial.ttf"), buffer);
-            fs.writeFileSync(path.join(dir, "Arial-Bold.ttf"), buffer);
-            fs.writeFileSync(path.join(dir, "sans-serif.ttf"), buffer);
-          } catch (writeErr: any) {
-            console.warn(`Could not write font to ${dir}:`, writeErr.message);
-          }
-        }
-        console.log("Fonts saved successfully to user font paths constraint.");
-        return cachedFontBase64;
-      }
-    } catch (e: any) {
-      console.warn(`Failed to fetch font from ${url}:`, e.message);
-    }
-  }
-
-  return "";
-}
-
-async function bratGenerator(imageUrl: string, text: string): Promise<Buffer> {
-  const fontBase64 = await ensureFonts();
-  
-  const response = await fetch(imageUrl);
-
-  if (!response.ok) {
-    throw new Error("Gagal mengambil gambar");
-  }
-
-  const imageBuffer = Buffer.from(
-    await response.arrayBuffer()
-  );
-
-  const metadata = await sharp(imageBuffer).metadata();
-
-  const width = metadata.width || 500;
-  const height = metadata.height || 500;
-
-  const boardX = width * 0.16;
-  const boardY = height * 0.66;
-  const boardW = width * 0.68;
-  const boardH = height * 0.26;
-
-  const lines = wrapText(text);
-
-  const fontSize = Math.floor(boardH / 4);
-
-  const lineHeight = fontSize * 1.1;
-
-  const startY =
-    boardY +
-    boardH / 2 -
-    (lines.length * lineHeight) / 2 +
-    lineHeight * 0.8;
-
-  const fontStyleBlock = fontBase64
-    ? `
-      @font-face {
-        font-family: 'BratFont';
-        src: url(data:font/truetype;charset=utf-8;base64,${fontBase64});
-      }
-      text {
-        font-family: 'BratFont', 'Roboto-Bold', Arial, sans-serif;
-        font-weight: bold;
-        fill: #000;
-      }`
-    : `
-      text {
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-        fill: #000;
-      }`;
-
-  const svg = `
-  <svg width="${width}" height="${height}">
-    <style>
-      ${fontStyleBlock}
-    </style>
-
-    ${lines
-      .map(
-        (line, i) => `
-      <text
-        x="${boardX + boardW / 2}"
-        y="${startY + i * lineHeight}"
-        text-anchor="middle"
-        font-size="${fontSize}">
-        ${line
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")}
-      </text>
-    `
-      )
-      .join("")}
-  </svg>
-  `;
-
-  return await sharp(imageBuffer)
-    .composite([
-      {
-        input: Buffer.from(svg),
-        top: 0,
-        left: 0,
-      },
-    ])
-    .png()
-    .toBuffer();
-}
-
-// Maker Endpoint: brat cmnty
-app.get(["/api/maker/brat/cmnty", "/maker/brat/cmnty", "/brat/cmnty"], async (req, res) => {
-  const teks = (req.query.teks || req.query.text || "Halo CMNTY") as string;
-  try {
-    const image = await bratGenerator(
-      "https://c.termai.cc/i106/EHtPm.jpg",
-      teks
-    );
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(image);
-  } catch (err: any) {
-    console.error("Brat CMNTY error:", err.message);
-    res.status(500).json({
-      status: false,
-      statusCode: 500,
-      author: "@cmnty - Public-api",
-      message: err.message || "Failed to generate image",
-    });
-  }
-});
-
-// Maker Endpoint: brat jokowi
-app.get(["/api/maker/brat/jokowi", "/maker/brat/jokowi", "/brat/jokowi"], async (req, res) => {
-  const teks = (req.query.teks || req.query.text || "Halo Jokowi") as string;
-  try {
-    const image = await bratGenerator(
-      "https://files.catbox.moe/qp05dv.png",
-      teks
-    );
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(image);
-  } catch (err: any) {
-    console.error("Brat Jokowi error:", err.message);
-    res.status(500).json({
-      status: false,
-      statusCode: 500,
-      author: "@cmnty - Public-api",
-      message: err.message || "Failed to generate image",
-    });
-  }
-});
-
-// Maker Endpoint: brat prabowo
-app.get(["/api/maker/brat/prabowo", "/maker/brat/prabowo", "/brat/prabowo"], async (req, res) => {
-  const teks = (req.query.teks || req.query.text || "Halo Indonesia") as string;
-  try {
-    const image = await bratGenerator(
-      "https://c.termai.cc/i134/Vd7gL.png",
-      teks
-    );
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(image);
-  } catch (err: any) {
-    console.error("Brat Prabowo error:", err.message);
-    res.status(500).json({
-      status: false,
-      statusCode: 500,
-      author: "@cmnty - Public-api",
-      message: err.message || "Failed to generate image",
-    });
-  }
-});
-
 // Maker Endpoint: brathd
 app.get(["/api/maker/brathd", "/maker/brathd"], async (req, res) => {
   const text = req.query.text as string || "api.cmnty.web.id aja";
@@ -2540,6 +2297,142 @@ app.get(["/api/maker/smeme", "/maker/smeme"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: Emoji-Mix
+app.get(["/api/maker/emojimix", "/maker/emojimix"], async (req, res) => {
+  const start = Date.now();
+  const emoji1 = req.query.emoji1 as string;
+  const emoji2 = req.query.emoji2 as string;
+
+  if (!emoji1 || !emoji2) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameters 'emoji1' and 'emoji2' are required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/emojimix?emoji1=${encodeURIComponent(emoji1)}&emoji2=${encodeURIComponent(emoji2)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "";
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to perform emojimix conversion",
+      });
+    }
+
+    if (contentType.includes("image/")) {
+      const buffer = await response.arrayBuffer();
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.send(Buffer.from(buffer));
+    } else {
+      const duration = Date.now() - start;
+      const data = await response.json();
+      const cleanedData = cleanAuthorFields(data);
+      
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      
+      const stringified = JSON.stringify(cleanedData);
+      const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/tools/tmp/$1`);
+      
+      const finalReplaced = replaced.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+
+      return res.json({
+        ...JSON.parse(finalReplaced),
+        status: true,
+        statusCode: response.status,
+        author: "@cmnty - Public-api",
+        responseTimeMs: duration,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (error: any) {
+    console.error("Emoji-Mix error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: "Bad Gateway. Server error or upstream timed out.",
+    });
+  }
+});
+
+// Maker Endpoint: Emoji to Gif
+app.get(["/api/maker/emojigif", "/maker/emojigif"], async (req, res) => {
+  const start = Date.now();
+  const emoji = req.query.emoji as string;
+  if (!emoji) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'emoji' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/emojigif?emoji=${encodeURIComponent(emoji)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "";
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to convert emoji to gif",
+      });
+    }
+
+    if (contentType.includes("image/")) {
+      const buffer = await response.arrayBuffer();
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.send(Buffer.from(buffer));
+    } else {
+      const duration = Date.now() - start;
+      const data = await response.json();
+      const cleanedData = cleanAuthorFields(data);
+      
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      
+      const stringified = JSON.stringify(cleanedData);
+      const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/tools/tmp/$1`);
+      
+      const finalReplaced = replaced.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+
+      return res.json({
+        ...JSON.parse(finalReplaced),
+        status: true,
+        statusCode: response.status,
+        author: "@cmnty - Public-api",
+        responseTimeMs: duration,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (error: any) {
+    console.error("Emoji to Gif error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: "Bad Gateway. Server error or upstream timed out.",
     });
   }
 });
@@ -6527,6 +6420,61 @@ app.get(["/api/tools/ytrecap", "/tools/ytrecap"], async (req, res) => {
     });
   } catch (error: any) {
     console.error("YouTube Recap error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Tools Endpoint: YouTube Summarize
+app.get(["/api/tools/youtube-summarize", "/tools/youtube-summarize"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+  
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/tools/v1/youtube-summarize?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    // Structure the result to present clean customized data
+    const result = cleanedData.result || cleanedData.results || cleanedData;
+
+    res.json({
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      result: result,
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("YouTube Summarize error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,

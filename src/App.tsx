@@ -376,23 +376,6 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // CANVAS CATEGORY
   {
-    id: "maker-brat-cmnty",
-    category: "canvas",
-    name: "Brat CMNTY",
-    provider: "cuki",
-    path: "/maker/brat/cmnty",
-    method: "GET",
-    responseType: "image",
-    description: "Hasilkan gambar teks bergaya Brat kustom dengan latar belakang CMNTY.",
-    queryParams: [
-      {
-        name: "teks",
-        placeholder: "Teks (contoh: Halo CMNTY)",
-        defaultValue: "Halo CMNTY"
-      }
-    ]
-  },
-  {
     id: "maker-brathd",
     category: "canvas",
     name: "Brat HD Maker",
@@ -410,23 +393,6 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "maker-brat-jokowi",
-    category: "canvas",
-    name: "Brat Jokowi",
-    provider: "cuki",
-    path: "/maker/brat/jokowi",
-    method: "GET",
-    responseType: "image",
-    description: "Hasilkan gambar teks bergaya Brat kustom dengan latar belakang Jokowi.",
-    queryParams: [
-      {
-        name: "teks",
-        placeholder: "Teks (contoh: Halo Jokowi)",
-        defaultValue: "Halo Jokowi"
-      }
-    ]
-  },
-  {
     id: "maker-brat",
     category: "canvas",
     name: "Brat Maker",
@@ -440,23 +406,6 @@ const ENDPOINTS: EndpointSpec[] = [
         name: "text",
         placeholder: "Teks (contoh: cmnty universe)",
         defaultValue: "cmnty universe"
-      }
-    ]
-  },
-  {
-    id: "maker-brat-prabowo",
-    category: "canvas",
-    name: "Brat Prabowo",
-    provider: "cuki",
-    path: "/maker/brat/prabowo",
-    method: "GET",
-    responseType: "image",
-    description: "Hasilkan gambar teks bergaya Brat kustom dengan latar belakang Prabowo.",
-    queryParams: [
-      {
-        name: "teks",
-        placeholder: "Teks (contoh: Halo Indonesia)",
-        defaultValue: "Halo Indonesia"
       }
     ]
   },
@@ -520,6 +469,33 @@ const ENDPOINTS: EndpointSpec[] = [
       { name: "masa_berlaku", placeholder: "Seumur Hidup", defaultValue: "Seumur Hidup" },
       { name: "terbuat", placeholder: "01-01-2023", defaultValue: "01-01-2023" },
       { name: "pas_photo", placeholder: "https://...", defaultValue: "https://i.pinimg.com/736x/0b/9f/0a/0b9f0a92a598e6c22629004c1027d23f.jpg" }
+    ]
+  },
+  {
+    id: "maker-emojigif",
+    category: "canvas",
+    name: "Emoji to Gif",
+    provider: "nexray",
+    path: "/maker/emojigif",
+    method: "GET",
+    responseType: "image",
+    description: "Mengubah emoji menjadi Gif.",
+    queryParams: [
+      { name: "emoji", placeholder: "🤡", defaultValue: "🤡" }
+    ]
+  },
+  {
+    id: "maker-emojimix",
+    category: "canvas",
+    name: "Emoji-Mix",
+    provider: "nexray",
+    path: "/maker/emojimix",
+    method: "GET",
+    responseType: "image",
+    description: "Menggabungkan dua emoji menjadi satu gambar.",
+    queryParams: [
+      { name: "emoji1", placeholder: "😭", defaultValue: "😭" },
+      { name: "emoji2", placeholder: "🤡", defaultValue: "🤡" }
     ]
   },
   {
@@ -1517,6 +1493,31 @@ const ENDPOINTS: EndpointSpec[] = [
 
   // TOOLS CATEGORY
   {
+    id: "tools-blurface",
+    category: "tools",
+    name: "Blur Face (Sensor Wajah)",
+    provider: "nexray",
+    path: "/tools/blurface",
+    method: "GET",
+    responseType: "image",
+    description: "Mendeteksi wajah dalam gambar secara otomatis dan memberikan efek blur/sensor yang rapi.",
+    queryParams: [
+      { name: "url", placeholder: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg" }
+    ]
+  },
+  {
+    id: "tools-colorize",
+    category: "tools",
+    name: "Colorize",
+    provider: "nexray",
+    path: "/tools/colorize",
+    method: "GET",
+    description: "Warnai gambar hitam putih secara otomatis menggunakan AI.",
+    queryParams: [
+      { name: "url", placeholder: "URL gambar hitam putih", defaultValue: "https://api.cmnty.web.id/view-v1/i152/atQXq9.jpg" }
+    ]
+  },
+  {
     id: "tools-infonegara",
     category: "tools",
     name: "Info Negara",
@@ -1529,6 +1530,20 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "tools-spamngl",
+    category: "tools",
+    name: "NGL Spam",
+    provider: "nexray",
+    path: "/tools/spamngl",
+    method: "GET",
+    description: "Send multiple anonymous messages to a user via NGL. Masukkan URL profil NGL, pesan, dan jumlah pengiriman.",
+    queryParams: [
+      { name: "url", placeholder: "https://ngl.link/username", defaultValue: "https://ngl.link/cmnty" },
+      { name: "pesan", placeholder: "Isi pesan", defaultValue: "Halo dari Cmnty API!" },
+      { name: "jumlah", placeholder: "Jumlah (contoh: 5)", defaultValue: "5" }
+    ]
+  },
+  {
     id: "tools-kodepos",
     category: "tools",
     name: "Pencarian Kode Pos",
@@ -1538,6 +1553,55 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Layanan pencarian kode pos wilayah administratif Republik Indonesia secara instan dengan parameter pencarian daerah.",
     queryParams: [
       { name: "form", placeholder: "Nama daerah (contoh: purbalingga)", defaultValue: "jakarta" }
+    ]
+  },
+  {
+    id: "tools-removebg",
+    category: "tools",
+    name: "Removebg (Hapus Background)",
+    provider: "nexray",
+    path: "/tools/removebg",
+    method: "GET",
+    responseType: "image",
+    description: "Menghapus background dari gambar dengan rapi menggunakan teknologi AI canggih.",
+    queryParams: [
+      { name: "url", placeholder: "https://api.cmnty.web.id/view-v1/i147/8EoJeQ.jpg", defaultValue: "https://api.cmnty.web.id/view-v1/i147/8EoJeQ.jpg" }
+    ]
+  },
+  {
+    id: "tools-translate",
+    category: "tools",
+    name: "Translate",
+    provider: "siputzx",
+    path: "/tools/translate",
+    method: "GET",
+    description: "Menerjemahkan teks dari satu bahasa ke bahasa lain secara akurat menggunakan layanan penerjemahan instan.",
+    queryParams: [
+      { name: "text", placeholder: "Teks yang ingin diterjemahkan", defaultValue: "I love you" },
+      { 
+        name: "source", 
+        placeholder: "Bahasa asal", 
+        defaultValue: "en",
+        options: ["en", "id", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
+      },
+      { 
+        name: "target", 
+        placeholder: "Bahasa tujuan", 
+        defaultValue: "id",
+        options: ["id", "en", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
+      }
+    ]
+  },
+  {
+    id: "tools-webphishing",
+    category: "tools",
+    name: "Web Phishing Check",
+    provider: "nexray",
+    path: "/tools/webphishing",
+    method: "GET",
+    description: "Cek apakah sebuah URL situs web terindikasi sebagai situs phishing atau berbahaya untuk keamanan data.",
+    queryParams: [
+      { name: "url", placeholder: "https://api.cmnty.web.id", defaultValue: "https://api.cmnty.web.id" }
     ]
   },
   {
@@ -1579,20 +1643,6 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "tools-spamngl",
-    category: "tools",
-    name: "NGL Spam",
-    provider: "nexray",
-    path: "/tools/spamngl",
-    method: "GET",
-    description: "Send multiple anonymous messages to a user via NGL. Masukkan URL profil NGL, pesan, dan jumlah pengiriman.",
-    queryParams: [
-      { name: "url", placeholder: "https://ngl.link/username", defaultValue: "https://ngl.link/cmnty" },
-      { name: "pesan", placeholder: "Isi pesan", defaultValue: "Halo dari Cmnty API!" },
-      { name: "jumlah", placeholder: "Jumlah (contoh: 5)", defaultValue: "5" }
-    ]
-  },
-  {
     id: "tools-webtozip",
     category: "tools",
     name: "Web to ZIP",
@@ -1602,62 +1652,6 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Convert website to ZIP file. Masukkan URL website yang ingin dikonversi.",
     queryParams: [
       { name: "url", placeholder: "https://cmnty.web.id", defaultValue: "https://cmnty.web.id" }
-    ]
-  },
-  {
-    id: "tools-wink",
-    category: "tools",
-    name: "Wink HDR",
-    provider: "nexray",
-    path: "/tools/wink",
-    method: "GET",
-    description: "Wink enhance video and image quality to HD resolution. Pilih tipe konten (image/video).",
-    queryParams: [
-      { name: "url", placeholder: "URL gambar atau video", defaultValue: "https://api.cmnty.web.id/view-v1/i152/atQXq9.jpg" },
-      { 
-        name: "type", 
-        placeholder: "Pilih Tipe", 
-        defaultValue: "image",
-        options: ["image", "video"]
-      }
-    ]
-  },
-  {
-    id: "tools-colorize",
-    category: "tools",
-    name: "Colorize",
-    provider: "nexray",
-    path: "/tools/colorize",
-    method: "GET",
-    description: "Warnai gambar hitam putih secara otomatis menggunakan AI.",
-    queryParams: [
-      { name: "url", placeholder: "URL gambar hitam putih", defaultValue: "https://api.cmnty.web.id/view-v1/i152/atQXq9.jpg" }
-    ]
-  },
-  {
-    id: "tools-blurface",
-    category: "tools",
-    name: "Blur Face (Sensor Wajah)",
-    provider: "nexray",
-    path: "/tools/blurface",
-    method: "GET",
-    responseType: "image",
-    description: "Mendeteksi wajah dalam gambar secara otomatis dan memberikan efek blur/sensor yang rapi.",
-    queryParams: [
-      { name: "url", placeholder: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg" }
-    ]
-  },
-  {
-    id: "tools-removebg",
-    category: "tools",
-    name: "Removebg (Hapus Background)",
-    provider: "nexray",
-    path: "/tools/removebg",
-    method: "GET",
-    responseType: "image",
-    description: "Menghapus background dari gambar dengan rapi menggunakan teknologi AI canggih.",
-    queryParams: [
-      { name: "url", placeholder: "https://api.cmnty.web.id/view-v1/i147/8EoJeQ.jpg", defaultValue: "https://api.cmnty.web.id/view-v1/i147/8EoJeQ.jpg" }
     ]
   },
   {
@@ -1692,39 +1686,21 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
-    id: "tools-translate",
+    id: "tools-wink",
     category: "tools",
-    name: "Translate",
-    provider: "siputzx",
-    path: "/tools/translate",
-    method: "GET",
-    description: "Menerjemahkan teks dari satu bahasa ke bahasa lain secara akurat menggunakan layanan penerjemahan instan.",
-    queryParams: [
-      { name: "text", placeholder: "Teks yang ingin diterjemahkan", defaultValue: "I love you" },
-      { 
-        name: "source", 
-        placeholder: "Bahasa asal", 
-        defaultValue: "en",
-        options: ["en", "id", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
-      },
-      { 
-        name: "target", 
-        placeholder: "Bahasa tujuan", 
-        defaultValue: "id",
-        options: ["id", "en", "ja", "ko", "zh", "fr", "de", "es", "ar", "ru"]
-      }
-    ]
-  },
-  {
-    id: "tools-webphishing",
-    category: "tools",
-    name: "Web Phishing Check",
+    name: "Wink HDR",
     provider: "nexray",
-    path: "/tools/webphishing",
+    path: "/tools/wink",
     method: "GET",
-    description: "Cek apakah sebuah URL situs web terindikasi sebagai situs phishing atau berbahaya untuk keamanan data.",
+    description: "Wink enhance video and image quality to HD resolution. Pilih tipe konten (image/video).",
     queryParams: [
-      { name: "url", placeholder: "https://api.cmnty.web.id", defaultValue: "https://api.cmnty.web.id" }
+      { name: "url", placeholder: "URL gambar atau video", defaultValue: "https://api.cmnty.web.id/view-v1/i152/atQXq9.jpg" },
+      { 
+        name: "type", 
+        placeholder: "Pilih Tipe", 
+        defaultValue: "image",
+        options: ["image", "video"]
+      }
     ]
   },
   {
@@ -1735,6 +1711,18 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/tools/ytrecap",
     method: "GET",
     description: "Dapatkan AI-generated ringkasan (summary) dan transkrip dari video YouTube menggunakan Recapio API.",
+    queryParams: [
+      { name: "url", placeholder: "https://www.youtube.com/watch?v=2y1OxYwvkhY", defaultValue: "https://www.youtube.com/watch?v=2y1OxYwvkhY" }
+    ]
+  },
+  {
+    id: "tools-youtube-summarize",
+    category: "tools",
+    name: "YouTube Summarize",
+    provider: "nexray",
+    path: "/tools/youtube-summarize",
+    method: "GET",
+    description: "Mengambil ringkasan (summary) video YouTube secara cerdas menggunakan teknologi AI.",
     queryParams: [
       { name: "url", placeholder: "https://www.youtube.com/watch?v=2y1OxYwvkhY", defaultValue: "https://www.youtube.com/watch?v=2y1OxYwvkhY" }
     ]
