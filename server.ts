@@ -6,6 +6,7 @@ import net from "net";
 import fs from "fs";
 import multer from "multer";
 import sharp from "sharp";
+import os from "os";
 
 interface ApiLog {
   id: string;
@@ -2146,7 +2147,75 @@ function wrapText(text: string, maxChars: number = 18): string[] {
   return lines.slice(0, 3);
 }
 
+let cachedFontBase64 = "";
+
+async function ensureFonts(): Promise<string> {
+  if (cachedFontBase64) return cachedFontBase64;
+
+  const homedir = os.homedir();
+  const fontDirs = [
+    path.join(homedir, ".fonts"),
+    path.join(homedir, ".local", "share", "fonts"),
+    path.join(process.cwd(), ".fonts"),
+  ];
+
+  const fontFilename = "Roboto-Bold.ttf";
+
+  // Check if we already have it locally
+  for (const dir of fontDirs) {
+    const filePath = path.join(dir, fontFilename);
+    if (fs.existsSync(filePath)) {
+      try {
+        const buffer = fs.readFileSync(filePath);
+        cachedFontBase64 = buffer.toString("base64");
+        return cachedFontBase64;
+      } catch (err) {}
+    }
+  }
+
+  // If not, download it
+  const urls = [
+    "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf",
+    "https://github.com/google/fonts/raw/main/ofl/inter/static/Inter-Bold.ttf"
+  ];
+
+  for (const url of urls) {
+    try {
+      console.log(`Downloading TrueType font from ${url} for image rendering...`);
+      const response = await fetch(url);
+      if (response.ok) {
+        const buffer = Buffer.from(await response.arrayBuffer());
+        cachedFontBase64 = buffer.toString("base64");
+
+        // Write to all font directories so fontconfig can register it
+        for (const dir of fontDirs) {
+          try {
+            if (!fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+            fs.writeFileSync(path.join(dir, fontFilename), buffer);
+            fs.writeFileSync(path.join(dir, "Roboto-Bold.ttf"), buffer);
+            fs.writeFileSync(path.join(dir, "Arial.ttf"), buffer);
+            fs.writeFileSync(path.join(dir, "Arial-Bold.ttf"), buffer);
+            fs.writeFileSync(path.join(dir, "sans-serif.ttf"), buffer);
+          } catch (writeErr: any) {
+            console.warn(`Could not write font to ${dir}:`, writeErr.message);
+          }
+        }
+        console.log("Fonts saved successfully to user font paths constraint.");
+        return cachedFontBase64;
+      }
+    } catch (e: any) {
+      console.warn(`Failed to fetch font from ${url}:`, e.message);
+    }
+  }
+
+  return "";
+}
+
 async function bratGenerator(imageUrl: string, text: string): Promise<Buffer> {
+  const fontBase64 = await ensureFonts();
+  
   const response = await fetch(imageUrl);
 
   if (!response.ok) {
@@ -2179,14 +2248,28 @@ async function bratGenerator(imageUrl: string, text: string): Promise<Buffer> {
     (lines.length * lineHeight) / 2 +
     lineHeight * 0.8;
 
-  const svg = `
-  <svg width="${width}" height="${height}">
-    <style>
+  const fontStyleBlock = fontBase64
+    ? `
+      @font-face {
+        font-family: 'BratFont';
+        src: url(data:font/truetype;charset=utf-8;base64,${fontBase64});
+      }
+      text {
+        font-family: 'BratFont', 'Roboto-Bold', Arial, sans-serif;
+        font-weight: bold;
+        fill: #000;
+      }`
+    : `
       text {
         font-family: Arial, sans-serif;
         font-weight: bold;
         fill: #000;
-      }
+      }`;
+
+  const svg = `
+  <svg width="${width}" height="${height}">
+    <style>
+      ${fontStyleBlock}
     </style>
 
     ${lines
