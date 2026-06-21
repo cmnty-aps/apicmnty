@@ -5,6 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import net from "net";
 import fs from "fs";
 import multer from "multer";
+import crypto from "crypto";
 
 interface ApiLog {
   id: string;
@@ -885,6 +886,174 @@ app.get(["/tmp/:filename", "/api/tmp/:filename"], async (req, res) => {
   }
 });
 
+// Helper for Gemini 3.1 Flash image upload
+async function uploadTmplink(buffer: Buffer, fileName: string = "image.png") {
+  try {
+    const formData = new FormData();
+    const fileBlob = new Blob([buffer], { type: "image/png" });
+    formData.append("file", fileBlob, fileName);
+
+    const res = await fetch("https://tmpfile.link/api/upload", {
+      method: "POST",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Origin": "https://tmpfile.link",
+        "Referer": "https://tmpfile.link/index-id"
+      },
+      body: formData
+    });
+
+    if (!res.ok) {
+      throw new Error(`tmpfile.link error. Status: ${res.status}`);
+    }
+
+    const data: any = await res.json();
+    const rawLink = data?.downloadLink || data?.downloadLinkEncoded || "";
+    if (!rawLink) return { status: false, message: "Gagal mendapatkan link" };
+
+    return { status: true, url: rawLink };
+  } catch (e: any) {
+    return { status: false, message: e.message };
+  }
+}
+
+// AI Endpoint: gemini-3-1-flash
+app.get(["/api/ai/gemini-3-1-flash", "/ai/gemini-3-1-flash", "/api/ai/gemini31", "/ai/gemini31"], async (req, res) => {
+  const start = Date.now();
+  const text = (req.query.text || req.query.prompt || req.query.question) as string;
+  const image = req.query.image as string;
+
+  if (!text) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'text' or 'prompt' is required",
+    });
+  }
+
+  const EMAIL = "dac0fe80@web-library.net";
+  const PASSWORD = "kyynzz_123";
+
+  try {
+    let imageUrlsArray: string[] = [];
+
+    if (image) {
+      try {
+        const imgRes = await fetch(image);
+        if (imgRes.ok) {
+          const imgBuffer = await imgRes.arrayBuffer();
+          const uploadResult = await uploadTmplink(Buffer.from(imgBuffer), "image.png");
+          if (uploadResult.status && uploadResult.url) {
+            imageUrlsArray.push(uploadResult.url);
+          }
+        }
+      } catch (e: any) {
+        console.error("Gagal memproses image URL:", e.message);
+      }
+    }
+
+    const headers = {
+      "Content-Type": "application/json; charset=UTF-8",
+      "Accept": "application/json, text/plain, */*",
+      "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
+      "Referer": "https://notegpt.io/",
+      "Origin": "https://notegpt.io"
+    };
+
+    const loginUrl = "https://notegpt.io/api/v1/auth/email/login";
+    const loginRes = await fetch(loginUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ email: EMAIL, password: PASSWORD })
+    });
+
+    if (!loginRes.ok) {
+      throw new Error(`Gagal login ke notegpt. Status: ${loginRes.status}`);
+    }
+
+    const loginData: any = await loginRes.json();
+    const accessToken = loginData?.data?.access_token;
+
+    if (!accessToken) {
+      throw new Error("Gagal mendapatkan token akses dari notegpt.io");
+    }
+
+    const conversationId = crypto.randomUUID();
+    const streamUrl = "https://notegpt.io/api/v2/chat/stream";
+    const response = await fetch(streamUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + accessToken,
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36",
+        "Referer": "https://notegpt.io/",
+        "Origin": "https://notegpt.io"
+      },
+      body: JSON.stringify({
+        message: text,
+        language: "auto",
+        model: "gemini-3.1-flash-lite-preview",
+        tone: "default",
+        length: "moderate",
+        conversation_id: conversationId,
+        image_urls: imageUrlsArray,
+        history_messages: [],
+        chat_mode: "standard"
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`notegpt stream gagal. Status: ${response.status}`);
+    }
+
+    let fullText = "";
+    const reader = response.body;
+    if (reader) {
+      const bodyReader = reader as any;
+      let buffer = "";
+      for await (const chunk of bodyReader) {
+        buffer += Buffer.from(chunk).toString("utf8");
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith("data:")) continue;
+
+          const dataContent = trimmed.substring(5).trim();
+          try {
+            const parsed = JSON.parse(dataContent);
+            if (parsed.done === true) break;
+            if (parsed.text) {
+              fullText += parsed.text;
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    const duration = Date.now() - start;
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      result: fullText,
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Gemini 3.1 Flash error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: error.message || "Gagal berkomunikasi dengan chatbot AI.",
+    });
+  }
+});
+
 // AI Endpoint: gemini
 app.get(["/api/ai/gemini", "/ai/gemini"], async (req, res) => {
   const start = Date.now();
@@ -1042,6 +1211,375 @@ app.get(["/api/ai/ideogram", "/ai/ideogram"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
+    });
+  }
+});
+
+// AI Endpoint: Text to Image (GenMyArt WP AJAX)
+app.get(["/api/ai/text2image", "/ai/text2image", "/api/ai/text2img", "/ai/text2img"], async (req, res) => {
+  const start = Date.now();
+  const prompt = req.query.prompt as string;
+  const style = (req.query.style as string) || "photorealistic";
+  const resolution = (req.query.resolution as string) || "1024x1024";
+  const aspectRatio = (req.query.aspectRatio as string) || "square";
+  const numImagesStr = req.query.numImages as string;
+  const raw = req.query.raw === "true";
+
+  if (!prompt || !prompt.trim()) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'prompt' is required",
+    });
+  }
+
+  const STYLES = ["photorealistic", "digital-art", "impressionist", "anime", "fantasy", "sci-fi", "vintage", "watercolor", "ghibli", "cyberpunk", "surrealist", "minimalist", "baroque"];
+  const RESOLUTIONS = ["512x512", "768x768", "1024x1024", "1280x720", "1920x1080", "2560x1440", "3840x2160"];
+  const ASPECT_RATIOS = ["square", "portrait", "landscape"];
+
+  if (!STYLES.includes(style)) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: `Style tidak valid. Pilihan: ${STYLES.join(", ")}`,
+    });
+  }
+
+  if (!RESOLUTIONS.includes(resolution)) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: `Resolution tidak valid. Pilihan: ${RESOLUTIONS.join(", ")}`,
+    });
+  }
+
+  if (!ASPECT_RATIOS.includes(aspectRatio)) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: `Aspect ratio tidak valid. Pilihan: ${ASPECT_RATIOS.join(", ")}`,
+    });
+  }
+
+  let numImages = 1;
+  if (numImagesStr) {
+    const parsed = parseInt(numImagesStr, 10);
+    if (!isNaN(parsed)) {
+      numImages = Math.max(1, Math.min(6, parsed));
+    }
+  }
+
+  try {
+    // 1. Get nonce from genmyart homepage
+    const homepageRes = await fetch("https://genmyart.com", {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      }
+    });
+    if (!homepageRes.ok) {
+      throw new Error(`Gagal memuat halaman genmyart. Status: ${homepageRes.status}`);
+    }
+    const htmlText = await homepageRes.text();
+    const nonceMatch = htmlText.match(/_ajax_nonce\s*:\s*['"]([a-f0-9]+)['"]/i);
+    if (!nonceMatch) {
+      throw new Error("Nonce tidak ditemukan pada website source");
+    }
+    const nonce = nonceMatch[1];
+
+    // 2. POST to WP admin-ajax
+    const postParams = new URLSearchParams();
+    postParams.append("action", "generate_ai_image");
+    postParams.append("ai_prompt", prompt);
+    postParams.append("ai_style", style);
+    postParams.append("ai_resolution", resolution);
+    postParams.append("ai_aspect_ratio", aspectRatio);
+    postParams.append("ai_num_images", String(numImages));
+    postParams.append("_ajax_nonce", nonce);
+
+    const ajaxRes = await fetch("https://genmyart.com/wp-admin/admin-ajax.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "*/*",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": "https://genmyart.com",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      body: postParams.toString()
+    });
+
+    if (!ajaxRes.ok) {
+      throw new Error(`WordPress server returned error. Status: ${ajaxRes.status}`);
+    }
+
+    const resultData: any = await ajaxRes.json();
+    if (!resultData.success) {
+      throw new Error(resultData.message || resultData.data?.message || "Generate gagal");
+    }
+
+    const images = resultData.images || [];
+
+    // If 'raw' is true and we have at least one image, stream it directly
+    if (raw && images.length > 0) {
+      const firstImg = images[0];
+      const imageUrl = typeof firstImg === "string" ? firstImg : firstImg.url;
+      if (imageUrl) {
+        const imageFetch = await fetch(imageUrl);
+        if (imageFetch.ok) {
+          const contentType = imageFetch.headers.get("content-type") || "image/png";
+          const buffer = await imageFetch.arrayBuffer();
+          res.setHeader("Content-Type", contentType);
+          res.setHeader("Cache-Control", "public, max-age=3600");
+          return res.send(Buffer.from(buffer));
+        }
+      }
+    }
+
+    const duration = Date.now() - start;
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      images: images.map((img: any) => typeof img === "string" ? img : img.url),
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Text to Image error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: error.message || "Gagal menghasilkan gambar dari teks.",
+    });
+  }
+});
+
+// ImageGPT helpers
+function generateRandomIPForImageGPT() {
+  const ranges = [
+    [1, 1], [2, 2], [5, 5], [23, 23], [27, 27], [31, 31], [36, 36], [37, 37], [39, 39], [42, 42],
+    [46, 46], [49, 49], [50, 50], [60, 60], [114, 114], [117, 117], [118, 118], [119, 119], [120, 120],
+    [121, 121], [122, 122], [123, 123], [124, 124], [125, 125], [126, 126], [180, 180], [182, 182], [183, 183]
+  ];
+  const range = ranges[Math.floor(Math.random() * ranges.length)];
+  const ip = [
+    range[0],
+    Math.floor(Math.random() * 256),
+    Math.floor(Math.random() * 256),
+    Math.floor(Math.random() * 256)
+  ].join('.');
+  return ip;
+}
+
+async function getGuestIdForImageGPT(spoofedIp: string) {
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 9; CPH2083 Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.179 Mobile Safari/537.36',
+    'X-Forwarded-For': spoofedIp,
+    'X-Real-IP': spoofedIp,
+    'Client-IP': spoofedIp,
+    'True-Client-IP': spoofedIp,
+    'X-Originating-IP': spoofedIp,
+    'X-Cluster-Client-IP': spoofedIp,
+    'Forwarded': `for=${spoofedIp}`
+  };
+  try {
+    const response = await fetch('https://imagegpt.org/app/photo/generator', { headers });
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) {
+      const match = setCookie.match(/guest_id=([^;]+)/);
+      if (match) {
+        return match[1];
+      }
+    }
+    if (typeof response.headers.getSetCookie === 'function') {
+      const cookies = response.headers.getSetCookie();
+      for (const cookie of cookies) {
+        const match = cookie.match(/guest_id=([^;]+)/);
+        if (match) return match[1];
+      }
+    }
+  } catch (e) {
+    console.error("Gagal mendapatkan Guest ID ImageGPT:", e);
+  }
+  return null;
+}
+
+async function imageUrlToBase64ForImageGPT(url: string) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Gagal mengunduh gambar untuk edit. Status: ${res.status}`);
+  const contentType = res.headers.get("content-type") || "image/jpeg";
+  const buffer = await res.arrayBuffer();
+  const base64 = Buffer.from(buffer).toString("base64");
+  return `data:${contentType};base64,${base64}`;
+}
+
+// AI Endpoint: ImageGPT
+app.get(["/api/ai/imagegpt", "/ai/imagegpt"], async (req, res) => {
+  const start = Date.now();
+  const action = (req.query.action as string) || "generate";
+  const prompt = req.query.prompt as string;
+  const negative_prompt = (req.query.negative_prompt as string) || "";
+  const model = (req.query.model as string) || "flux-schnell";
+  const widthStr = req.query.width as string;
+  const heightStr = req.query.height as string;
+  const image = req.query.image as string; // URL gambar untuk edit
+  const raw = req.query.raw === "true";
+
+  const spoofedIp = generateRandomIPForImageGPT();
+
+  if (action === "model_list") {
+    try {
+      const headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 9; CPH2083 Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.179 Mobile Safari/537.36',
+        'Referer': 'https://imagegpt.org/app/photo/generator',
+        'X-Forwarded-For': spoofedIp,
+        'X-Real-IP': spoofedIp,
+        'Client-IP': spoofedIp,
+        'True-Client-IP': spoofedIp,
+        'X-Originating-IP': spoofedIp,
+        'X-Cluster-Client-IP': spoofedIp,
+        'Forwarded': `for=${spoofedIp}`
+      };
+      const response = await fetch('https://imagegpt.org/api/models', { headers });
+      if (!response.ok) {
+        throw new Error(`Gagal mengambil model: ${response.status}`);
+      }
+      const data = await response.json();
+      const duration = Date.now() - start;
+      return res.json({
+        status: true,
+        statusCode: 200,
+        author: "@cmnty - Public-api",
+        result: data,
+        responseTimeMs: duration,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: error.message || "Gagal mengambil daftar model ImageGPT."
+      });
+    }
+  }
+
+  if (!prompt || !prompt.trim()) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'prompt' is required",
+    });
+  }
+
+  let width = 1024;
+  let height = 1024;
+  if (widthStr) {
+    const val = parseInt(widthStr, 10);
+    if (!isNaN(val)) width = val;
+  }
+  if (heightStr) {
+    const val = parseInt(heightStr, 10);
+    if (!isNaN(val)) height = val;
+  }
+
+  if (action === "edit" && !image) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'image' URL is required for 'edit' action",
+    });
+  }
+
+  try {
+    const guestId = await getGuestIdForImageGPT(spoofedIp);
+    const cookie = guestId ? `guest_id=${guestId};` : '';
+    const endpoint = action === 'edit' ? 'https://imagegpt.org/api/edit' : 'https://imagegpt.org/api/generate';
+
+    const body: Record<string, any> = {
+      prompt,
+      negative_prompt,
+      model,
+      style: "none",
+      width: width,
+      height: height,
+      num_images: 1,
+      quality: "auto"
+    };
+
+    if (action === 'edit' && image) {
+      body.image = await imageUrlToBase64ForImageGPT(image);
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 9; CPH2083 Build/PPR1.180610.011) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.7204.179 Mobile Safari/537.36',
+      'Referer': 'https://imagegpt.org/app/photo/generator',
+      'X-Forwarded-For': spoofedIp,
+      'X-Real-IP': spoofedIp,
+      'Client-IP': spoofedIp,
+      'True-Client-IP': spoofedIp,
+      'X-Originating-IP': spoofedIp,
+      'X-Cluster-Client-IP': spoofedIp,
+      'Forwarded': `for=${spoofedIp}`,
+      'Cookie': cookie
+    };
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gagal generate image. Status: ${response.status}. Detail: ${errorText}`);
+    }
+
+    const data: any = await response.json();
+    
+    if (!data.success || !data.images || data.images.length === 0) {
+      throw new Error(data.error || 'Server tidak mengembalikan gambar.');
+    }
+
+    const imageStr = data.images[0];
+    const base64Data = imageStr.includes(',') ? imageStr.split(',')[1] : imageStr;
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    if (raw) {
+      let mimeType = "image/png";
+      const match = imageStr.match(/^data:([^;]+);base64,/);
+      if (match) {
+        mimeType = match[1];
+      }
+      res.setHeader("Content-Type", mimeType);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      return res.send(buffer);
+    }
+
+    const duration = Date.now() - start;
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      images: [imageStr],
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("ImageGPT error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: error.message || "Gagal memproses gambar menggunakan ImageGPT.",
     });
   }
 });
@@ -3365,6 +3903,118 @@ app.get(["/api/downloader/ummy", "/downloader/ummy"], async (req, res) => {
   }
 });
 
+// Downloader Endpoint: PornHub
+app.get(["/api/downloader/pornhub", "/downloader/pornhub"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://vidquickly.com/api/v1/pornhub-get-link?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+
+    if (!response.ok) {
+      throw new Error(`Server returned error status ${response.status}`);
+    }
+
+    const data: any = await response.json();
+
+    if (!data?.m3u8_links || data.m3u8_links.length === 0) {
+      throw new Error("Gagal mendapatkan link download.");
+    }
+
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      result: {
+        title: data.videoDetails?.title,
+        thumbnail: data.videoDetails?.thumbnails?.[0]?.url,
+        downloads: data.m3u8_links.map((link: any) => ({
+          quality: link.title,
+          download_url: link.url
+        }))
+      },
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("PornHub Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: error.message || "Gagal mengunduh video PornHub.",
+    });
+  }
+});
+
+// Downloader Endpoint: XHamster
+app.get(["/api/downloader/xhamster", "/downloader/xhamster"], async (req, res) => {
+  const start = Date.now();
+  const url = req.query.url as string;
+
+  if (!url) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'url' is required",
+    });
+  }
+
+  const targetUrl = `https://vidquickly.com/api/v1/xhamster-get-link?url=${encodeURIComponent(url)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+
+    if (!response.ok) {
+      throw new Error(`Server returned error status ${response.status}`);
+    }
+
+    const data: any = await response.json();
+
+    if (!data?.links) {
+      throw new Error("Gagal mendapatkan link download");
+    }
+
+    res.json({
+      status: true,
+      statusCode: 200,
+      author: "@cmnty - Public-api",
+      result: {
+        title: data.videoDetails?.title,
+        thumbnail: data.videoDetails?.thumbnails?.[0]?.url,
+        downloads: data.links.filter((link: any) => link.url).map((link: any) => ({
+          title: link.title,
+          download_url: link.url
+        }))
+      },
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("XHamster Downloader error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: error.message || "Gagal mengunduh video XHamster.",
+    });
+  }
+});
+
 // Game Endpoint: Asah Otak
 app.get(["/api/game/asahotak", "/game/asahotak"], async (req, res) => {
   const start = Date.now();
@@ -5633,24 +6283,27 @@ app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
     // 1. Try ipwho.is (HTTPS, highly reliable)
     try {
       const geoController = new AbortController();
-      const geoTimeoutId = setTimeout(() => geoController.abort(), 2500);
-      const ipRes = await fetch(`https://ipwho.is/${clientIp}`, { signal: geoController.signal });
-      clearTimeout(geoTimeoutId);
-      if (ipRes.ok) {
-        const data = await ipRes.json();
-        if (data && data.success) {
-          geo = {
-            status: "success",
-            country: data.country || "",
-            regionName: data.region || "",
-            city: data.city || "",
-            lat: data.latitude || -6.2088,
-            lon: data.longitude || 106.8456,
-            isp: data.connection?.isp || "",
-            query: clientIp
-          };
-          fetchSuccess = true;
+      const geoTimeoutId = setTimeout(() => geoController.abort(), 5000);
+      try {
+        const ipRes = await fetch(`https://ipwho.is/${clientIp}`, { signal: geoController.signal });
+        if (ipRes.ok) {
+          const data = await ipRes.json();
+          if (data && data.success) {
+            geo = {
+              status: "success",
+              country: data.country || "",
+              regionName: data.region || "",
+              city: data.city || "",
+              lat: data.latitude || -6.2088,
+              lon: data.longitude || 106.8456,
+              isp: data.connection?.isp || "",
+              query: clientIp
+            };
+            fetchSuccess = true;
+          }
         }
+      } finally {
+        clearTimeout(geoTimeoutId);
       }
     } catch (e) {
       console.warn("ipwho.is fetch failed, trying ip-api.com", e);
@@ -5660,15 +6313,18 @@ app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
     if (!fetchSuccess) {
       try {
         const geoController = new AbortController();
-        const geoTimeoutId = setTimeout(() => geoController.abort(), 2500);
-        const ipRes = await fetch(`http://ip-api.com/json/${clientIp}`, { signal: geoController.signal });
-        clearTimeout(geoTimeoutId);
-        if (ipRes.ok) {
-          const data = await ipRes.json();
-          if (data && data.status === "success") {
-            geo = data;
-            fetchSuccess = true;
+        const geoTimeoutId = setTimeout(() => geoController.abort(), 5000);
+        try {
+          const ipRes = await fetch(`http://ip-api.com/json/${clientIp}`, { signal: geoController.signal });
+          if (ipRes.ok) {
+            const data = await ipRes.json();
+            if (data && data.status === "success") {
+              geo = data;
+              fetchSuccess = true;
+            }
           }
+        } finally {
+          clearTimeout(geoTimeoutId);
         }
       } catch (e) {
         console.warn("ip-api.com fetch failed, trying freeipapi.com", e);
@@ -5679,24 +6335,27 @@ app.get(["/api/tools/visitor", "/tools/visitor"], async (req, res) => {
     if (!fetchSuccess) {
       try {
         const geoController = new AbortController();
-        const geoTimeoutId = setTimeout(() => geoController.abort(), 2500);
-        const ipRes = await fetch(`https://freeipapi.com/api/json/${clientIp}`, { signal: geoController.signal });
-        clearTimeout(geoTimeoutId);
-        if (ipRes.ok) {
-          const data = await ipRes.json();
-          if (data && data.cityName) {
-            geo = {
-              status: "success",
-              country: data.countryName || "",
-              regionName: data.regionName || "",
-              city: data.cityName || "",
-              lat: data.latitude || -6.2088,
-              lon: data.longitude || 106.8456,
-              isp: "",
-              query: clientIp
-            };
-            fetchSuccess = true;
+        const geoTimeoutId = setTimeout(() => geoController.abort(), 5000);
+        try {
+          const ipRes = await fetch(`https://freeipapi.com/api/json/${clientIp}`, { signal: geoController.signal });
+          if (ipRes.ok) {
+            const data = await ipRes.json();
+            if (data && data.cityName) {
+              geo = {
+                status: "success",
+                country: data.countryName || "",
+                regionName: data.regionName || "",
+                city: data.cityName || "",
+                lat: data.latitude || -6.2088,
+                lon: data.longitude || 106.8456,
+                isp: "",
+                query: clientIp
+              };
+              fetchSuccess = true;
+            }
           }
+        } finally {
+          clearTimeout(geoTimeoutId);
         }
       } catch (e) {
         console.warn("freeipapi.com fetch failed, using default values", e);

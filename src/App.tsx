@@ -215,6 +215,19 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "ai-gemini-3-1-flash",
+    category: "ai",
+    name: "Gemini 3.1 Flash",
+    provider: "notegpt",
+    path: "/ai/gemini-3-1-flash",
+    method: "GET",
+    description: "Mulai percakapan cerdas dengan Gemini 3.1 Flash dengan dukungan multi-modal dari input teks dan gambar.",
+    queryParams: [
+      { name: "text", placeholder: "Pesan Anda (contoh: Gambar apa ini?)", defaultValue: "Gambar apa ini?" },
+      { name: "image", placeholder: "URL Gambar (opsional, contoh: https://www.upload.ee/image/19400325/images.webp)", defaultValue: "" }
+    ]
+  },
+  {
     id: "ai-gemini",
     category: "ai",
     name: "Gemini AI",
@@ -276,6 +289,40 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Hasilkan gambar berkualitas tinggi dengan teks yang jelas dan desain estetis menggunakan model Ideogram AI.",
     queryParams: [
       { name: "prompt", placeholder: "Contoh: kucing lucu pake topi", defaultValue: "kucing" }
+    ]
+  },
+  {
+    id: "ai-text2image",
+    category: "ai",
+    name: "Text to Image (GenMyArt)",
+    provider: "genmyart",
+    path: "/ai/text2image",
+    method: "GET",
+    description: "Hasilkan karya seni visual dan gambar berkualitas tinggi dari deskripsi teks menggunakan WordPress AJAX engine GenMyArt.",
+    queryParams: [
+      { name: "prompt", placeholder: "Contoh: photorealistic futuristic city", defaultValue: "photorealistic futuristic city" },
+      { name: "style", placeholder: "Pilih gaya seni", defaultValue: "photorealistic", options: ["photorealistic", "digital-art", "impressionist", "anime", "fantasy", "sci-fi", "vintage", "watercolor", "ghibli", "cyberpunk", "surrealist", "minimalist", "baroque"] },
+      { name: "resolution", placeholder: "Pilih resolusi gambar", defaultValue: "1024x1024", options: ["1024x1024", "512x512", "768x768", "1280x720", "1920x1080", "2560x1440", "3840x2160"] },
+      { name: "aspectRatio", placeholder: "Pilih aspek rasio", defaultValue: "square", options: ["square", "portrait", "landscape"] },
+      { name: "numImages", placeholder: "Jumlah gambar (1-6)", defaultValue: "1", options: ["1", "2", "3", "4", "5", "6"] }
+    ]
+  },
+  {
+    id: "ai-imagegpt",
+    category: "ai",
+    name: "ImageGPT Suite",
+    provider: "imagegpt",
+    path: "/ai/imagegpt",
+    method: "GET",
+    description: "Generate gambar, edit gambar, atau lihat daftar model gambar AI berkualitas tinggi menggunakan engine ImageGPT.",
+    queryParams: [
+      { name: "action", placeholder: "Pilih aksi", defaultValue: "generate", options: ["generate", "edit", "model_list"] },
+      { name: "prompt", placeholder: "Prompt deskripsi gambar", defaultValue: "A beautiful cybernetic neon cat in cyberpunk city" },
+      { name: "negative_prompt", placeholder: "Negative prompt (opsional)", defaultValue: "" },
+      { name: "model", placeholder: "Masukkan model AI", defaultValue: "" },
+      { name: "width", placeholder: "Lebar gambar", defaultValue: "1024", options: ["512", "768", "1024", "1280"] },
+      { name: "height", placeholder: "Tinggi gambar", defaultValue: "1024", options: ["512", "768", "1024", "1280"] },
+      { name: "image", placeholder: "URL Gambar untuk edit aksi (opsional)", defaultValue: "" }
     ]
   },
   {
@@ -880,6 +927,30 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Downloader universal dan pengambil informasi profil/stalker Instagram melalui engine ummy.net.",
     queryParams: [
       { name: "url", placeholder: "Masukkan URL atau username Instagram", defaultValue: "nasaartemis" }
+    ]
+  },
+  {
+    id: "downloader-pornhub",
+    category: "downloader",
+    name: "PornHub Downloader",
+    provider: "vidquickly",
+    path: "/downloader/pornhub",
+    method: "GET",
+    description: "Mengunduh video berkualitas dari PornHub menggunakan URL video.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video PornHub", defaultValue: "https://www.pornhub.com/view_video.php?viewkey=ph62a0a2df37a23" }
+    ]
+  },
+  {
+    id: "downloader-xhamster",
+    category: "downloader",
+    name: "XHamster Downloader",
+    provider: "vidquickly",
+    path: "/downloader/xhamster",
+    method: "GET",
+    description: "Mengunduh video berkualitas tinggi dari XHamster menggunakan URL video.",
+    queryParams: [
+      { name: "url", placeholder: "Masukkan URL video XHamster", defaultValue: "https://xhamster.com/videos/milf-creampie-xhFp0rR" }
     ]
   },
 
