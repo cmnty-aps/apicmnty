@@ -1323,8 +1323,7 @@ app.get(["/api/ai/text2image", "/ai/text2image", "/api/ai/text2img", "/ai/text2i
 
     const images = resultData.images || [];
 
-    // If 'raw' is true and we have at least one image, stream it directly
-    if (raw && images.length > 0) {
+    if (images.length > 0) {
       const firstImg = images[0];
       const imageUrl = typeof firstImg === "string" ? firstImg : firstImg.url;
       if (imageUrl) {
@@ -1339,15 +1338,7 @@ app.get(["/api/ai/text2image", "/ai/text2image", "/api/ai/text2img", "/ai/text2i
       }
     }
 
-    const duration = Date.now() - start;
-    res.json({
-      status: true,
-      statusCode: 200,
-      author: "@cmnty - Public-api",
-      images: images.map((img: any) => typeof img === "string" ? img : img.url),
-      responseTimeMs: duration,
-      timestamp: new Date().toISOString(),
-    });
+    throw new Error("Gagal mengambil gambar hasil generate atau tidak ditemukan gambar.");
   } catch (error: any) {
     console.error("Text to Image error:", error.message);
     res.status(502).json({

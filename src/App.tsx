@@ -298,6 +298,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "genmyart",
     path: "/ai/text2image",
     method: "GET",
+    responseType: "image",
     description: "Hasilkan karya seni visual dan gambar berkualitas tinggi dari deskripsi teks menggunakan WordPress AJAX engine GenMyArt.",
     queryParams: [
       { name: "prompt", placeholder: "Contoh: photorealistic futuristic city", defaultValue: "photorealistic futuristic city" },
