@@ -315,6 +315,7 @@ const ENDPOINTS: EndpointSpec[] = [
     provider: "imagegpt",
     path: "/ai/imagegpt",
     method: "GET",
+    responseType: "image",
     description: "Generate gambar, edit gambar, atau lihat daftar model gambar AI berkualitas tinggi menggunakan engine ImageGPT.",
     queryParams: [
       { name: "action", placeholder: "Pilih aksi", defaultValue: "generate", options: ["generate", "edit", "model_list"] },

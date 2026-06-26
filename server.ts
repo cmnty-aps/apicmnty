@@ -1544,26 +1544,14 @@ app.get(["/api/ai/imagegpt", "/ai/imagegpt"], async (req, res) => {
     const base64Data = imageStr.includes(',') ? imageStr.split(',')[1] : imageStr;
     const buffer = Buffer.from(base64Data, 'base64');
 
-    if (raw) {
-      let mimeType = "image/png";
-      const match = imageStr.match(/^data:([^;]+);base64,/);
-      if (match) {
-        mimeType = match[1];
-      }
-      res.setHeader("Content-Type", mimeType);
-      res.setHeader("Cache-Control", "public, max-age=3600");
-      return res.send(buffer);
+    let mimeType = "image/png";
+    const match = imageStr.match(/^data:([^;]+);base64,/);
+    if (match) {
+      mimeType = match[1];
     }
-
-    const duration = Date.now() - start;
-    res.json({
-      status: true,
-      statusCode: 200,
-      author: "@cmnty - Public-api",
-      images: [imageStr],
-      responseTimeMs: duration,
-      timestamp: new Date().toISOString(),
-    });
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    return res.send(buffer);
   } catch (error: any) {
     console.error("ImageGPT error:", error.message);
     res.status(502).json({
