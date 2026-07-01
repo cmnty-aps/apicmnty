@@ -2131,6 +2131,116 @@ app.get(["/api/ai/bibleai", "/ai/bibleai"], async (req, res) => {
   }
 });
 
+// AI Endpoint: nanobanana (Image Editor / Change colors)
+app.post(["/api/ai/nanobanana", "/ai/nanobanana"], (req, res) => {
+  const start = Date.now();
+  
+  memoryUpload.single("image")(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: err.message || "Gagal mengunggah berkas gambar."
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Silakan masukkan berkas gambar dalam field 'image'."
+      });
+    }
+
+    const param = req.body.param || req.query.param;
+    if (!param) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Parameter 'param' (instruksi edit gambar) diperlukan."
+      });
+    }
+
+    try {
+      const formData = new FormData();
+      const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+      formData.append("image", blob, req.file.originalname);
+      formData.append("param", param);
+
+      const response = await fetch("https://api.nexray.eu.cc/ai/nanobanana", {
+        method: "POST",
+        body: formData
+      });
+
+      const contentType = response.headers.get("Content-Type") || "";
+
+      if (!response.ok) {
+        const status = response.status;
+        let errorMessage = "Gagal memproses gambar menggunakan Nanobanana API.";
+        try {
+          const errData = await response.json();
+          if (errData && errData.message) {
+            errorMessage = errData.message;
+          }
+        } catch (_) {}
+        return res.status(status).json({
+          status: false,
+          statusCode: status,
+          author: "@cmnty - Public-api",
+          message: errorMessage,
+        });
+      }
+
+      if (contentType.includes("image/")) {
+        const buffer = await response.arrayBuffer();
+        res.setHeader("Content-Type", contentType);
+        res.setHeader("Cache-Control", "public, max-age=3600");
+        return res.send(Buffer.from(buffer));
+      } else {
+        const duration = Date.now() - start;
+        const data = await response.json();
+        const cleanedData = cleanAuthorFields(data);
+        
+        const host = req.headers["x-forwarded-host"] || req.get("host");
+        const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+        
+        const stringified = JSON.stringify(cleanedData);
+        const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+        
+        return res.json({
+          ...JSON.parse(replaced),
+          status: true,
+          statusCode: response.status,
+          author: "@cmnty - Public-api",
+          responseTimeMs: duration,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    } catch (error: any) {
+      console.error("Nanobanana error:", error.message);
+      res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Bad Gateway. Gagal memproses gambar menggunakan Nanobanana API.",
+      });
+    }
+  });
+});
+
+// GET /api/ai/nanobanana or /ai/nanobanana Guidelines
+app.get(["/api/ai/nanobanana", "/ai/nanobanana"], (req, res) => {
+  res.json({
+    status: true,
+    statusCode: 200,
+    author: "@cmnty - Public-api",
+    message: "Gunakan POST dengan body form-data 'image' (file gambar) dan 'param' (instruksi sunting gambar) untuk memproses menggunakan Nanobanana AI."
+  });
+});
+
 // AI Endpoint: aimuslim
 app.get(["/api/ai/aimuslim", "/ai/aimuslim"], async (req, res) => {
   const start = Date.now();
@@ -3878,118 +3988,6 @@ app.get(["/api/downloader/ummy", "/downloader/ummy"], async (req, res) => {
       statusCode: 502,
       author: "@cmnty - Public-api",
       message: getErrorMessage(500),
-    });
-  }
-});
-
-// Downloader Endpoint: PornHub
-app.get(["/api/downloader/pornhub", "/downloader/pornhub"], async (req, res) => {
-  const start = Date.now();
-  const url = req.query.url as string;
-
-  if (!url) {
-    return res.status(400).json({
-      status: false,
-      statusCode: 400,
-      author: "@cmnty - Public-api",
-      message: "Parameter 'url' is required",
-    });
-  }
-
-  const targetUrl = `https://vidquickly.com/api/v1/pornhub-get-link?url=${encodeURIComponent(url)}`;
-
-  try {
-    const response = await fetch(targetUrl);
-    const duration = Date.now() - start;
-
-    if (!response.ok) {
-      throw new Error(`Server returned error status ${response.status}`);
-    }
-
-    const data: any = await response.json();
-
-    if (!data?.m3u8_links || data.m3u8_links.length === 0) {
-      throw new Error("Gagal mendapatkan link download.");
-    }
-
-    res.json({
-      status: true,
-      statusCode: 200,
-      author: "@cmnty - Public-api",
-      result: {
-        title: data.videoDetails?.title,
-        thumbnail: data.videoDetails?.thumbnails?.[0]?.url,
-        downloads: data.m3u8_links.map((link: any) => ({
-          quality: link.title,
-          download_url: link.url
-        }))
-      },
-      responseTimeMs: duration,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error: any) {
-    console.error("PornHub Downloader error:", error.message);
-    res.status(502).json({
-      status: false,
-      statusCode: 502,
-      author: "@cmnty - Public-api",
-      message: error.message || "Gagal mengunduh video PornHub.",
-    });
-  }
-});
-
-// Downloader Endpoint: XHamster
-app.get(["/api/downloader/xhamster", "/downloader/xhamster"], async (req, res) => {
-  const start = Date.now();
-  const url = req.query.url as string;
-
-  if (!url) {
-    return res.status(400).json({
-      status: false,
-      statusCode: 400,
-      author: "@cmnty - Public-api",
-      message: "Parameter 'url' is required",
-    });
-  }
-
-  const targetUrl = `https://vidquickly.com/api/v1/xhamster-get-link?url=${encodeURIComponent(url)}`;
-
-  try {
-    const response = await fetch(targetUrl);
-    const duration = Date.now() - start;
-
-    if (!response.ok) {
-      throw new Error(`Server returned error status ${response.status}`);
-    }
-
-    const data: any = await response.json();
-
-    if (!data?.links) {
-      throw new Error("Gagal mendapatkan link download");
-    }
-
-    res.json({
-      status: true,
-      statusCode: 200,
-      author: "@cmnty - Public-api",
-      result: {
-        title: data.videoDetails?.title,
-        thumbnail: data.videoDetails?.thumbnails?.[0]?.url,
-        downloads: data.links.filter((link: any) => link.url).map((link: any) => ({
-          title: link.title,
-          download_url: link.url
-        }))
-      },
-      responseTimeMs: duration,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error: any) {
-    console.error("XHamster Downloader error:", error.message);
-    res.status(502).json({
-      status: false,
-      statusCode: 502,
-      author: "@cmnty - Public-api",
-      message: error.message || "Gagal mengunduh video XHamster.",
     });
   }
 });

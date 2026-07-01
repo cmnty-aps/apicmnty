@@ -339,6 +339,20 @@ const ENDPOINTS: EndpointSpec[] = [
       { name: "url", placeholder: "https://example.com/image.jpg", defaultValue: "https://uploader.zenzxz.dpdns.org/uploads/1766513795520.jpeg" }
     ]
   },
+  {
+    id: "ai-nanobanana",
+    category: "ai",
+    name: "Nanobanana Image Editor",
+    provider: "nexray",
+    path: "/ai/nanobanana",
+    method: "POST",
+    responseType: "image",
+    description: "Sunting dan ganti warna gambar berdasarkan instruksi teks menggunakan Nanobanana AI Engine.",
+    queryParams: [
+      { name: "image", placeholder: "Pilih file gambar", defaultValue: "" },
+      { name: "param", placeholder: "Contoh: ganti warna hitam jadi putih", defaultValue: "" }
+    ]
+  },
 
   // BERITA CATEGORY
   {
@@ -931,31 +945,6 @@ const ENDPOINTS: EndpointSpec[] = [
       { name: "url", placeholder: "Masukkan URL atau username Instagram", defaultValue: "nasaartemis" }
     ]
   },
-  {
-    id: "downloader-pornhub",
-    category: "downloader",
-    name: "PornHub Downloader",
-    provider: "vidquickly",
-    path: "/downloader/pornhub",
-    method: "GET",
-    description: "Mengunduh video berkualitas dari PornHub menggunakan URL video.",
-    queryParams: [
-      { name: "url", placeholder: "Masukkan URL video PornHub", defaultValue: "https://www.pornhub.com/view_video.php?viewkey=ph62a0a2df37a23" }
-    ]
-  },
-  {
-    id: "downloader-xhamster",
-    category: "downloader",
-    name: "XHamster Downloader",
-    provider: "vidquickly",
-    path: "/downloader/xhamster",
-    method: "GET",
-    description: "Mengunduh video berkualitas tinggi dari XHamster menggunakan URL video.",
-    queryParams: [
-      { name: "url", placeholder: "Masukkan URL video XHamster", defaultValue: "https://xhamster.com/videos/milf-creampie-xhFp0rR" }
-    ]
-  },
-
   // GAME CATEGORY
   {
     id: "game-asahotak",
@@ -2302,6 +2291,20 @@ export default function App() {
               "Accept": "application/json"
             }
           });
+        } else if (endpoint?.id === "ai-nanobanana") {
+          if (!uploadFile) {
+            setErrorText("Silakan pilih file gambar terlebih dahulu.");
+            setIsLoading(false);
+            return;
+          }
+          const formData = new FormData();
+          formData.append("image", uploadFile);
+          formData.append("param", queryParams.param || "ganti warna hitam jadi putih");
+
+          response = await fetch(endpoint.path, {
+            method: "POST",
+            body: formData
+          });
         } else {
           const body: Record<string, any> = {};
           Object.entries(queryParams).forEach(([key, val]) => {
@@ -2348,11 +2351,25 @@ export default function App() {
         setExecutionTime(durationMs);
         setImageUrl(url);
       } else {
-        const data: any = await response.json();
-        // Record duration if server doesn't provide it, but prioritize server's responseTimeMs
+        let data: any;
+        if (contentType.includes("json")) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          data = {
+            status: response.ok,
+            statusCode: response.status,
+            author: "@cmnty - Public-api",
+            message: text.substring(0, 500) || response.statusText || `Gagal memproses respons server (Status ${response.status})`,
+            timestamp: new Date().toISOString()
+          };
+        }
         const durationMs = data.responseTimeMs || (Date.now() - start);
         setExecutionTime(durationMs);
         setApiResponse(data);
+        if (!response.ok) {
+          setErrorText(`Gagal melakukan request: ${data.message || `Server Error (${response.status})`}`);
+        }
       }
     } catch (err: any) {
       const durationMs = Date.now() - start;
@@ -3345,7 +3362,7 @@ ${printBlock}`;
                                             <option key={opt} value={opt}>{opt}</option>
                                           ))}
                                         </select>
-                                      ) : q.name === "file" && (ep.id === "uploader-upload" || ep.id === "uploader-upload-v1") ? (
+                                      ) : (q.name === "file" || q.name === "image") && ep.method === "POST" ? (
                                         <div className="flex flex-col gap-2">
                                           <input
                                             type="file"
@@ -3357,18 +3374,18 @@ ${printBlock}`;
                                               }
                                             }}
                                             className="hidden"
-                                            id="file-upload-input"
+                                            id={`file-upload-input-${q.name}`}
                                           />
                                           <label
-                                            htmlFor="file-upload-input"
+                                            htmlFor={`file-upload-input-${q.name}`}
                                             className="w-full bg-[#050507]/40 hover:bg-[#07070a] border border-dashed border-zinc-800 hover:border-zinc-700 rounded-lg p-6 flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center text-xs font-sans transition-all group"
                                           >
                                             <Upload className="h-5 w-5 text-zinc-500 group-hover:text-white transition-all animate-pulse" />
                                             <span className="text-zinc-300 font-bold font-mono text-[11px]">
-                                              {uploadFile ? uploadFile.name : "Pilih atau Seret Berkas Di Sini"}
+                                              {uploadFile ? uploadFile.name : "Pilih atau Seret Berkas Gambar Di Sini"}
                                             </span>
                                             <span className="text-[10px] text-zinc-600 font-mono">
-                                              {uploadFile ? `Saran Ukuran: ${(uploadFile.size / (1024 * 1024)).toFixed(2)} MB` : "Mendukung segala jenis format file (Max 50MB)"}
+                                              {uploadFile ? `Saran Ukuran: ${(uploadFile.size / (1024 * 1024)).toFixed(2)} MB` : "Mendukung segala jenis format gambar / berkas (Max 50MB)"}
                                             </span>
                                           </label>
                                         </div>
