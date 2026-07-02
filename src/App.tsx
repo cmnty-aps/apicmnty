@@ -656,6 +656,73 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "maker-bangjago",
+    category: "canvas",
+    name: "Bank Jago Maker",
+    provider: "satriacanvas",
+    path: "/maker/bangjago",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan struk/tampilan saldo Bank Jago dengan nama dan saldo kustom.",
+    queryParams: [
+      { name: "nama", placeholder: "Nama (contoh: cmnty)", defaultValue: "cmnty" },
+      { name: "saldo", placeholder: "Saldo (contoh: 2500000)", defaultValue: "2500000" }
+    ]
+  },
+  {
+    id: "maker-quotenokia",
+    category: "canvas",
+    name: "Nokia Quote Maker",
+    provider: "satriacanvas",
+    path: "/maker/quote-nokia",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar kutipan klasik dengan tampilan HP Nokia lawas, menggunakan teks dan nama pengirim kustom.",
+    queryParams: [
+      { name: "text", placeholder: "Teks Kutipan (contoh: Halo everyone)", defaultValue: "Halo everyone" },
+      { name: "sender", placeholder: "Pengirim (contoh: cmnty)", defaultValue: "cmnty" }
+    ]
+  },
+  {
+    id: "maker-bratnime",
+    category: "canvas",
+    name: "Bratnime Maker",
+    provider: "satriacanvas",
+    path: "/maker/bratnime",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar teks 'Brat' anime.",
+    queryParams: [
+      { name: "text", placeholder: "Teks (contoh: hai everyone)", defaultValue: "hai everyone" }
+    ]
+  },
+  {
+    id: "maker-bratnime-vermeil",
+    category: "canvas",
+    name: "Bratnime Vermeil Maker",
+    provider: "cuki",
+    path: "/maker/bratnime-vermeil",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar teks 'Brat' bergaya Vermeil.",
+    queryParams: [
+      { name: "text", placeholder: "Teks (contoh: hai everyone)", defaultValue: "hai everyone" }
+    ]
+  },
+  {
+    id: "maker-cewekbrat",
+    category: "canvas",
+    name: "Cewek Brat Maker",
+    provider: "deline",
+    path: "/maker/cewekbrat",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar teks 'Brat' versi cewek.",
+    queryParams: [
+      { name: "text", placeholder: "Teks (contoh: hi everyone)", defaultValue: "hi everyone" }
+    ]
+  },
+  {
     id: "maker-fakeberita",
     category: "canvas",
     name: "Fake News Maker",
@@ -1368,6 +1435,16 @@ const ENDPOINTS: EndpointSpec[] = [
     description: "Mendapatkan gambar Blue Archive secara acak.",
   },
   {
+    id: "random-loli",
+    category: "random",
+    name: "Random Loli",
+    provider: "nexray",
+    path: "/random/loli",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar random loli.",
+  },
+  {
     id: "random-cecan-indonesia",
     category: "random",
     name: "Cecan Indonesia",
@@ -1396,6 +1473,46 @@ const ENDPOINTS: EndpointSpec[] = [
     method: "GET",
     responseType: "image",
     description: "Mendapatkan gambar random cecan Japan.",
+  },
+  {
+    id: "random-cecan-korea",
+    category: "random",
+    name: "Cecan Korea",
+    provider: "system",
+    path: "/random/cecan/korea",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar random cecan Korea.",
+  },
+  {
+    id: "random-cecan-thailand",
+    category: "random",
+    name: "Cecan Thailand",
+    provider: "system",
+    path: "/random/cecan/thailand",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar random cecan Thailand.",
+  },
+  {
+    id: "random-cecan-vietnam",
+    category: "random",
+    name: "Cecan Vietnam",
+    provider: "system",
+    path: "/random/cecan/vietnam",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar random cecan Vietnam.",
+  },
+  {
+    id: "random-quotesanime",
+    category: "random",
+    name: "Quotes Anime",
+    provider: "siputzx",
+    path: "/random/quotesanime",
+    method: "GET",
+    responseType: "json",
+    description: "Mendapatkan kutipan atau quotes anime acak.",
   },
 
   // SEARCH CATEGORY

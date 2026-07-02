@@ -2815,6 +2815,178 @@ app.get(["/api/maker/fake-windows", "/maker/fake-windows"], async (req, res) => 
   }
 });
 
+// Maker Endpoint: bangjago
+app.get(["/api/maker/bangjago", "/maker/bangjago"], async (req, res) => {
+  const nama = req.query.nama as string || "cmnty";
+  const saldo = req.query.saldo as string || "2500000";
+  const targetUrl = `https://satriacanvas.vercel.app/api/bangjago?nama=${encodeURIComponent(nama)}&saldo=${encodeURIComponent(saldo)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Bank Jago image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Bank Jago Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: quote-nokia
+app.get(["/api/maker/quote-nokia", "/maker/quote-nokia"], async (req, res) => {
+  const text = req.query.text as string || "Halo everyone";
+  const sender = req.query.sender as string || "cmnty";
+  const targetUrl = `https://satriacanvas.vercel.app/api/quote-nokia?text=${encodeURIComponent(text)}&sender=${encodeURIComponent(sender)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Nokia Quote image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Quote Nokia Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: bratnime
+app.get(["/api/maker/bratnime", "/maker/bratnime"], async (req, res) => {
+  const text = req.query.text as string || "hai everyone";
+  const targetUrl = `https://satriacanvas.vercel.app/api/bratnime?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Bratnime image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Bratnime Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: bratnime-vermeil
+app.get(["/api/maker/bratnime-vermeil", "/maker/bratnime-vermeil"], async (req, res) => {
+  const text = req.query.text as string || "hai everyone";
+  const targetUrl = `https://api.cuki.biz.id/api/canvas/brat/bratnime-vermeil?apikey=cuki-x&text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Bratnime Vermeil image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Bratnime Vermeil Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: cewekbrat
+app.get(["/api/maker/cewekbrat", "/maker/cewekbrat"], async (req, res) => {
+  const text = req.query.text as string || "hi everyone";
+  const targetUrl = `https://api.deline.web.id/maker/cewekbrat?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Cewek Brat image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Cewek Brat Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Maker Endpoint: fakeovo
 app.get(["/api/maker/fakeovo", "/maker/fakeovo"], async (req, res) => {
   const amount = req.query.amount as string || "200000";
@@ -5790,6 +5962,55 @@ app.get(["/api/random/blue-archive", "/random/blue-archive"], async (req, res) =
   }
 });
 
+// Random Endpoint: Loli
+app.get(["/api/random/loli", "/random/loli"], async (req, res) => {
+  const targetUrl = `https://api.nexray.eu.cc/random/loli`;
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": "https://api.nexray.eu.cc/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Loli error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Random Endpoint: Cecan Indonesia
 app.get(["/api/random/cecan/indonesia", "/random/cecan/indonesia"], async (req, res) => {
   const targetUrl = `https://api.siputzx.my.id/api/r/cecan/indonesia`;
@@ -5938,6 +6159,209 @@ app.get(["/api/random/cecan/japan", "/random/cecan/japan"], async (req, res) => 
     res.send(Buffer.from(buffer));
   } catch (error: any) {
     console.error("Cecan Japan error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Cecan Korea
+app.get(["/api/random/cecan/korea", "/random/cecan/korea"], async (req, res) => {
+  const urls = [
+    "https://api.nexray.eu.cc/random/cecan/korea",
+    "https://api.siputzx.my.id/api/r/cecan/korea"
+  ];
+  const targetUrl = urls[Math.floor(Math.random() * urls.length)];
+  const isNexray = targetUrl.includes("nexray");
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": isNexray ? "https://api.nexray.eu.cc/" : "https://api.siputzx.my.id/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Cecan Korea error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Cecan Thailand
+app.get(["/api/random/cecan/thailand", "/random/cecan/thailand"], async (req, res) => {
+  const urls = [
+    "https://api.nexray.eu.cc/random/cecan/thailand",
+    "https://api.siputzx.my.id/api/r/cecan/thailand"
+  ];
+  const targetUrl = urls[Math.floor(Math.random() * urls.length)];
+  const isNexray = targetUrl.includes("nexray");
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": isNexray ? "https://api.nexray.eu.cc/" : "https://api.siputzx.my.id/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Cecan Thailand error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Cecan Vietnam
+app.get(["/api/random/cecan/vietnam", "/random/cecan/vietnam"], async (req, res) => {
+  const urls = [
+    "https://api.nexray.eu.cc/random/cecan/vietnam",
+    "https://api.siputzx.my.id/api/r/cecan/vietnam"
+  ];
+  const targetUrl = urls[Math.floor(Math.random() * urls.length)];
+  const isNexray = targetUrl.includes("nexray");
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": isNexray ? "https://api.nexray.eu.cc/" : "https://api.siputzx.my.id/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Cecan Vietnam error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Quotes Anime
+app.get(["/api/random/quotesanime", "/random/quotesanime"], async (req, res) => {
+  const start = Date.now();
+  const targetUrl = `https://api.siputzx.my.id/api/r/quotesanime`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const duration = Date.now() - start;
+    const data = await response.json();
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Quotes Anime error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,
