@@ -97,7 +97,7 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/ai/tohijab",
     method: "POST",
     responseType: "image",
-    description: "Tambahkan hijab secara natural dan realistis pada foto Anda menggunakan Nanobanana AI Engine.",
+    description: "Tambahkan hijab secara natural dan realistis pada foto Anda menggunakan Nanobanana AI.",
     queryParams: [
       { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
     ]
@@ -110,7 +110,7 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/ai/toanime",
     method: "POST",
     responseType: "image",
-    description: "Ubah foto atau gambar Anda menjadi gaya anime secara instan menggunakan Nanobanana AI Engine.",
+    description: "Ubah foto atau gambar Anda menjadi gaya anime secara instan menggunakan Nanobanana AI.",
     queryParams: [
       { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
     ]
@@ -398,7 +398,7 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/ai/nanobanana",
     method: "POST",
     responseType: "image",
-    description: "Sunting dan ganti warna gambar berdasarkan instruksi teks menggunakan Nanobanana AI Engine.",
+    description: "Sunting dan ganti warna gambar berdasarkan instruksi teks menggunakan Nanobanana AI.",
     queryParams: [
       { name: "image", placeholder: "Pilih file gambar", defaultValue: "" },
       { name: "param", placeholder: "Contoh: ganti warna hitam jadi putih", defaultValue: "" }
@@ -412,7 +412,7 @@ const ENDPOINTS: EndpointSpec[] = [
     path: "/ai/hitamkan",
     method: "POST",
     responseType: "image",
-    description: "Hitamkan warna kulit pada foto atau gambar Anda secara instan menggunakan Nanobanana AI Engine.",
+    description: "Hitamkan warna kulit pada foto atau gambar Anda secara instan menggunakan Nanobanana AI.",
     queryParams: [
       { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
     ]
