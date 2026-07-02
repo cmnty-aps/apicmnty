@@ -90,6 +90,32 @@ interface EndpointSpec {
 const ENDPOINTS: EndpointSpec[] = [
   // AI CATEGORY
   {
+    id: "ai-tohijab",
+    category: "ai",
+    name: "To hijab",
+    provider: "nexray",
+    path: "/ai/tohijab",
+    method: "POST",
+    responseType: "image",
+    description: "Tambahkan hijab secara natural dan realistis pada foto Anda menggunakan Nanobanana AI Engine.",
+    queryParams: [
+      { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
+    ]
+  },
+  {
+    id: "ai-toanime",
+    category: "ai",
+    name: "To Anime",
+    provider: "nexray",
+    path: "/ai/toanime",
+    method: "POST",
+    responseType: "image",
+    description: "Ubah foto atau gambar Anda menjadi gaya anime secara instan menggunakan Nanobanana AI Engine.",
+    queryParams: [
+      { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
+    ]
+  },
+  {
     id: "ai-aimuslim",
     category: "ai",
     name: "AI Muslim",
@@ -376,19 +402,6 @@ const ENDPOINTS: EndpointSpec[] = [
     queryParams: [
       { name: "image", placeholder: "Pilih file gambar", defaultValue: "" },
       { name: "param", placeholder: "Contoh: ganti warna hitam jadi putih", defaultValue: "" }
-    ]
-  },
-  {
-    id: "ai-toanime",
-    category: "ai",
-    name: "To Anime",
-    provider: "nexray",
-    path: "/ai/toanime",
-    method: "POST",
-    responseType: "image",
-    description: "Ubah foto atau gambar Anda menjadi gaya anime secara instan menggunakan Nanobanana AI Engine.",
-    queryParams: [
-      { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
     ]
   },
   {
@@ -2542,7 +2555,7 @@ export default function App() {
               "Accept": "application/json"
             }
           });
-        } else if (endpoint?.id === "ai-nanobanana" || endpoint?.id === "ai-toanime" || endpoint?.id === "ai-hitamkan") {
+        } else if (endpoint?.id === "ai-nanobanana" || endpoint?.id === "ai-toanime" || endpoint?.id === "ai-hitamkan" || endpoint?.id === "ai-tohijab") {
           if (!uploadFile) {
             setErrorText("Silakan pilih file gambar terlebih dahulu.");
             setIsLoading(false);
@@ -2551,9 +2564,11 @@ export default function App() {
           const formData = new FormData();
           formData.append("image", uploadFile);
           if (endpoint.id === "ai-toanime") {
-            formData.append("param", "to animasi");
+            formData.append("param", "ubah foto ini menjadi anime style, tanpa mengubah wajah, ekspresi, pose, pencahayaan, maupun latar belakang.");
           } else if (endpoint.id === "ai-hitamkan") {
             formData.append("param", "untuk menghitamkan kulit");
+          } else if (endpoint.id === "ai-tohijab") {
+            formData.append("param", "Tambahkan hijab yang terlihat natural dan realistis, menutupi rambut serta leher, tanpa mengubah wajah, ekspresi, pose, pencahayaan, maupun latar belakang.");
           } else {
             formData.append("param", queryParams.param || "ganti warna hitam jadi putih");
           }

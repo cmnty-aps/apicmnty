@@ -2448,7 +2448,7 @@ app.post(["/api/ai/toanime", "/ai/toanime"], (req, res) => {
       });
     }
 
-    const param = "to animasi";
+    const param = "ubah foto ini menjadi anime style, tanpa mengubah wajah, ekspresi, pose, pencahayaan, maupun latar belakang.";
 
     try {
       const formData = new FormData();
@@ -2654,6 +2654,122 @@ app.get(["/api/ai/hitamkan", "/ai/hitamkan"], (req, res) => {
     statusCode: 200,
     author: "@cmnty - Public-api",
     message: "Gunakan POST dengan body form-data 'image' (file gambar) untuk menghitamkan kulit gambar."
+  });
+});
+
+// AI Endpoint: tohijab (Add hijab to image using Nanobanana)
+app.post(["/api/ai/tohijab", "/ai/tohijab"], (req, res) => {
+  const start = Date.now();
+  
+  memoryUpload.single("image")(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: err.message || "Gagal mengunggah berkas gambar."
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        status: false,
+        statusCode: 400,
+        author: "@cmnty - Public-api",
+        message: "Silakan masukkan berkas gambar dalam field 'image'."
+      });
+    }
+
+    const param = "Tambahkan hijab yang terlihat natural dan realistis, menutupi rambut serta leher, tanpa mengubah wajah, ekspresi, pose, pencahayaan, maupun latar belakang.";
+
+    try {
+      const formData = new FormData();
+      const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+      formData.append("image", blob, req.file.originalname);
+      formData.append("param", param);
+
+      const response = await fetch("https://api.nexray.eu.cc/ai/nanobanana", {
+        method: "POST",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Referer": "https://api.nexray.eu.cc/",
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.9"
+        },
+        body: formData
+      });
+
+      const contentType = response.headers.get("Content-Type") || "";
+
+      if (contentType.includes("text/html")) {
+        return res.status(502).json({
+          status: false,
+          statusCode: 502,
+          author: "@cmnty - Public-api",
+          message: "Upstream API returned an HTML page (Cookie check / Anti-bot challenge). Please try again in a few moments."
+        });
+      }
+
+      if (!response.ok) {
+        const status = response.status;
+        let errorMessage = "Gagal memproses gambar menggunakan Nanobanana API.";
+        try {
+          const errData = await response.json();
+          if (errData && errData.message) {
+            errorMessage = errData.message;
+          }
+        } catch (_) {}
+        return res.status(status).json({
+          status: false,
+          statusCode: status,
+          author: "@cmnty - Public-api",
+          message: errorMessage,
+        });
+      }
+
+      if (contentType.includes("image/")) {
+        const buffer = await response.arrayBuffer();
+        res.setHeader("Content-Type", contentType);
+        res.setHeader("Cache-Control", "public, max-age=3600");
+        return res.send(Buffer.from(buffer));
+      } else {
+        const duration = Date.now() - start;
+        const data = await response.json();
+        const cleanedData = cleanAuthorFields(data);
+        
+        const host = req.headers["x-forwarded-host"] || req.get("host");
+        const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+        
+        const stringified = JSON.stringify(cleanedData);
+        const replaced = stringified.replace(/https:\/\/api\.nexray\.eu\.cc\/tmp\/([a-zA-Z0-9_\-\.]+)/g, `${protocol}://${host}/api/tmp/$1`);
+        
+        return res.json({
+          ...JSON.parse(replaced),
+          status: true,
+          statusCode: response.status,
+          author: "@cmnty - Public-api",
+          responseTimeMs: duration,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    } catch (error: any) {
+      console.error("To hijab error:", error.message);
+      res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Bad Gateway. Gagal menambahkan hijab menggunakan Nanobanana API.",
+      });
+    }
+  });
+});
+
+app.get(["/api/ai/tohijab", "/ai/tohijab"], (req, res) => {
+  res.json({
+    status: true,
+    statusCode: 200,
+    author: "@cmnty - Public-api",
+    message: "Gunakan POST dengan body form-data 'image' (file gambar) untuk menambahkan hijab ke gambar."
   });
 });
 
