@@ -137,6 +137,30 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "ai-overchat",
+    category: "ai",
+    name: "Overchat AI",
+    provider: "nexray",
+    path: "/ai/overchat",
+    method: "GET",
+    description: "Asisten AI interaktif menggunakan engine Overchat AI untuk percakapan cerdas.",
+    queryParams: [
+      { name: "text", placeholder: "Pesan Anda (contoh: halo)", defaultValue: "halo" }
+    ]
+  },
+  {
+    id: "ai-public",
+    category: "ai",
+    name: "Public AI",
+    provider: "nexray",
+    path: "/ai/public",
+    method: "GET",
+    description: "Layanan asisten AI publik interaktif berbasis Public AI untuk menjawab pertanyaan umum.",
+    queryParams: [
+      { name: "text", placeholder: "Pesan Anda (contoh: halo)", defaultValue: "halo" }
+    ]
+  },
+  {
     id: "ai-copilot",
     category: "ai",
     name: "Copilot AI",
@@ -1276,16 +1300,7 @@ const ENDPOINTS: EndpointSpec[] = [
   },
 
   // RANDOM CATEGORY
-  {
-    id: "random-animegangbang",
-    category: "random",
-    name: "Anime Gangbang",
-    provider: "ourin",
-    path: "/random/animegangbang",
-    method: "GET",
-    responseType: "image",
-    description: "Mendapatkan gambar Anime Gangbang secara acak.",
-  },
+
   {
     id: "random-bluearchive",
     category: "random",
@@ -1296,25 +1311,36 @@ const ENDPOINTS: EndpointSpec[] = [
     responseType: "image",
     description: "Mendapatkan gambar Blue Archive secara acak.",
   },
+
   {
-    id: "random-hentai",
+    id: "random-cecan-indonesia",
     category: "random",
-    name: "Random Hentai",
-    provider: "ourin",
-    path: "/random/hentai",
+    name: "Cecan Indonesia",
+    provider: "siputzx",
+    path: "/random/cecan/indonesia",
     method: "GET",
     responseType: "image",
-    description: "Mendapatkan gambar anime hentai secara acak untuk keperluan koleksi atau referensi.",
+    description: "Mendapatkan gambar random cecan Indonesia.",
   },
   {
-    id: "random-kasedaiki",
+    id: "random-cecan-china",
     category: "random",
-    name: "Random Kasedaiki",
-    provider: "ourin",
-    path: "/random/kasedaiki",
+    name: "Cecan China",
+    provider: "system",
+    path: "/random/cecan/china",
     method: "GET",
     responseType: "image",
-    description: "Mendapatkan gambar anime Kasedaiki secara acak.",
+    description: "Mendapatkan gambar random cecan China.",
+  },
+  {
+    id: "random-cecan-japan",
+    category: "random",
+    name: "Cecan Japan",
+    provider: "system",
+    path: "/random/cecan/japan",
+    method: "GET",
+    responseType: "image",
+    description: "Mendapatkan gambar random cecan Japan.",
   },
 
   // SEARCH CATEGORY
@@ -2421,12 +2447,23 @@ export default function App() {
   const getCodeSnippet = (ep: EndpointSpec, currentCustomPath: string) => {
     const fullApiPath = `${appBaseUrl}${currentCustomPath}`;
     const isJsonResponse = !ep.responseType || ep.responseType === "json";
+    const isMultipart = ep.method === "POST" && ep.queryParams?.some(q => q.name === "file" || q.name === "image");
 
     if (selectedCodeLang === "curl") {
       const method = ep.method || "GET";
       const headers = isJsonResponse ? `-H "Accept: application/json"` : "";
       
       if (method === "POST") {
+        if (isMultipart) {
+          const formParams = Object.entries(queryParams).map(([key, val]) => {
+            if (key === "file" || key === "image") {
+              return `-F "${key}=@path/to/your/file.png"`;
+            }
+            return `-F "${key}=${val}"`;
+          }).join(" \\\n  ");
+          return `curl -X POST "${appBaseUrl}${ep.path}" \\\n  ${formParams}`;
+        }
+
         const body: Record<string, any> = {};
         Object.entries(queryParams).forEach(([key, val]) => {
           const sVal = val as string;
@@ -2436,8 +2473,7 @@ export default function App() {
           else body[key] = sVal;
         });
         return `curl -X POST "${appBaseUrl}${ep.path}" \\
-  ${headers ? `${headers} \\\n  ` : ""}-H "Content-Type: application/json" \\
-  -d '${JSON.stringify(body, null, 2)}'`;
+  ${headers ? `${headers} \\\n  ` : ""}-d '${JSON.stringify(body, null, 2)}'`;
       }
 
       return `curl -X GET "${fullApiPath}"${headers ? ` \\\n  ${headers}` : ""}`;
@@ -2458,6 +2494,23 @@ export default function App() {
 .then(blob => console.log("Blob received:", blob));`);
 
       if (method === "POST") {
+        if (isMultipart) {
+          const appendLines = Object.entries(queryParams).map(([key, val]) => {
+            if (key === "file" || key === "image") {
+              return `formData.append("${key}", fileInputElement.files[0]);`;
+            }
+            return `formData.append("${key}", "${val}");`;
+          }).join("\n  ");
+          return `const formData = new FormData();
+  ${appendLines}
+
+fetch("${appBaseUrl}${ep.path}", {
+  method: "POST",
+  body: formData
+})
+${thenBlock}`;
+        }
+
         const body: Record<string, any> = {};
         Object.entries(queryParams).forEach(([key, val]) => {
           const sVal = val as string;
@@ -2466,11 +2519,10 @@ export default function App() {
           else if (!isNaN(Number(sVal)) && sVal.trim() !== "" && !key.includes("url")) body[key] = Number(sVal);
           else body[key] = sVal;
         });
+        
+        const headersObj = acceptHeader ? `\n  headers: {${acceptHeader}\n  },` : "";
         return `fetch("${appBaseUrl}${ep.path}", {
-  method: "POST",
-  headers: {${acceptHeader}
-    "Content-Type": "application/json"
-  },
+  method: "POST",${headersObj}
   body: JSON.stringify(${JSON.stringify(body, null, 2)})
 })
 ${thenBlock}`;
@@ -2495,6 +2547,28 @@ print("Image saved to result.png")`
             : `print("Response content received:", response.content[:100])`);
 
       if (method === "POST") {
+        if (isMultipart) {
+          const dataDict: Record<string, any> = {};
+          let fileKey = "";
+          Object.entries(queryParams).forEach(([key, val]) => {
+            if (key === "file" || key === "image") {
+              fileKey = key;
+            } else {
+              dataDict[key] = val;
+            }
+          });
+          return `import requests
+
+url = "${appBaseUrl}${ep.path}"
+files = {
+    "${fileKey}": open("path/to/your/file.png", "rb")
+}
+data = ${JSON.stringify(dataDict, null, 4)}
+
+response = requests.post(url, files=files, data=data)
+${printBlock}`;
+        }
+
         const body: Record<string, any> = {};
         Object.entries(queryParams).forEach(([key, val]) => {
           const sVal = val as string;
@@ -2507,12 +2581,10 @@ print("Image saved to result.png")`
 import json
 
 url = "${appBaseUrl}${ep.path}"
-headers = {${acceptHeader ? `\n    ${acceptHeader},` : ""}
-    "Content-Type": "application/json"
-}
+${acceptHeader ? `headers = {${acceptHeader}}\n` : ""}
 payload = ${JSON.stringify(body, null, 4)}
 
-response = requests.post(url, headers=headers, json=payload)
+response = requests.post(url, ${acceptHeader ? "headers=headers, " : ""}json=payload)
 ${printBlock}`;
       }
 

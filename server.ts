@@ -2080,6 +2080,144 @@ app.get(["/api/ai/claude", "/ai/claude"], async (req, res) => {
   }
 });
 
+// AI Endpoint: overchat
+app.get(["/api/ai/overchat", "/ai/overchat"], async (req, res) => {
+  const start = Date.now();
+  const text = req.query.text as string;
+  
+  if (!text) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'text' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/ai/overchat?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": "https://api.nexray.eu.cc/",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9"
+      }
+    });
+    const duration = Date.now() - start;
+    
+    const contentType = response.headers.get("Content-Type") || "";
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page (Cookie check / Anti-bot challenge). Please try again in a few moments."
+      });
+    }
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Overchat error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// AI Endpoint: public
+app.get(["/api/ai/public", "/ai/public"], async (req, res) => {
+  const start = Date.now();
+  const text = req.query.text as string;
+  
+  if (!text) {
+    return res.status(400).json({
+      status: false,
+      statusCode: 400,
+      author: "@cmnty - Public-api",
+      message: "Parameter 'text' is required",
+    });
+  }
+
+  const targetUrl = `https://api.nexray.eu.cc/ai/public?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": "https://api.nexray.eu.cc/",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9"
+      }
+    });
+    const duration = Date.now() - start;
+    
+    const contentType = response.headers.get("Content-Type") || "";
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page (Cookie check / Anti-bot challenge). Please try again in a few moments."
+      });
+    }
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const cleanedData = cleanAuthorFields(data);
+    res.json({
+      ...cleanedData,
+      status: true,
+      statusCode: response.status,
+      author: "@cmnty - Public-api",
+      responseTimeMs: duration,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error("Public AI error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // AI Endpoint: bibleai
 app.get(["/api/ai/bibleai", "/ai/bibleai"], async (req, res) => {
   const start = Date.now();
@@ -2172,10 +2310,25 @@ app.post(["/api/ai/nanobanana", "/ai/nanobanana"], (req, res) => {
 
       const response = await fetch("https://api.nexray.eu.cc/ai/nanobanana", {
         method: "POST",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Referer": "https://api.nexray.eu.cc/",
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.9"
+        },
         body: formData
       });
 
       const contentType = response.headers.get("Content-Type") || "";
+
+      if (contentType.includes("text/html")) {
+        return res.status(502).json({
+          status: false,
+          statusCode: 502,
+          author: "@cmnty - Public-api",
+          message: "Upstream API returned an HTML page (Cookie check / Anti-bot challenge). Please try again in a few moments."
+        });
+      }
 
       if (!response.ok) {
         const status = response.status;
@@ -5449,39 +5602,6 @@ app.get(["/api/information/gempa", "/information/gempa"], async (req, res) => {
   }
 });
 
-// Random Endpoint: Anime Gangbang
-app.get(["/api/random/animegangbang", "/random/animegangbang"], async (req, res) => {
-  const targetUrl = `https://api.ourin.my.id/api/anime-gangbang`;
-  
-  try {
-    const response = await fetch(targetUrl);
-    const contentType = response.headers.get("content-type") || "image/png";
-    
-    if (!response.ok) {
-      const status = response.status;
-      return res.status(status).json({
-        status: false,
-        statusCode: status,
-        author: "@cmnty - Public-api",
-        message: getErrorMessage(status),
-      });
-    }
-
-    const buffer = await response.arrayBuffer();
-    res.setHeader("Content-Type", contentType);
-    res.setHeader("Cache-Control", "public, max-age=3600");
-    res.send(Buffer.from(buffer));
-  } catch (error: any) {
-    console.error("Anime Gangbang error:", error.message);
-    res.status(502).json({
-      status: false,
-      statusCode: 502,
-      author: "@cmnty - Public-api",
-      message: getErrorMessage(500),
-    });
-  }
-});
-
 // Random Endpoint: Blue Archive
 app.get(["/api/random/blue-archive", "/random/blue-archive"], async (req, res) => {
   const targetUrl = `https://api.nexray.eu.cc/random/ba`;
@@ -5515,14 +5635,30 @@ app.get(["/api/random/blue-archive", "/random/blue-archive"], async (req, res) =
   }
 });
 
-// Random Endpoint: Hentai
-app.get(["/api/random/hentai", "/random/hentai"], async (req, res) => {
-  const targetUrl = `https://api.ourin.my.id/api/anime-hentai`;
+// Random Endpoint: Cecan Indonesia
+app.get(["/api/random/cecan/indonesia", "/random/cecan/indonesia"], async (req, res) => {
+  const targetUrl = `https://api.siputzx.my.id/api/r/cecan/indonesia`;
   
   try {
-    const response = await fetch(targetUrl);
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": "https://api.siputzx.my.id/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
     const contentType = response.headers.get("content-type") || "image/png";
     
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
     if (!response.ok) {
       const status = response.status;
       return res.status(status).json({
@@ -5538,7 +5674,7 @@ app.get(["/api/random/hentai", "/random/hentai"], async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=3600");
     res.send(Buffer.from(buffer));
   } catch (error: any) {
-    console.error("Hentai error:", error.message);
+    console.error("Cecan Indonesia error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,
@@ -5548,14 +5684,35 @@ app.get(["/api/random/hentai", "/random/hentai"], async (req, res) => {
   }
 });
 
-// Random Endpoint: Kasedaiki
-app.get(["/api/random/kasedaiki", "/random/kasedaiki"], async (req, res) => {
-  const targetUrl = `https://api.ourin.my.id/api/kasedaiki`;
+// Random Endpoint: Cecan China
+app.get(["/api/random/cecan/china", "/random/cecan/china"], async (req, res) => {
+  const urls = [
+    "https://api.nexray.eu.cc/random/cecan/china",
+    "https://api.siputzx.my.id/api/r/cecan/china"
+  ];
+  const targetUrl = urls[Math.floor(Math.random() * urls.length)];
+  const isNexray = targetUrl.includes("nexray");
   
   try {
-    const response = await fetch(targetUrl);
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": isNexray ? "https://api.nexray.eu.cc/" : "https://api.siputzx.my.id/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
     const contentType = response.headers.get("content-type") || "image/png";
     
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
     if (!response.ok) {
       const status = response.status;
       return res.status(status).json({
@@ -5571,7 +5728,61 @@ app.get(["/api/random/kasedaiki", "/random/kasedaiki"], async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=3600");
     res.send(Buffer.from(buffer));
   } catch (error: any) {
-    console.error("Kasedaiki error:", error.message);
+    console.error("Cecan China error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Random Endpoint: Cecan Japan
+app.get(["/api/random/cecan/japan", "/random/cecan/japan"], async (req, res) => {
+  const urls = [
+    "https://api.nexray.eu.cc/random/cecan/japan",
+    "https://api.siputzx.my.id/api/r/cecan/japan"
+  ];
+  const targetUrl = urls[Math.floor(Math.random() * urls.length)];
+  const isNexray = targetUrl.includes("nexray");
+  
+  try {
+    const response = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": isNexray ? "https://api.nexray.eu.cc/" : "https://api.siputzx.my.id/",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+      }
+    });
+    
+    const contentType = response.headers.get("content-type") || "image/png";
+    
+    if (contentType.includes("text/html")) {
+      return res.status(502).json({
+        status: false,
+        statusCode: 502,
+        author: "@cmnty - Public-api",
+        message: "Upstream API returned an HTML page instead of an image. Please try again."
+      });
+    }
+
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: getErrorMessage(status),
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Cecan Japan error:", error.message);
     res.status(502).json({
       status: false,
       statusCode: 502,
