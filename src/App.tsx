@@ -599,6 +599,63 @@ const ENDPOINTS: EndpointSpec[] = [
     ]
   },
   {
+    id: "maker-fakeml",
+    category: "canvas",
+    name: "Fake ML Lobby Maker",
+    provider: "satriacanvas",
+    path: "/maker/fake-ml",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar lobby palsu Mobile Legends (Fake ML) dengan username, rank, border (bingkai), lobby type (Indo/JP), dan avatar kustom.",
+    queryParams: [
+      { name: "usr", placeholder: "Username (contoh: cmnty)", defaultValue: "cmnty" },
+      { name: "rank", placeholder: "Pilih Rank", defaultValue: "imo", options: ["warrior", "elite", "master", "gmaster", "epic", "legend", "mythic", "honor", "glory", "imo"] },
+      { name: "border", placeholder: "Pilih Border (0-16 / random)", defaultValue: "random", options: ["random", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"] },
+      { name: "lobby_type", placeholder: "Pilih Tipe Lobby", defaultValue: "indo", options: ["indo", "jp"] },
+      { name: "avatar", placeholder: "URL Avatar", defaultValue: "https://c.termai.cc/i176/VPoSY.png" }
+    ]
+  },
+  {
+    id: "maker-fakeff",
+    category: "canvas",
+    name: "Fake FF Lobby Maker",
+    provider: "satriacanvas",
+    path: "/maker/fake-ff",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar lobby palsu Free Fire (Fake FF) dengan username kustom dan lobby acak (1-30).",
+    queryParams: [
+      { name: "usr", placeholder: "Username (contoh: cmnty)", defaultValue: "cmnty" }
+    ]
+  },
+  {
+    id: "maker-fakegopay",
+    category: "canvas",
+    name: "Fake GoPay Maker",
+    provider: "satriacanvas",
+    path: "/maker/fake-gopay",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan bukti saldo GoPay palsu (Fake GoPay) dengan jumlah saldo dan koin",
+    queryParams: [
+      { name: "saldo", placeholder: "Jumlah Saldo (contoh: 890000)", defaultValue: "890000" },
+      { name: "koin", placeholder: "Jumlah Koin (contoh: 159)", defaultValue: "159" }
+    ]
+  },
+  {
+    id: "maker-fakewindows",
+    category: "canvas",
+    name: "Fake Windows Maker",
+    provider: "satriacanvas",
+    path: "/maker/fake-windows",
+    method: "GET",
+    responseType: "image",
+    description: "Hasilkan gambar parodi notifikasi / error sistem Windows (Fake Windows) dengan pesan teks kustom.",
+    queryParams: [
+      { name: "text", placeholder: "Pesan Error (contoh: 404 NOT FOUND)", defaultValue: "404 NOT FOUND" }
+    ]
+  },
+  {
     id: "maker-fakeberita",
     category: "canvas",
     name: "Fake News Maker",
@@ -1300,7 +1357,6 @@ const ENDPOINTS: EndpointSpec[] = [
   },
 
   // RANDOM CATEGORY
-
   {
     id: "random-bluearchive",
     category: "random",
@@ -1311,7 +1367,6 @@ const ENDPOINTS: EndpointSpec[] = [
     responseType: "image",
     description: "Mendapatkan gambar Blue Archive secara acak.",
   },
-
   {
     id: "random-cecan-indonesia",
     category: "random",

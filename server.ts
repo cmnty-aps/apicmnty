@@ -2660,6 +2660,161 @@ app.get(["/api/maker/fakedana", "/maker/fakedana"], async (req, res) => {
   }
 });
 
+// Maker Endpoint: fake-ml
+app.get(["/api/maker/fake-ml", "/maker/fake-ml"], async (req, res) => {
+  const usr = req.query.usr as string || "cmnty";
+  const rank = req.query.rank as string || "imo";
+  const lobby_type = req.query.lobby_type as string || "indo";
+  const avatar = req.query.avatar as string || "https://c.termai.cc/i176/VPoSY.png";
+  
+  let border = req.query.border as string || "random";
+  if (border === "random") {
+    border = Math.floor(Math.random() * 16 + 1).toString();
+  }
+
+  const targetUrl = `https://satriacanvas.vercel.app/fake-ml?usr=${encodeURIComponent(usr)}&rank=${encodeURIComponent(rank)}&border=${encodeURIComponent(border)}&lobby_type=${encodeURIComponent(lobby_type)}&avatar=${encodeURIComponent(avatar)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Fake ML Lobby image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Fake ML Lobby Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: fake-ff
+app.get(["/api/maker/fake-ff", "/maker/fake-ff"], async (req, res) => {
+  const usr = req.query.usr as string || "cmnty";
+  const lobby = Math.floor(Math.random() * 30 + 1).toString();
+
+  const targetUrl = `https://satriacanvas.vercel.app/fake-ff?usr=${encodeURIComponent(usr)}&lobby=${lobby}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Fake FF Lobby image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Fake FF Lobby Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: fake-gopay
+app.get(["/api/maker/fake-gopay", "/maker/fake-gopay"], async (req, res) => {
+  const saldo = req.query.saldo as string || "890000";
+  const koin = req.query.koin as string || "159";
+  
+  const indonesianMonths = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+  const bulan = indonesianMonths[new Date().getMonth()];
+
+  const targetUrl = `https://satriacanvas.vercel.app/api/fake-gopay?saldo=${encodeURIComponent(saldo)}&koin=${encodeURIComponent(koin)}&bulan=${encodeURIComponent(bulan)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Fake GoPay image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Fake GoPay Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
+// Maker Endpoint: fake-windows
+app.get(["/api/maker/fake-windows", "/maker/fake-windows"], async (req, res) => {
+  const text = req.query.text as string || "404 NOT FOUND";
+  const targetUrl = `https://satriacanvas.vercel.app/api/fake-windows?text=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(targetUrl);
+    const contentType = response.headers.get("Content-Type") || "image/png";
+    
+    if (!response.ok) {
+      const status = response.status;
+      return res.status(status).json({
+        status: false,
+        statusCode: status,
+        author: "@cmnty - Public-api",
+        message: "Failed to generate Fake Windows image",
+      });
+    }
+
+    const buffer = await response.arrayBuffer();
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(Buffer.from(buffer));
+  } catch (error: any) {
+    console.error("Fake Windows Maker error:", error.message);
+    res.status(502).json({
+      status: false,
+      statusCode: 502,
+      author: "@cmnty - Public-api",
+      message: getErrorMessage(500),
+    });
+  }
+});
+
 // Maker Endpoint: fakeovo
 app.get(["/api/maker/fakeovo", "/maker/fakeovo"], async (req, res) => {
   const amount = req.query.amount as string || "200000";
