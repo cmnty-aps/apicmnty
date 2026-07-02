@@ -378,6 +378,32 @@ const ENDPOINTS: EndpointSpec[] = [
       { name: "param", placeholder: "Contoh: ganti warna hitam jadi putih", defaultValue: "" }
     ]
   },
+  {
+    id: "ai-toanime",
+    category: "ai",
+    name: "To Anime",
+    provider: "nexray",
+    path: "/ai/toanime",
+    method: "POST",
+    responseType: "image",
+    description: "Ubah foto atau gambar Anda menjadi gaya anime secara instan menggunakan Nanobanana AI Engine.",
+    queryParams: [
+      { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
+    ]
+  },
+  {
+    id: "ai-hitamkan",
+    category: "ai",
+    name: "Hitamkan",
+    provider: "nexray",
+    path: "/ai/hitamkan",
+    method: "POST",
+    responseType: "image",
+    description: "Hitamkan warna kulit pada foto atau gambar Anda secara instan menggunakan Nanobanana AI Engine.",
+    queryParams: [
+      { name: "image", placeholder: "Pilih file gambar", defaultValue: "" }
+    ]
+  },
 
   // BERITA CATEGORY
   {
@@ -2516,7 +2542,7 @@ export default function App() {
               "Accept": "application/json"
             }
           });
-        } else if (endpoint?.id === "ai-nanobanana") {
+        } else if (endpoint?.id === "ai-nanobanana" || endpoint?.id === "ai-toanime" || endpoint?.id === "ai-hitamkan") {
           if (!uploadFile) {
             setErrorText("Silakan pilih file gambar terlebih dahulu.");
             setIsLoading(false);
@@ -2524,7 +2550,13 @@ export default function App() {
           }
           const formData = new FormData();
           formData.append("image", uploadFile);
-          formData.append("param", queryParams.param || "ganti warna hitam jadi putih");
+          if (endpoint.id === "ai-toanime") {
+            formData.append("param", "to animasi");
+          } else if (endpoint.id === "ai-hitamkan") {
+            formData.append("param", "untuk menghitamkan kulit");
+          } else {
+            formData.append("param", queryParams.param || "ganti warna hitam jadi putih");
+          }
 
           response = await fetch(endpoint.path, {
             method: "POST",
