@@ -169,6 +169,32 @@ const memoryUpload = multer({
 // WebSocket server instance
 let wss: WebSocketServer;
 
+// Persistence helper for total request count (simulated 2.3k offset)
+const countFilePath = path.join(process.cwd(), "request_count.json");
+let totalRequestCount = 2300;
+
+try {
+  if (fs.existsSync(countFilePath)) {
+    const data = JSON.parse(fs.readFileSync(countFilePath, "utf8"));
+    if (typeof data.count === "number") {
+      totalRequestCount = data.count;
+    }
+  } else {
+    fs.writeFileSync(countFilePath, JSON.stringify({ count: totalRequestCount }), "utf8");
+  }
+} catch (err) {
+  console.error("Failed to read/write request_count.json:", err);
+}
+
+function incrementRequestCount() {
+  totalRequestCount++;
+  try {
+    fs.writeFileSync(countFilePath, JSON.stringify({ count: totalRequestCount }), "utf8");
+  } catch (err) {
+    console.error("Failed to save request_count.json:", err);
+  }
+}
+
 // In-memory request logs for the client-facing traffic monitor
 const requestLogs: ApiLog[] = [];
 
@@ -198,8 +224,12 @@ function logRequest(method: string, url: string, status: number, durationMs: num
     requestLogs.pop();
   }
   
+  // Increment request count
+  incrementRequestCount();
+  
   // Broadcast the new log to all connected clients
   broadcast({ type: "TRAFFIC_LOG", log });
+  broadcast({ type: "VISITOR_COUNT", count: totalRequestCount });
 }
 
 // Helper to dynamically detect if a request path targets an API endpoint
@@ -8400,14 +8430,12 @@ async function startServer() {
 
   wss.on("connection", (ws) => {
     connectedClients++;
-    broadcast({ type: "VISITOR_COUNT", count: connectedClients });
-
-    // Send current logs to new connections
+    // Send current total request count and logs to the new client
+    ws.send(JSON.stringify({ type: "VISITOR_COUNT", count: totalRequestCount }));
     ws.send(JSON.stringify({ type: "INIT_LOGS", logs: requestLogs }));
 
     ws.on("close", () => {
       connectedClients--;
-      broadcast({ type: "VISITOR_COUNT", count: connectedClients });
     });
   });
 }

@@ -28,6 +28,7 @@ import {
   Trash2,
   Clock,
   ArrowUpRight,
+  Github,
   Globe,
   MoreHorizontal,
   MapPin,
@@ -2287,6 +2288,20 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (appIsLoading) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [appIsLoading]);
+
   const fetchVisitorInfo = async () => {
     setVisitorLoading(true);
     setVisitorError(null);
@@ -2375,7 +2390,7 @@ export default function App() {
     averageLatency: 0,
     successRate: 100,
   });
-  const [liveVisitors, setLiveVisitors] = useState<number>(0);
+  const [liveVisitors, setLiveVisitors] = useState<number>(2300);
 
   const appBaseUrl = window.location.origin;
 
@@ -2409,11 +2424,15 @@ export default function App() {
           setTrafficLogs(data.logs);
         } else if (data.type === "TRAFFIC_LOG") {
           setTrafficLogs((prev) => {
+            // Check if log with same ID or extremely similar URL and timestamp already exists
+            if (prev.some((log) => log.id === data.log.id || (log.url === data.log.url && Math.abs(new Date(log.timestamp).getTime() - new Date(data.log.timestamp).getTime()) < 3000))) {
+              return prev;
+            }
             const next = [data.log, ...prev];
             return next.slice(0, 15);
           });
         } else if (data.type === "VISITOR_COUNT") {
-          setLiveVisitors(data.count);
+          setLiveVisitors((prev) => Math.max(prev, data.count));
         }
       } catch (err) {
         console.error("WebSocket message error:", err);
@@ -2548,6 +2567,24 @@ export default function App() {
         const durationMs = Date.now() - start;
         setExecutionTime(durationMs);
         setImageUrl(url);
+
+        // Instantly add local log & increment request count
+        const localLogId = `local-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+        const localLog: TrafficLog = {
+          id: localLogId,
+          timestamp: new Date().toISOString(),
+          method: method,
+          url: pathStr,
+          status: response.status,
+          durationMs: durationMs
+        };
+        setTrafficLogs((prev) => {
+          if (prev.some(l => l.url === pathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
+            return prev;
+          }
+          return [localLog, ...prev].slice(0, 15);
+        });
+        setLiveVisitors((prev) => prev + 1);
       } else {
         let data: any;
         if (contentType.includes("json")) {
@@ -2568,6 +2605,24 @@ export default function App() {
         if (!response.ok) {
           setErrorText(`Gagal melakukan request: ${data.message || `Server Error (${response.status})`}`);
         }
+
+        // Instantly add local log & increment request count
+        const localLogId = `local-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+        const localLog: TrafficLog = {
+          id: localLogId,
+          timestamp: new Date().toISOString(),
+          method: method,
+          url: pathStr,
+          status: response.status,
+          durationMs: durationMs
+        };
+        setTrafficLogs((prev) => {
+          if (prev.some(l => l.url === pathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
+            return prev;
+          }
+          return [localLog, ...prev].slice(0, 15);
+        });
+        setLiveVisitors((prev) => prev + 1);
       }
     } catch (err: any) {
       const durationMs = Date.now() - start;
@@ -2580,6 +2635,24 @@ export default function App() {
         message: err.message,
         timestamp: new Date().toISOString(),
       });
+
+      // Also add failure log and increment total request on network errors
+      const localLogId = `local-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+      const localLog: TrafficLog = {
+        id: localLogId,
+        timestamp: new Date().toISOString(),
+        method: method,
+        url: pathStr,
+        status: 502,
+        durationMs: durationMs
+      };
+      setTrafficLogs((prev) => {
+        if (prev.some(l => l.url === pathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
+          return prev;
+        }
+        return [localLog, ...prev].slice(0, 15);
+      });
+      setLiveVisitors((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -2892,7 +2965,7 @@ ${printBlock}`;
                   <div className="flex justify-between"><span>Success:</span><span className="text-zinc-300">{stats.successRate}%</span></div>
                   <div className="flex justify-between"><span>Total API:</span><span className="text-zinc-300">{ENDPOINTS.length} items</span></div>
                 </div>
-                <div className="pt-2 border-t border-zinc-800">
+                <div className="pt-2 border-t border-zinc-800 flex flex-col gap-1.5">
                   <a
                     href="https://whatsapp.com/channel/0029VbCox0f17Emr10Bdlj0V"
                     target="_blank"
@@ -2908,6 +2981,18 @@ ${printBlock}`;
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                       </svg>
                       <span>Saluran WhatsApp</span>
+                    </div>
+                    <ArrowUpRight className="h-3 w-3 text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+                  <a
+                    href="https://github.com/Creatorsitee/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white text-[10px] font-mono rounded transition-all group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Github className="h-3.5 w-3.5 text-zinc-400 group-hover:text-white transition-colors" />
+                      <span>GitHub Profile</span>
                     </div>
                     <ArrowUpRight className="h-3 w-3 text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </a>
@@ -2944,7 +3029,7 @@ ${printBlock}`;
                 <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950/80 flex items-center justify-between">
                   <div>
                     <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-200 font-mono">
-                      Visitor: {liveVisitors}
+                      Total Request: {liveVisitors}
                     </h2>
                   </div>
                   <div className="flex items-center gap-2">
@@ -2996,26 +3081,6 @@ ${printBlock}`;
               {/* Dynamic Real-Time "Current Visitor" Widget - Dark Cyber Theme with White Glow */}
               <div className="bg-black border border-zinc-800 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.03)] text-left max-w-2xl mx-auto w-full relative my-5">
                 
-                {/* Header */}
-                <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-950/80 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-200 font-mono">
-                      Current Visitor
-                    </h2>
-                  </div>
-                  <div>
-                    <button
-                      onClick={fetchVisitorInfo}
-                      disabled={visitorLoading}
-                      className="p-1 px-2.5 text-[9px] font-mono text-zinc-400 hover:text-white border border-zinc-800 bg-zinc-950 transition-all rounded flex items-center gap-1.5 disabled:opacity-50"
-                      title="Refresh Visitor Data"
-                    >
-                      <RefreshCw className={`h-3 w-3 ${visitorLoading ? "animate-spin" : ""}`} />
-                      <span>{visitorLoading ? "Refreshing..." : "Refresh"}</span>
-                    </button>
-                  </div>
-                </div>
-
                 {/* Location Bar & Status Badge */}
                 <div className="px-4 py-3 border-b border-zinc-900/40 bg-zinc-950/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 font-mono">
                   {visitorLoading ? (
@@ -3060,7 +3125,7 @@ ${printBlock}`;
                       <>
                         <iframe
                           title="Visitor Location Map"
-                          src={`https://maps.google.com/maps?q=${visitorInfo.lat},${visitorInfo.lon}&z=${mapZoom}&output=embed`}
+                          src={`https://maps.google.com/maps?q=${visitorInfo.lat},${visitorInfo.lon}&z=${mapZoom}&t=k&output=embed`}
                           className="w-full h-full border-none rounded-lg z-0 relative"
                           allowFullScreen
                           loading="lazy"
@@ -3890,8 +3955,12 @@ ${printBlock}`;
           <p className="tracking-wide">
             © 2026 Cmnty API, All rights reserved.
           </p>
-          <p className="text-zinc-700 select-none">
-            All requests securely aggregated without third-party exposure. Powered by Node.JS Express & React.
+          <p className="text-zinc-700 select-none flex items-center justify-center gap-1.5 flex-wrap">
+            <span>All requests securely aggregated. Powered by</span>
+            <span className="flex items-center gap-1 text-zinc-500">
+              <img src="https://railway.com/favicon.ico" alt="Railway" className="h-3.5 w-3.5 inline-block" referrerPolicy="no-referrer" />
+              <span className="font-semibold text-zinc-400">Railway</span>
+            </span>
           </p>
         </div>
       </footer>
