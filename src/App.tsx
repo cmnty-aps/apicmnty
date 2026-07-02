@@ -2421,14 +2421,22 @@ export default function App() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === "INIT_LOGS") {
-          setTrafficLogs(data.logs);
+          const cleanedLogs = (data.logs || []).map((l: any) => ({
+            ...l,
+            url: l.url.replace(/[&?]_t=\d+$/, "")
+          }));
+          setTrafficLogs(cleanedLogs);
         } else if (data.type === "TRAFFIC_LOG") {
+          const cleanedLog = {
+            ...data.log,
+            url: data.log.url.replace(/[&?]_t=\d+$/, "")
+          };
           setTrafficLogs((prev) => {
             // Check if log with same ID or extremely similar URL and timestamp already exists
-            if (prev.some((log) => log.id === data.log.id || (log.url === data.log.url && Math.abs(new Date(log.timestamp).getTime() - new Date(data.log.timestamp).getTime()) < 3000))) {
+            if (prev.some((log) => log.id === cleanedLog.id || (log.url === cleanedLog.url && Math.abs(new Date(log.timestamp).getTime() - new Date(cleanedLog.timestamp).getTime()) < 3000))) {
               return prev;
             }
-            const next = [data.log, ...prev];
+            const next = [cleanedLog, ...prev];
             return next.slice(0, 15);
           });
         } else if (data.type === "VISITOR_COUNT") {
@@ -2574,12 +2582,13 @@ export default function App() {
           id: localLogId,
           timestamp: new Date().toISOString(),
           method: method,
-          url: pathStr,
+          url: pathStr.replace(/[&?]_t=\d+$/, ""),
           status: response.status,
           durationMs: durationMs
         };
         setTrafficLogs((prev) => {
-          if (prev.some(l => l.url === pathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
+          const cleanPathStr = pathStr.replace(/[&?]_t=\d+$/, "");
+          if (prev.some(l => l.url === cleanPathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
             return prev;
           }
           return [localLog, ...prev].slice(0, 15);
@@ -2612,12 +2621,13 @@ export default function App() {
           id: localLogId,
           timestamp: new Date().toISOString(),
           method: method,
-          url: pathStr,
+          url: pathStr.replace(/[&?]_t=\d+$/, ""),
           status: response.status,
           durationMs: durationMs
         };
         setTrafficLogs((prev) => {
-          if (prev.some(l => l.url === pathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
+          const cleanPathStr = pathStr.replace(/[&?]_t=\d+$/, "");
+          if (prev.some(l => l.url === cleanPathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
             return prev;
           }
           return [localLog, ...prev].slice(0, 15);
@@ -2642,12 +2652,13 @@ export default function App() {
         id: localLogId,
         timestamp: new Date().toISOString(),
         method: method,
-        url: pathStr,
+        url: pathStr.replace(/[&?]_t=\d+$/, ""),
         status: 502,
         durationMs: durationMs
       };
       setTrafficLogs((prev) => {
-        if (prev.some(l => l.url === pathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
+        const cleanPathStr = pathStr.replace(/[&?]_t=\d+$/, "");
+        if (prev.some(l => l.url === cleanPathStr && Math.abs(new Date(l.timestamp).getTime() - new Date(localLog.timestamp).getTime()) < 3000)) {
           return prev;
         }
         return [localLog, ...prev].slice(0, 15);

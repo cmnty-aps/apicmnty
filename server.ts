@@ -211,11 +211,12 @@ function broadcast(data: any) {
 
 // Helper to log requests
 function logRequest(method: string, url: string, status: number, durationMs: number) {
+  const cleanUrl = url.replace(/[&?]_t=\d+$/, "");
   const log: ApiLog = {
     id: Math.random().toString(36).substring(2, 11),
     timestamp: new Date().toISOString(),
     method,
-    url,
+    url: cleanUrl,
     status,
     durationMs,
   };
