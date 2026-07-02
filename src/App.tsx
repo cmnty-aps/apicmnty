@@ -2957,10 +2957,10 @@ ${printBlock}`;
             <div className="relative">
             <button
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className="p-1 hover:text-white transition-all rounded-md"
+              className="p-1.5 hover:text-white hover:bg-zinc-900/50 transition-all rounded-md"
               title="Menu"
             >
-              <MoreHorizontal className="h-6 w-6" />
+              <MoreHorizontal className="h-7 w-7" />
             </button>
 
             {/* Float menu containing instant telemetry */}
@@ -3412,7 +3412,7 @@ ${printBlock}`;
                 <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-sans">
                     <div>
-                      <h3 className="text-sm font-extrabold uppercase tracking-widest text-zinc-400 font-mono">API Sandbox</h3>
+                      <h3 className="text-sm font-extrabold uppercase tracking-widest text-zinc-400 font-mono">API Playground</h3>
                     <p className="text-[11px] text-zinc-500 font-mono">Pilih endpoint di bawah untuk uji coba langsung</p>
                   </div>
                   
@@ -3628,7 +3628,7 @@ ${printBlock}`;
                         <span className="text-[9px] font-mono font-bold px-2 py-0.5 border border-zinc-700 bg-zinc-950 text-neutral-300 rounded uppercase tracking-wide">
                           {ep.method}
                         </span>
-                        <span className="text-sm font-semibold text-white tracking-wide">{ep.name}</span>
+                        <span className="text-sm font-semibold text-white tracking-wide">{ep.name.replace(/\s*[mM]aker\b/gi, "").trim()}</span>
                       </div>
                       <div className="text-[11px] font-mono text-zinc-500 font-semibold">{ep.path}</div>
                     </div>
